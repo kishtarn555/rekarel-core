@@ -1,9 +1,9 @@
 import commonjs from '@rollup/plugin-commonjs';
 import nodeResolve from '@rollup/plugin-node-resolve';
-export default {
+export default [{
     input: 'src/index.js',
     output: {
-      file: 'bundle/bundle.cjs',
+      file: 'dist/index.cjs',
       format: 'cjs',
       name:"karel"
     },
@@ -12,4 +12,17 @@ export default {
         commonjs(),
         nodeResolve()
     ]
-  };
+  },
+  {
+    input: 'src/index.js',
+    output: {
+      file: 'dist/index.js',
+      format: 'es',
+      name:"karel"
+    },
+    
+    plugins: [
+        commonjs(),
+        nodeResolve()
+    ]
+  }];

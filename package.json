@@ -2,11 +2,11 @@
   "name": "@rekarel/core",
   "version": "1.1.0",
   "description": "Core functions for the language Karel",
-  "main": "bundle/bundle.js",
-  "module": "src/index.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "exports": {
-    "import": "./src/index.js",
-    "require": "./bundle/bundle.cjs"
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
   },
   "type": "module",
   "scripts": {
