@@ -1,0 +1,25 @@
+{
+  "name": "@rekarel/core",
+  "version": "1.0.0",
+  "description": "Core functions for the language Karel",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",    
+    "jison_java": "npx jison .\\gramaticas\\kareljava.jison -o .\\src\\kareljava.js  && npx gulp process-jison-java",
+    "jison_java2pascal": "npx jison .\\gramaticas\\java2pascal.jison -o .\\src\\java2pascal.js  && npx gulp process-jison-java2pascal",
+    "jison_pascal2java": "npx jison .\\gramaticas\\pascal2java.jison -o .\\src\\pascal2java.js && npx gulp process-jison-pascal2java"
+  },
+  "keywords": [
+    "karel"
+  ],
+  "type": "module",
+
+  "author": "kishtarn",
+  "license": "MIT",
+  "devDependencies": {
+    "jison": "^0.4.17",
+    "gulp": "^5.0.0",
+    "gulp-insert": "^0.5.0",
+    "gulp-replace": "^1.1.4"
+  }
+}
