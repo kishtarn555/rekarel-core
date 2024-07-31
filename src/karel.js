@@ -318,7 +318,7 @@ if (typeof Event === 'undefined') {
             self.state.running = false;
             self.state.error = 'INSTRUCTION';
             self.state.plus = {
-              instruction:'TURN_LEFT'
+              instruction:'LEFT'
             };
           }
           break;
