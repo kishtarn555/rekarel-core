@@ -317,6 +317,9 @@ if (typeof Event === 'undefined') {
           ) {
             self.state.running = false;
             self.state.error = 'INSTRUCTION';
+            self.state.plus = {
+              instruction:'TURN_LEFT'
+            };
           }
           break;
         }
@@ -417,6 +420,9 @@ if (typeof Event === 'undefined') {
           ) {
             self.state.running = false;
             self.state.error = 'INSTRUCTION';
+            self.state.plus = {
+              instruction:'FORWARD'
+            };
           }
           break;
         }
@@ -444,6 +450,9 @@ if (typeof Event === 'undefined') {
           ) {
             self.state.running = false;
             self.state.error = 'INSTRUCTION';
+            self.state.plus = {
+              instruction:'PICK'
+            };
           }
           break;
         }
@@ -458,6 +467,9 @@ if (typeof Event === 'undefined') {
           ) {
             self.state.running = false;
             self.state.error = 'INSTRUCTION';
+            self.state.plus = {
+              instruction:'LEAVE'
+            };
           }
           break;
         }
