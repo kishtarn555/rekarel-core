@@ -1,6 +1,6 @@
 {
   "name": "@rekarel/core",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Core functions for the language Karel",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
