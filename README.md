@@ -1,4 +1,4 @@
-This is the core of the Karel language. It contains the compiler, transpiler and the Karel Virtual Machine
+This is the core of the Karel language. It contains the compiler, transpiler and the Karel Interpreter
 
 # How Karel works
 
