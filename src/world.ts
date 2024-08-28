@@ -424,8 +424,8 @@ export class World {
     }
 
     load(doc: Document) {
-
-        this.clear();
+        const self = this;
+        self.clear();
 
         let rules = {
             mundo: function (mundo) {
@@ -441,16 +441,16 @@ export class World {
                     return;
                 }
 
-                this.resize(ancho, alto);
+                self.resize(ancho, alto);
             },
 
             condiciones: function (condiciones) {
-                this.maxInstructions =
+                self.maxInstructions =
                     parseInt(
                         condiciones.getAttribute('instruccionesMaximasAEjecutar'),
                         10,
                     ) || 10000000;
-                this.maxStackSize =
+                self.maxStackSize =
                     parseInt(condiciones.getAttribute('longitudStack'), 10) || 65000;
             },
 
@@ -463,13 +463,13 @@ export class World {
                 }
 
                 if (name == 'AVANZA') {
-                    this.maxMove = val;
+                    self.maxMove = val;
                 } else if (name == 'GIRA_IZQUIERDA') {
-                    this.maxTurnLeft = val;
+                    self.maxTurnLeft = val;
                 } else if (name == 'COGE_ZUMBADOR') {
-                    this.maxPickBuzzer = val;
+                    self.maxPickBuzzer = val;
                 } else if (name == 'DEJA_ZUMBADOR') {
-                    this.maxLeaveBuzzer = val;
+                    self.maxLeaveBuzzer = val;
                 }
             },
 
@@ -483,7 +483,7 @@ export class World {
                     zumbadores = parseInt(zumbadores, 10);
                     if (isNaN(zumbadores)) zumbadores = 0;
                 }
-                this.setBuzzers(i, j, zumbadores);
+                self.setBuzzers(i, j, zumbadores);
             },
 
             pared: function (pared) {
@@ -494,27 +494,27 @@ export class World {
                     let j2 = parseInt(pared.getAttribute('x2'), 10) + 1;
 
                     if (j2 > j) {
-                        this.addWall(i, j, 3);
+                        self.addWall(i, j, 3);
                     } else {
-                        this.addWall(i, j2, 3);
+                        self.addWall(i, j2, 3);
                     }
                 } else if (pared.getAttribute('y2')) {
                     let i2 = parseInt(pared.getAttribute('y2'), 10) + 1;
 
                     if (i2 > i) {
-                        this.addWall(i, j, 0);
+                        self.addWall(i, j, 0);
                     } else {
-                        this.addWall(i2, j, 0);
+                        self.addWall(i2, j, 0);
                     }
                 }
             },
 
             despliega: function (despliega) {
-                this.dumps[despliega.getAttribute('tipo').toLowerCase()] = true;
+                self.dumps[despliega.getAttribute('tipo').toLowerCase()] = true;
             },
 
             posicionDump: function (dump) {
-                this.dumpCells.push([
+                self.dumpCells.push([
                     parseInt(dump.getAttribute('y'), 10),
                     parseInt(dump.getAttribute('x'), 10),
                 ]);
@@ -534,9 +534,9 @@ export class World {
                 //     src = validador.firstChild.nodeValue;
                 // }
                 // if (validador.getAttribute('tipo') == 'post') {
-                //     this.postValidators.push(src);
+                //     self.postValidators.push(src);
                 // } else {
-                //     this.preValidators.push(src);
+                //     self.preValidators.push(src);
                 // }
             },
 
@@ -549,25 +549,23 @@ export class World {
                     programa.getAttribute('yKarel') || programa.getAttribute('ykarel'),
                     10,
                 );
-                this.di = this.h / 2 - yKarel;
-                this.dj = this.w / 2 - xKarel;
-                this.rotate(
+                self.rotate(
                     programa.getAttribute('direccionKarel') ||
                     programa.getAttribute('direccionkarel'),
                 );
-                this.worldName =
+                self.worldName =
                     programa.getAttribute('mundoDeEjecucion') ||
                     programa.getAttribute('mundodeejecucion');
-                this.programName = programa.getAttribute('nombre');
-                this.move(yKarel, xKarel);
+                self.programName = programa.getAttribute('nombre');
+                self.move(yKarel, xKarel);
                 let bagBuzzers =
                     programa.getAttribute('mochilaKarel') ||
                     programa.getAttribute('mochilakarel') ||
                     0;
                 if (bagBuzzers == 'INFINITO') {
-                    this.setBagBuzzers(-1);
+                    self.setBagBuzzers(-1);
                 } else {
-                    this.setBagBuzzers(parseInt(bagBuzzers));
+                    self.setBagBuzzers(parseInt(bagBuzzers));
                 }
             },
         };
@@ -575,7 +573,7 @@ export class World {
         function traverse(node: XMLDocument | ChildNode) {
             let type = node.nodeName;
             if (rules.hasOwnProperty(type)) {
-                rules[type].bind(this)(node);
+                rules[type](node);
             }
 
             for (let i = 0; i < node.childNodes.length; i++) {
@@ -583,14 +581,14 @@ export class World {
                     node.childNodes.item(i).nodeType ===
                     (node.ELEMENT_NODE || Node.ELEMENT_NODE)
                 ) {
-                    traverse.bind(this)(node.childNodes.item(i));
+                    traverse(node.childNodes.item(i));
                 }
             }
         }
 
-        traverse.bind(this)(doc);
+        traverse(doc);
 
-        this.reset();
+        self.reset();
     }
 
     /**

@@ -29,7 +29,7 @@ function detectLanguage(code: string): "java" | "pascal" | "unknown" {
             if (m !== null) {
                 if (j == rules.length - 1) {
                     // el primer token de verdad.
-                    if (m[0] == 'class') {
+                    if (m[0] == 'class' || m[0] == 'import') {
                         return 'java';
                     } else if (m[0].toLowerCase() == 'iniciar-programa') {
                         return 'pascal';

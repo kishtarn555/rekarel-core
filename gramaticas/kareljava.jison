@@ -9,6 +9,7 @@
 "class"				{ return 'CLASS'; }
 "program"		        { return 'PROG'; }
 "define"			{ return 'DEF'; }
+"import"			{ return 'IMPORT'; }
 "void"				{ return 'DEF'; }
 "return"      { return 'RET'; }
 "turnoff"                       { return 'HALT'; }
@@ -50,6 +51,8 @@
 "{"                             { return 'BEGIN'; }
 "}"                             { return 'END'; }
 ";"                             { return ';'; }
+"."                             { return '.'; }
+"*"                             { return '*'; }
 [0-9]+                          { return 'NUM'; }
 [a-zA-Z][a-zA-Z0-9_]*           { return 'VAR'; }
 <<EOF>>                         { return 'EOF'; }
@@ -59,7 +62,10 @@
 %nonassoc ELSE
 
 %{
-function validate(function_list, program, yy) {
+function validate(packages, function_list, program, yy) {
+
+  console.log(packages);
+
 	var functions = {};
 	var prototypes = {};
 
@@ -123,15 +129,43 @@ function validate(function_list, program, yy) {
 
 program
   : CLASS PROG BEGIN def_list PROG '(' ')' block END EOF
-    { return validate($def_list, $block.concat([['LINE', yylineno], ['HALT']]), yy); }
+    { return validate([], $def_list, $block.concat([['LINE', yylineno], ['HALT']]), yy); }
   | CLASS PROG BEGIN PROG '(' ')' block END EOF
-    { return validate([], $block.concat([['LINE', yylineno], ['HALT']]), yy); }
+    { return validate([], [], $block.concat([['LINE', yylineno], ['HALT']]), yy); }
+  |  import_list CLASS PROG BEGIN def_list PROG '(' ')' block END EOF
+    { return validate($import_list, $def_list, $block.concat([['LINE', yylineno], ['HALT']]), yy); }
+  | import_list CLASS PROG BEGIN PROG '(' ')' block END EOF
+    { return validate($import_list, [], $block.concat([['LINE', yylineno], ['HALT']]), yy); }
   ;
 
 block
   : BEGIN expr_list END
     { $$ = $expr_list; }
   ;
+
+import_list 
+  : import_list import
+    { $$ = $import_list.concat($import); }
+  | import
+    { $$ = $import; }
+  ;
+
+import
+  : IMPORT package ';'
+  { $$ = [[$package]]; }
+  ;
+
+package
+  : VAR '.' VAR 
+  {
+    $$= $1+"."+$3;
+  }
+  | VAR '.' '*'
+  {
+    $$= $1+".*";
+  }
+  ;
+
 
 def_list
   : def_list def
