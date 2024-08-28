@@ -575,7 +575,7 @@ export class World {
         function traverse(node: XMLDocument | ChildNode) {
             let type = node.nodeName;
             if (rules.hasOwnProperty(type)) {
-                rules[type](node);
+                rules[type].bind(this)(node);
             }
 
             for (let i = 0; i < node.childNodes.length; i++) {
@@ -583,12 +583,12 @@ export class World {
                     node.childNodes.item(i).nodeType ===
                     (node.ELEMENT_NODE || Node.ELEMENT_NODE)
                 ) {
-                    traverse(node.childNodes.item(i));
+                    traverse.bind(this)(node.childNodes.item(i));
                 }
             }
         }
 
-        traverse(doc);
+        traverse.bind(this)(doc);
 
         this.reset();
     }
@@ -895,10 +895,10 @@ export class World {
     }
 
     rotate(orientation?: Orientation): void {
-        let orientations: Orientation[] = ['ESTE', 'NORTE', 'OESTE', 'SUR'];
+        let orientations: Orientation[] = ['OESTE', 'NORTE', 'ESTE', 'SUR'];
 
         if (!orientation) {
-            orientation = orientations[(this.orientation + 1) % 4];
+            orientation = orientations[(this.orientation + 3) % 4]; // +3 to make the turn to the left
         }
         this.orientation = this.startOrientation = Math.max(
             0,
