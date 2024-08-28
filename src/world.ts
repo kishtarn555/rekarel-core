@@ -2,7 +2,7 @@
 
 import { Runtime } from "./runtime";
 
-enum DumpTypes {
+export enum DumpTypes {
     DUMP_WORLD = 'mundo',
     DUMP_POSITION = 'posicion',
     DUMP_ORIENTATION = 'orientacion',
