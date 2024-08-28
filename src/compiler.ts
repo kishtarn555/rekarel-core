@@ -3,7 +3,7 @@ import { RawProgram } from './opcodes.js';
 import { javaParser as importedJava } from './kareljava.js';
 import { pascalParser as importedPascal } from './karelpascal.js';
 
-type Compiler = (code: string) => RawProgram
+export type Compiler = (code: string) => RawProgram
 
 const javaCompiler: Compiler = importedJava as unknown as Compiler;
 const pascalCompiler: Compiler = importedPascal as unknown as Compiler;

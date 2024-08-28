@@ -1,7 +1,7 @@
-import { javaCompiler, pascalCompiler, detectLanguage, compile } from "./compiler.js";
+import { javaCompiler, pascalCompiler, detectLanguage, compile } from "./compiler";
 import { World } from "./world";
 import { Runtime } from "./runtime";
-import { java2PascalTranspiler, pascal2JavaTranspiler } from "./transpiler.js";
+import { java2PascalTranspiler, pascal2JavaTranspiler } from "./transpiler";
 
 export {
   compile,
