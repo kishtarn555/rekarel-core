@@ -40,7 +40,7 @@ export function getOpCodeID(literal: string): number {
     return -1;
 }
 
-export type OpCode = [OpCodeLiteral] | [OpCodeLiteral, any, any]
+export type OpCode = [OpCodeLiteral] | [OpCodeLiteral, any, any] | [OpCodeLiteral, any] // FIXME: Should these be per OPCODE like ["CALL", string, number] 
 
 
 export type RawProgram = OpCode[]
