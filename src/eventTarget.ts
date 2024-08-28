@@ -7,12 +7,13 @@ class KarelRuntimeEvent extends Event {
     constructor(type:string, runtime:Runtime, details:any) {
         super(type);
         this.details = details;
+        this.runtime = runtime;
 
     }
 }
 
 
-type KarelCallback = (KarelRuntimeEvent)=>void
+type KarelCallback = (event:KarelRuntimeEvent)=>void
 export class KarelRuntimeEventTarget  {
     listeners: {[key:string]:KarelCallback[]}
     constructor() {
@@ -31,6 +32,7 @@ export class KarelRuntimeEventTarget  {
         for (const listener of this.listeners[event.type]) {
             listener(event);
         }
+        return true;
     }
     removeEventListener(type: string, callback: KarelCallback): void {
         if (!this.listeners.hasOwnProperty(type)) {
