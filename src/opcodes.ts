@@ -34,7 +34,7 @@ export enum OpCodeID {
 export type OpCodeLiteral = keyof typeof OpCodeID
 
 export function getOpCodeID(literal: string): number {
-    if (OpCodeID[literal]) {
+    if (literal in OpCodeID) {
         return OpCodeID[literal];
     }
     return -1;
