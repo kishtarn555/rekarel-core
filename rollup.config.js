@@ -38,11 +38,6 @@ export default [{
     input: './dist/built/index.d.ts',
     output: [{ file: 'dist/index.d.ts', format: 'cjs' }],
     plugins: [dts()],
-  },
-  {
-    input: './dist/built/index.d.ts',
-    output: [{ file: 'dist/index2.d.ts', format: 'es' }],
-    plugins: [dts()],
   }
 
 ];
