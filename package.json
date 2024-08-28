@@ -12,9 +12,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx rollup --config --bundleConfigAsCjs",
-    "jison_java": "npx jison .\\gramaticas\\kareljava.jison -o .\\src\\kareljava.js  && npx gulp process-jison-java",
-    "jison_java2pascal": "npx jison .\\gramaticas\\java2pascal.jison -o .\\src\\java2pascal.js  && npx gulp process-jison-java2pascal",
-    "jison_pascal2java": "npx jison .\\gramaticas\\pascal2java.jison -o .\\src\\pascal2java.js && npx gulp process-jison-pascal2java"
+    "jison_java": "npx jison .\\gramaticas\\kareljava.jison -m js -o .\\src\\kareljava.js  && npx gulp process-jison-java",
+    "jison_pascal": "npx jison .\\gramaticas\\karelpascal.jison -m js -o .\\src\\karelpascal.js  && npx gulp process-jison-pascal",
+    "jison_java2pascal": "npx jison .\\gramaticas\\java2pascal.jison -m js -o .\\src\\java2pascal.js  && npx gulp process-jison-java2pascal",
+    "jison_pascal2java": "npx jison .\\gramaticas\\pascal2java.jison -m js -o .\\src\\pascal2java.js && npx gulp process-jison-pascal2java"
   },
   "keywords": [
     "karel"

@@ -1002,8 +1002,6 @@ function Parser () {
 Parser.prototype = parser;parser.Parser = Parser;
 return new Parser;
 })();
-
-
 function pascalParser () {
     return karelpascal.parse.apply(karelpascal, arguments);
 }
