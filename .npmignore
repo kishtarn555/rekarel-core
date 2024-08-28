@@ -2,3 +2,4 @@ gramaticas/
 src/
 rollup.config.js
 gulpfile.js
+dist/built/
