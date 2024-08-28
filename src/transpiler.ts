@@ -1,7 +1,7 @@
 import { RawProgram } from './opcodes.js';
 
-import { java2pascal as j2pImported} from './java2pascal.js';
-import { pascal2java as p2jImported} from './pascal2java.js';
+import { java2pascalParser as j2pImported} from './java2pascal.js';
+import { pascal2javaParser as p2jImported} from './pascal2java.js';
 
 export type Transpiler = (code:string) => string
 
