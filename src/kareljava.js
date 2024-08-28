@@ -442,9 +442,32 @@ parse: function parse(input) {
     return true;
 }};
 
+
+const rekarelModules= [
+  "*",
+];
+
 function validate(packages, function_list, program, yy) {
 
-  console.log(packages);
+  const flags = new Set();
+  for (const pack of packages) {
+    const namespace = pack[0].split(".")[0];
+    const mod = pack[0].split(".")[1];
+    if (namespace != "rekarel") {
+      
+      yy.parser.parseError("Package not recognized: " + pack[0])
+      return; //TODO: Throw exception
+    }
+    if (!rekarelModules.includes(mod)) {
+      yy.parser.parseError("Rekarel has no module: " + mod)
+      return;
+    }
+    flags.add(pack[0]);
+  }
+  function checkReKarelFlag(flag) {
+    if (flags.has("*")) return true;
+    return flag.has(flag);
+  }
 
 	var functions = {};
 	var prototypes = {};
