@@ -1,0 +1,8 @@
+import rekarel.*;
+
+class program {    
+    
+    program() {
+        turnoff();
+    }
+}
