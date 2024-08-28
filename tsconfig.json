@@ -2,7 +2,10 @@
     "compilerOptions": {
       "outDir": "./built",
       "allowJs": true,
-      "target": "es5"
+      "target": "es5",
+      "declaration": true,
+      "importHelpers": true
     },
-    "include": ["./src/**/*"]
+    "include": ["./src/**/*"],
+    "exclude": ["node_modules", "build", "dist", "rollup.config.js", "gulpfile.js"]
   }
