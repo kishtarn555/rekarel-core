@@ -306,10 +306,28 @@ export class World {
         this.dirty = true;
     }
 
+    /**
+     * Gets the amount of buzzers at a cell in the **current** state
+     * @param i cell row
+     * @param j cell column
+     * @returns beeper amount
+     */
     buzzers(i: number, j: number): number {
         if (0 >= i || i > this.h || 0 >= j || j > this.w)
             return 0;
         return this.currentMap[this.w * i + j];
+    }
+
+    /**
+     * Gets the amount of buzzers at a cell in the **starting** state
+     * @param i cell row
+     * @param j cell column
+     * @returns beeper amount
+     */
+    startBuzzers(i:number, j:number): number {
+        if (0 >= i || i > this.h || 0 >= j || j > this.w)
+            return 0;
+        return this.map[this.w * i + j];        
     }
 
     pickBuzzer(i: number, j: number): void {
@@ -644,7 +662,7 @@ export class World {
      * Generates the XML representation of the input
      * @returns XML string representing the input
      */
-    save(): string {
+    save(targetState:"current"|"start"): string {
         let result: any = {
             condiciones: {
                 '#attributes': {
@@ -671,10 +689,10 @@ export class World {
                         nombre: this.programName,
                         ruta: '{$2$}',
                         mundoDeEjecucion: this.worldName,
-                        xKarel: this.j,
-                        yKarel: this.i,
-                        direccionKarel: ['OESTE', 'NORTE', 'ESTE', 'SUR'][this.orientation],
-                        mochilaKarel: this.bagBuzzers == -1 ? 'INFINITO' : this.bagBuzzers,
+                        xKarel: targetState === "start" ? this.start_i:this.j,
+                        yKarel: targetState === "start" ? this.start_j:this.i,
+                        direccionKarel: ['OESTE', 'NORTE', 'ESTE', 'SUR'][targetState === "start" ? this.startOrientation: this.orientation],
+                        mochilaKarel: this.bagBuzzers == -1 ? 'INFINITO' :( targetState === "start" ? this.startBagBuzzers: this.bagBuzzers),
                     },
                     despliega: [],
                 },
@@ -683,7 +701,7 @@ export class World {
 
         for (let i = 1; i <= this.h; i++) {
             for (let j = 1; j <= this.w; j++) {
-                let buzzers = this.buzzers(i, j);
+                let buzzers =  targetState === "start" ? this.startBuzzers(i,j) : this.buzzers(i, j);
                 if (buzzers !== 0) {
                     result.mundos.mundo.monton.push({
                         '#attributes': {
