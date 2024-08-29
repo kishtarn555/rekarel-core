@@ -45,7 +45,7 @@ export type IRInstruction =
     [instruction: "AND"] |
     [instruction: "OR"] |
     [instruction: "EQ"] |
-    [instruction: "EZ", ErrorLiteral ] |
+    [instruction: "EZ",  error: ErrorLiteral ] |
     [instruction: "JZ"] |
     [instruction: "JMP", offset: number] |
     [instruction: "FORWARD"] |
