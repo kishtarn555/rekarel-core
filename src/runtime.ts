@@ -78,20 +78,21 @@ export class Runtime {
     let function_idx = 0;
     this.program = new Int32Array(new ArrayBuffer(opcodes.length * 3 * 4));
     for (let i = 0; i < opcodes.length; i++) {
-      this.program[3 * i] = getOpCodeID(opcodes[i][0]);
-      if (opcodes[i].length > 1) {
-        this.program[3 * i + 1] = opcodes[i][1] as number;
+      const currentOpcode = opcodes[i];
+      this.program[3 * i] = getOpCodeID(currentOpcode[0]);
+      if (currentOpcode.length > 1) {
+        this.program[3 * i + 1] = currentOpcode[1] as number;
       }
-      if (opcodes[i][0] == 'CALL') {
-        if (!function_map.hasOwnProperty(opcodes[i][2])) {
-          function_map[opcodes[i][2]] = function_idx;
-          this.functionNames[function_idx++] = opcodes[i][2];
+      if (currentOpcode[0] == 'CALL') {
+        if (!function_map.hasOwnProperty(currentOpcode[1])) {
+          function_map[currentOpcode[1]] = function_idx;
+          this.functionNames[function_idx++] = currentOpcode[1];
         }
-        this.program[3 * i + 2] = function_map[opcodes[i][2]];
-      } else if (opcodes[i][0] == 'EZ') {
-        this.program[3 * i + 1] = error_mapping.indexOf(opcodes[i][1] as ErrorLiteral);
+        this.program[3 * i + 2] = function_map[currentOpcode[1]];
+      } else if (currentOpcode[0] == 'EZ') {
+        this.program[3 * i + 1] = error_mapping.indexOf(currentOpcode[1] as ErrorLiteral);
         if (this.program[3 * i + 1] == -1) {
-          throw new Error('Invalid error: ' + opcodes[i][1]);
+          throw new Error('Invalid error: ' + currentOpcode[1]);
         }
       }
     }

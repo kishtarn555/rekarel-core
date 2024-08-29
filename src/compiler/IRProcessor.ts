@@ -58,7 +58,7 @@ export type IRInstruction =
     [instruction: "DUP"] |
     [instruction: "DEC"] |
     [instruction: "INC"] |
-    [instruction: "CALL", fname: string, argCount: string, nameLoc: YYLoc, argLoc: YYLoc] |
+    [instruction: "CALL", fname: string, argCount: number, nameLoc: YYLoc, argLoc: YYLoc] |
     [instruction: "RET"] |
     [instruction: "PARAM", index: number] |
     //This one is a IR instruction only, it must be resolved to a correct opcode
@@ -262,8 +262,8 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
             program.push([
                 "CALL", 
                 instruction[1],
+                funcData.get(instruction[1]).location ,
                 instruction[2],
-                funcData.get(instruction[1]).location 
             ]);
             continue;
         }
