@@ -1,7 +1,7 @@
 "use strict";
 
 import { KarelRuntimeEventTarget } from './eventTarget';
-import {  getOpCodeID, OpCodeID, OpCodeLiteral, RawProgram } from './opcodes';
+import {  ErrorLiteral, ErrorType, getOpCodeID, OpCodeID, OpCodeLiteral, RawProgram } from './compiler/opcodes';
 import type { World } from './world';
 
 
@@ -18,16 +18,6 @@ import type { World } from './world';
 
 type ByteProgram = Int32Array
 
-enum ErrorType {
-  INSTRUCTION = "INSTRUCTION",
-  STACK = "STACK",
-  WALL = "WALL",
-  WORLDUNDERFLOW = "WORLDUNDERFLOW",
-  BAGUNDERFLOW = "BAGUNDERFLOW",
-  INVALIDOPCODE = "INVALIDOPCODE"
-}
-
-type ErrorLiteral = keyof typeof ErrorType;
 
 
 type ErrorData = {
@@ -90,7 +80,7 @@ export class Runtime {
     for (let i = 0; i < opcodes.length; i++) {
       this.program[3 * i] = getOpCodeID(opcodes[i][0]);
       if (opcodes[i].length > 1) {
-        this.program[3 * i + 1] = opcodes[i][1];
+        this.program[3 * i + 1] = opcodes[i][1] as number;
       }
       if (opcodes[i][0] == 'CALL') {
         if (!function_map.hasOwnProperty(opcodes[i][2])) {
@@ -99,7 +89,7 @@ export class Runtime {
         }
         this.program[3 * i + 2] = function_map[opcodes[i][2]];
       } else if (opcodes[i][0] == 'EZ') {
-        this.program[3 * i + 1] = error_mapping.indexOf(opcodes[i][1]);
+        this.program[3 * i + 1] = error_mapping.indexOf(opcodes[i][1] as ErrorLiteral);
         if (this.program[3 * i + 1] == -1) {
           throw new Error('Invalid error: ' + opcodes[i][1]);
         }
