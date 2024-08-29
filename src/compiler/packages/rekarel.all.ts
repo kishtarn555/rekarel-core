@@ -12,6 +12,6 @@ export const JavaPackages= {
 const pascal = [rekarelGlobalsPascal];
 
 export const PascalPackages= {
-    "rekarel.globals":rekarelGlobalsPascal,    
+    "rekarel.globales":rekarelGlobalsPascal,    
     "rekarel.*": UnitePackages(pascal)
 } as const;

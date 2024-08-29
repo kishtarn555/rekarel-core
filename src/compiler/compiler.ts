@@ -33,7 +33,7 @@ export function detectLanguage(code: string): "java" | "pascal" | "unknown" {
                     // el primer token de verdad.
                     if (m[0] == 'class' || m[0] == 'import') {
                         return 'java';
-                    } else if (m[0].toLowerCase() == 'iniciar-programa') {
+                    } else if (m[0].toLowerCase() == 'iniciar-programa' || m[0].toLowerCase() == 'usa') {
                         return 'pascal';
                     } else {
                         return 'unknown';

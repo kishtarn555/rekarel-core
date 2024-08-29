@@ -16,6 +16,7 @@
 "finalizar-programa"                        { return 'ENDPROG'; }
 "define-nueva-instruccion"                  { return 'DEF'; }
 "define-nueva-instrucción"                  { return 'DEF'; }
+"usa"			                                  { return 'IMPORT'; }
 "define-prototipo-instruccion"              { return 'PROTO'; }
 "define-prototipo-instrucción"              { return 'PROTO'; }
 "sal-de-instruccion"                        { return 'RET'; }
@@ -68,6 +69,8 @@
 "("                                         { return '('; }
 ")"                                         { return ')'; }
 ";"                                         { return ';'; }
+"."                                         { return '.'; }
+"*"                                         { return '*'; }
 [0-9]+                                      { return 'NUM'; }
 [A-Za-zÀ-ÖØ-öø-ÿ_][A-Za-zÀ-ÖØ-öø-ÿ0-9_-]*   { return 'VAR'; }
 <<EOF>>                                     { return 'EOF'; }
@@ -85,7 +88,31 @@ const LANG = "ReKarel Pascal"
 %%
 
 program
-  : BEGINPROG def_list BEGINEXEC expr_list ENDEXEC ENDPROG EOF
+  : import_list BEGINPROG def_list BEGINEXEC expr_list ENDEXEC ENDPROG EOF
+    { 
+      return {
+        compiler: COMPILER,
+        language: LANG,
+        requieresFunctionPrototypes: true, 
+        packages: $import_list,
+        functions: $def_list,
+        program: $expr_list.concat([['LINE', yylineno], ['HALT']]),
+        yy:yy,
+      }; 
+    }
+  | import_list  BEGINPROG BEGINEXEC expr_list ENDEXEC ENDPROG EOF
+    { 
+      return {
+        compiler: COMPILER,
+        language: LANG,
+        requieresFunctionPrototypes: true,
+        packages: $import_list,
+        functions: [],
+        program: $expr_list.concat([['LINE', yylineno], ['HALT']]),
+        yy:yy,
+      }; 
+    }
+    | BEGINPROG def_list BEGINEXEC expr_list ENDEXEC ENDPROG EOF
     { 
       return {
         compiler: COMPILER,
@@ -97,7 +124,7 @@ program
         yy:yy,
       }; 
     }
-  | BEGINPROG BEGINEXEC expr_list ENDEXEC ENDPROG EOF
+  |  BEGINPROG BEGINEXEC expr_list ENDEXEC ENDPROG EOF
     { 
       return {
         compiler: COMPILER,
@@ -109,6 +136,29 @@ program
         yy:yy,
       }; 
     }
+  ;
+
+import_list 
+  : import_list import
+    { $$ = $import_list.concat($import); }
+  | import
+    { $$ = $import; }
+  ;
+
+import
+  : IMPORT package ';'
+  { $$ = [[$package]]; }
+  ;
+
+package
+  : VAR '.' VAR 
+  {
+    $$= $1+"."+$3;
+  }
+  | VAR '.' '*'
+  {
+    $$= $1+".*";
+  }
   ;
 
 def_list
@@ -291,7 +341,7 @@ bool_fun
 
 integer
   : var
-    { $$ = [['VAR', $var.toLowerCase()]]; }
+    { $$ = [['VAR', $var.toLowerCase(), @1]]; }
   | NUM
     { $$ = [['LOAD', parseInt(yytext)]]; }
   | INC '(' integer ')'
