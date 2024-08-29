@@ -1,16 +1,18 @@
 import { RawProgram } from './opcodes.js';
 
-import { javaParser as importedJava } from './kareljava.js';
-import { pascalParser as importedPascal } from './karelpascal.js';
+import { javaParser as importedJava } from '../kareljava.js';
+import { pascalParser as importedPascal } from '../karelpascal.js';
+import { generateOpcodesFromIR, IRObject } from './IRProcessor.js';
 
 export type Compiler = (code: string) => RawProgram
+type Parser = (code: string) => IRObject
 
-const javaCompiler: Compiler = importedJava as unknown as Compiler;
-const pascalCompiler: Compiler = importedPascal as unknown as Compiler;
+const javaParser: Parser = importedJava as unknown as Parser;
+const pascalParser: Parser = importedPascal as unknown as Parser;
 
 
 
-function detectLanguage(code: string): "java" | "pascal" | "unknown" {
+export function detectLanguage(code: string): "java" | "pascal" | "unknown" {
     let rules = [
         /^\s+/,
         /^\/\/[^\n]*/,
@@ -49,7 +51,7 @@ function detectLanguage(code: string): "java" | "pascal" | "unknown" {
 }
 
 
-function compile(code:string) : RawProgram | null {
+export function compile(code:string) : RawProgram | null {
     let lang = detectLanguage(code);
     let compiler:Compiler = null;  
     switch (lang) {
@@ -66,4 +68,12 @@ function compile(code:string) : RawProgram | null {
   }
   
 
-export { javaCompiler, pascalCompiler, detectLanguage, compile }
+export function javaCompiler(code:string): RawProgram {
+    const IR = javaParser(code);
+    return generateOpcodesFromIR(IR); 
+}
+
+export function pascalCompiler(code:string): RawProgram {
+    const IR = pascalParser(code);
+    return generateOpcodesFromIR(IR); 
+}
