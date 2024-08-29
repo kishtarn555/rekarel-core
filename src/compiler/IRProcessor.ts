@@ -33,36 +33,36 @@ type YYLoc = {
  * Represents the type of instructions that are available in the IR
  */
 export type IRInstruction =
-    ["HALT"] |
-    ["LINE", lineNumber: number] |
-    ["LEFT"] |
-    ["WORLDWALLS"] |
-    ["ORIENTATION"] |
-    ["ROTL"] |
-    ["ROTR"] |
-    ["MASK"] |
-    ["NOT"] |
-    ["AND"] |
-    ["OR"] |
-    ["EQ"] |
-    ["EZ", ErrorLiteral ] |
-    ["JZ"] |
-    ["JMP", offset: number] |
-    ["FORWARD"] |
-    ["WORLDBUZZERS"] |
-    ["BAGBUZZERS"] |
-    ["PICKBUZZER"] |
-    ["LEAVEBUZZER"] |
-    ["LOAD", value: number] |
-    ["POP"] |
-    ["DUP"] |
-    ["DEC"] |
-    ["INC"] |
-    ["CALL", fname: string, argCount: string, nameLoc: YYLoc, argLoc: YYLoc] |
-    ["RET"] |
-    ["PARAM", index: number] |
+    [instruction: "HALT"] |
+    [instruction: "LINE", lineNumber: number] |
+    [instruction: "LEFT"] |
+    [instruction: "WORLDWALLS"] |
+    [instruction: "ORIENTATION"] |
+    [instruction: "ROTL"] |
+    [instruction: "ROTR"] |
+    [instruction: "MASK"] |
+    [instruction: "NOT"] |
+    [instruction: "AND"] |
+    [instruction: "OR"] |
+    [instruction: "EQ"] |
+    [instruction: "EZ", ErrorLiteral ] |
+    [instruction: "JZ"] |
+    [instruction: "JMP", offset: number] |
+    [instruction: "FORWARD"] |
+    [instruction: "WORLDBUZZERS"] |
+    [instruction: "BAGBUZZERS"] |
+    [instruction: "PICKBUZZER"] |
+    [instruction: "LEAVEBUZZER"] |
+    [instruction: "LOAD", value: number] |
+    [instruction: "POP"] |
+    [instruction: "DUP"] |
+    [instruction: "DEC"] |
+    [instruction: "INC"] |
+    [instruction: "CALL", fname: string, argCount: string, nameLoc: YYLoc, argLoc: YYLoc] |
+    [instruction: "RET"] |
+    [instruction: "PARAM", index: number] |
     //This one is a IR instruction only, it must be resolved to a correct opcode
-    ["VAR", name:string, loc:YYLoc]
+    [instruction: "VAR", name:string, loc:YYLoc]
     ;
 
 /**

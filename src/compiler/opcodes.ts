@@ -54,34 +54,34 @@ export enum ErrorType {
 export type ErrorLiteral = keyof typeof ErrorType;
 
 export type OpCode =
-  ["HALT"] |
-  ["LINE", lineNumber: number] |
-  ["LEFT"] |
-  ["WORLDWALLS"] |
-  ["ORIENTATION"] |
-  ["ROTL"] |
-  ["ROTR"] |
-  ["MASK"] |
-  ["NOT"] |
-  ["AND"] |
-  ["OR"] |
-  ["EQ"] |
-  ["EZ", ErrorLiteral] |
-  ["JZ"] |
-  ["JMP", offset: number] |
-  ["FORWARD"] |
-  ["WORLDBUZZERS"] |
-  ["BAGBUZZERS"] |
-  ["PICKBUZZER"] |
-  ["LEAVEBUZZER"] |
-  ["LOAD", value: number] |
-  ["POP"] |
-  ["DUP"] |
-  ["DEC"] |
-  ["INC"] |
-  ["CALL", fname: string, argCount: string, location:number] |
-  ["RET"] |
-  ["PARAM", index: number]
+  [instruction: "HALT"] |
+  [instruction: "LINE", lineNumber: number] |
+  [instruction: "LEFT"] |
+  [instruction: "WORLDWALLS"] |
+  [instruction: "ORIENTATION"] |
+  [instruction: "ROTL"] |
+  [instruction: "ROTR"] |
+  [instruction: "MASK"] |
+  [instruction: "NOT"] |
+  [instruction: "AND"] |
+  [instruction: "OR"] |
+  [instruction: "EQ"] |
+  [instruction: "EZ", ErrorLiteral] |
+  [instruction: "JZ"] |
+  [instruction: "JMP", offset: number] |
+  [instruction: "FORWARD"] |
+  [instruction: "WORLDBUZZERS"] |
+  [instruction: "BAGBUZZERS"] |
+  [instruction: "PICKBUZZER"] |
+  [instruction: "LEAVEBUZZER"] |
+  [instruction: "LOAD", value: number] |
+  [instruction: "POP"] |
+  [instruction: "DUP"] |
+  [instruction: "DEC"] |
+  [instruction: "INC"] |
+  [instruction: "CALL", fname: string, argCount: string, location:number] |
+  [instruction: "RET"] |
+  [instruction: "PARAM", index: number]
   ;
 
 export type RawProgram = OpCode[]
