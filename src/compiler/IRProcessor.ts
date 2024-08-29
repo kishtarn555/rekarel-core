@@ -249,7 +249,6 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
             location: IRProgram.length
         });
         const code = resolveVariables(func[1], data.yy, packs, func[2]);
-        console.log(code)
         IRProgram = IRProgram.concat(code);
     }
     const program:RawProgram = []
