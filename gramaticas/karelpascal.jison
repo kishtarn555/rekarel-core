@@ -77,110 +77,38 @@
 %nonassoc ELSE
 
 %{
-function validate(function_list, program, yy) {
-	var prototypes = {};
-	var functions = {};
 
-	for (var i = 0; i < function_list.length; i++) {
-		if (function_list[i][1] == null) {
-			if (prototypes[function_list[i][0]] || functions[function_list[i][0]]) {
-				yy.parser.parseError("Prototype redefinition: " + function_list[i][0], {
-					text: function_list[i][0],
-					line: function_list[i][3],
-          loc: function_list[i][4],
-				});
-			}
-			prototypes[function_list[i][0]] = function_list[i][2];
-		} else {
-			if (functions[function_list[i][0]]) {
-				yy.parser.parseError("Function redefinition: " + function_list[i][0], {
-					text: function_list[i][0],
-					line: function_list[i][3],
-          loc: function_list[i][4]
-				});
-			} else if (prototypes[function_list[i][0]]) {
-				if (prototypes[function_list[i][0]] != function_list[i][2]) {
-					yy.parser.parseError("Prototype parameter mismatch: " + function_list[i][0], {
-						text: function_list[i][0],
-						line: function_list[i][3],
-            loc: function_list[i][5]
-					});
-				}
-			}
-
-			prototypes[function_list[i][0]] = function_list[i][2];
-			functions[function_list[i][0]] = program.length;
-			var current_line = 1;
-
-			// This is only to make sure that any function that is called has been
-			// either declared or defined previously. Other validations will be done
-			// in the overall program loop below.
-			for (var j = 0; j < function_list[i][1].length; j++) {
-				if (function_list[i][1][j][0] == 'LINE') {
-					current_line = function_list[i][1][j][1];
-				} else if (function_list[i][1][j][0] == 'CALL' &&
-						!functions[function_list[i][1][j][1]] &&
-						!prototypes[function_list[i][1][j][1]]) {
-					yy.parser.parseError("Undefined function: " + function_list[i][1][j][1], {
-						text: function_list[i][1][j][1],
-						line: current_line,
-            loc: function_list[i][1][j][4]
-					});
-				}
-			}
-
-			program = program.concat(function_list[i][1]);
-		}
-	}
-
-	var current_line = 1;
-	for (var i = 0; i < program.length; i++) {
-		if (program[i][0] == 'LINE') {
-			current_line = program[i][1];
-		} else if (program[i][0] == 'CALL') {
-			if (!functions[program[i][1]]) {
-				yy.parser.parseError("Undefined function: " + program[i][1], {
-					text: program[i][1],
-					line: current_line,
-          loc: program[i][3]
-				});
-			} else if (prototypes[program[i][1]] != program[i][2]) {
-				yy.parser.parseError("Function parameter mismatch: " + program[i][1], {
-					text: program[i][1],
-					line: current_line,
-          loc: program[i][4],          
-          parameters: program[i][2],
-				});
-			}
-			program[i][2] = program[i][1];
-			program[i][1] = functions[program[i][1]];
-      // Remove loc data which is only for error parsing
-      program[i].pop();
-      program[i].pop(); 
-		} else if (program[i][0] == 'PARAM') {
-      if (program[i][1] != 0) {
-        yy.parser.parseError("Unknown variable: " + program[i][1], {
-          text: program[i][1],
-          line: current_line,
-          loc: program[i][2]
-        });
-      } else {
-        program[i].pop();
-      }
-		}
-	}
-
-	return program;
-}
+const COMPILER= "RKP 1.0.0";
+const LANG = "ReKarel Pascal"
 %}
 
 %%
 
 program
   : BEGINPROG def_list BEGINEXEC expr_list ENDEXEC ENDPROG EOF
-    { return validate($def_list, $expr_list.concat([['LINE', yylineno], ['HALT']]), yy); }
+    { 
+      return {
+        compiler: COMPILER,
+        language: LANG,
+        requieresFunctionPrototypes: true, 
+        packages: [],
+        functions: $def_list,
+        program: $expr_list.concat([['LINE', yylineno], ['HALT']]),
+        yy:yy,
+      }; 
+    }
   | BEGINPROG BEGINEXEC expr_list ENDEXEC ENDPROG EOF
-    { return validate([], $expr_list.concat([['LINE', yylineno], ['HALT']]), yy); }
+    { 
+      return {
+        compiler: COMPILER,
+        language: LANG,
+        requieresFunctionPrototypes: true,
+        packages: [],
+        functions: [],
+        program: $expr_list.concat([['LINE', yylineno], ['HALT']]),
+        yy:yy,
+      }; 
+    }
   ;
 
 def_list
@@ -197,7 +125,7 @@ def
       @$.first_column = @1.first_column;
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
-      $$ = [[$var.toLowerCase(), null, 1, $line[0][1], @$] ]; 
+      $$ = [[$var.toLowerCase(), null, [],  @$] ]; 
     }
   | PROTO line var '(' var ')'
     { 
@@ -205,7 +133,7 @@ def
       @$.first_column = @1.first_column;
       @$.last_line = @6.last_line;
       @$.last_column = @6.last_column;
-      $$ = [[$var.toLowerCase(), null, 2, $line[0][1], @$]]; 
+      $$ = [[$var.toLowerCase(), null, [$5],  @$] ]; 
       }
   | DEF line var AS expr
     { 
@@ -214,7 +142,7 @@ def
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
 
-      $$ = [[$var.toLowerCase(), $line.concat($expr).concat([['RET']]), 1, $line[0][1], @$, @$]]; 
+      $$ = [[$var, $line.concat($block).concat([['RET']]), [], @$]]; 
     }
   | DEF line var '(' var ')' AS expr
     %{
@@ -224,24 +152,7 @@ def
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
 
-    	var result = $line.concat($expr).concat([['RET']]);
-      var current_line = $line[0][1];
-    	for (var i = 0; i < result.length; i++) {
-        if (result[i][0] == 'LINE') {
-          current_line = result[i][1];
-        } else if (result[i][0] == 'PARAM') {
-    			if (result[i][1] == $5.toLowerCase()) {
-    				result[i][1] = 0;
-    			} else {
-    				yy.parser.parseError("Unknown variable: " + $5, {
-              text: result[i][1],
-              line: current_line + 1,
-              loc:result[i][2]
-            });
-    			}
-    		}
-    	}
-    	$$ = [[$var.toLowerCase(), result, 2, $line[0][1],@$, @5]];
+    	$$ = [[$3, $line.concat($block).concat([['RET']]), [$5], @$]];
     %}
   ;
 
@@ -380,7 +291,7 @@ bool_fun
 
 integer
   : var
-    { $$ = [['PARAM', $var.toLowerCase()]]; }
+    { $$ = [['VAR', $var.toLowerCase()]]; }
   | NUM
     { $$ = [['LOAD', parseInt(yytext)]]; }
   | INC '(' integer ')'

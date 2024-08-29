@@ -84,10 +84,30 @@ performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* actio
 var $0 = $$.length - 1;
 switch (yystate) {
 case 1:
- return validate($$[$0-5], $$[$0-3].concat([['LINE', yylineno], ['HALT']]), yy); 
+ 
+      return {
+        compiler: COMPILER,
+        language: LANG,
+        requieresFunctionPrototypes: true, 
+        packages: [],
+        functions: $$[$0-5],
+        program: $$[$0-3].concat([['LINE', yylineno], ['HALT']]),
+        yy:yy,
+      }; 
+    
 break;
 case 2:
- return validate([], $$[$0-3].concat([['LINE', yylineno], ['HALT']]), yy); 
+ 
+      return {
+        compiler: COMPILER,
+        language: LANG,
+        requieresFunctionPrototypes: true,
+        packages: [],
+        functions: [],
+        program: $$[$0-3].concat([['LINE', yylineno], ['HALT']]),
+        yy:yy,
+      }; 
+    
 break;
 case 3:
  this.$ = $$[$0-2].concat($$[$0-1]); 
@@ -101,7 +121,7 @@ case 5:
       this._$.first_column = _$[$0-2].first_column;
       this._$.last_line = _$[$0].last_line;
       this._$.last_column = _$[$0].last_column;
-      this.$ = [[$$[$0].toLowerCase(), null, 1, $$[$0-1][0][1], this._$] ]; 
+      this.$ = [[$$[$0].toLowerCase(), null, [],  this._$] ]; 
     
 break;
 case 6:
@@ -110,7 +130,7 @@ case 6:
       this._$.first_column = _$[$0-5].first_column;
       this._$.last_line = _$[$0].last_line;
       this._$.last_column = _$[$0].last_column;
-      this.$ = [[$$[$0-3].toLowerCase(), null, 2, $$[$0-4][0][1], this._$]]; 
+      this.$ = [[$$[$0-3].toLowerCase(), null, [$$[$0-1]],  this._$] ]; 
       
 break;
 case 7:
@@ -120,7 +140,7 @@ case 7:
       this._$.last_line = _$[$0-2].last_line;
       this._$.last_column = _$[$0-2].last_column;
 
-      this.$ = [[$$[$0-2].toLowerCase(), $$[$0-3].concat($$[$0]).concat([['RET']]), 1, $$[$0-3][0][1], this._$, this._$]]; 
+      this.$ = [[$$[$0-2], $$[$0-3].concat($block).concat([['RET']]), [], this._$]]; 
     
 break;
 case 8:
@@ -131,24 +151,7 @@ case 8:
       this._$.last_line = _$[$0-5].last_line;
       this._$.last_column = _$[$0-5].last_column;
 
-    	var result = $$[$0-6].concat($$[$0]).concat([['RET']]);
-      var current_line = $$[$0-6][0][1];
-    	for (var i = 0; i < result.length; i++) {
-        if (result[i][0] == 'LINE') {
-          current_line = result[i][1];
-        } else if (result[i][0] == 'PARAM') {
-    			if (result[i][1] == $$[$0-3].toLowerCase()) {
-    				result[i][1] = 0;
-    			} else {
-    				yy.parser.parseError("Unknown variable: " + $$[$0-3], {
-              text: result[i][1],
-              line: current_line + 1,
-              loc:result[i][2]
-            });
-    			}
-    		}
-    	}
-    	this.$ = [[$$[$0-5].toLowerCase(), result, 2, $$[$0-6][0][1],this._$, _$[$0-3]]];
+    	this.$ = [[$$[$0-5], $$[$0-6].concat($block).concat([['RET']]), [$$[$0-3]], this._$]];
     
 break;
 case 9:
@@ -263,7 +266,7 @@ case 56:
  this.$ = [['ORIENTATION'], ['LOAD', 3], ['EQ'], ['NOT']]; 
 break;
 case 57:
- this.$ = [['PARAM', $$[$0].toLowerCase()]]; 
+ this.$ = [['VAR', $$[$0].toLowerCase()]]; 
 break;
 case 58:
  this.$ = [['LOAD', parseInt(yytext)]]; 
@@ -431,101 +434,9 @@ parse: function parse(input) {
     return true;
 }};
 
-function validate(function_list, program, yy) {
-	var prototypes = {};
-	var functions = {};
 
-	for (var i = 0; i < function_list.length; i++) {
-		if (function_list[i][1] == null) {
-			if (prototypes[function_list[i][0]] || functions[function_list[i][0]]) {
-				yy.parser.parseError("Prototype redefinition: " + function_list[i][0], {
-					text: function_list[i][0],
-					line: function_list[i][3],
-          loc: function_list[i][4],
-				});
-			}
-			prototypes[function_list[i][0]] = function_list[i][2];
-		} else {
-			if (functions[function_list[i][0]]) {
-				yy.parser.parseError("Function redefinition: " + function_list[i][0], {
-					text: function_list[i][0],
-					line: function_list[i][3],
-          loc: function_list[i][4]
-				});
-			} else if (prototypes[function_list[i][0]]) {
-				if (prototypes[function_list[i][0]] != function_list[i][2]) {
-					yy.parser.parseError("Prototype parameter mismatch: " + function_list[i][0], {
-						text: function_list[i][0],
-						line: function_list[i][3],
-            loc: function_list[i][5]
-					});
-				}
-			}
-
-			prototypes[function_list[i][0]] = function_list[i][2];
-			functions[function_list[i][0]] = program.length;
-			var current_line = 1;
-
-			// This is only to make sure that any function that is called has been
-			// either declared or defined previously. Other validations will be done
-			// in the overall program loop below.
-			for (var j = 0; j < function_list[i][1].length; j++) {
-				if (function_list[i][1][j][0] == 'LINE') {
-					current_line = function_list[i][1][j][1];
-				} else if (function_list[i][1][j][0] == 'CALL' &&
-						!functions[function_list[i][1][j][1]] &&
-						!prototypes[function_list[i][1][j][1]]) {
-					yy.parser.parseError("Undefined function: " + function_list[i][1][j][1], {
-						text: function_list[i][1][j][1],
-						line: current_line,
-            loc: function_list[i][1][j][4]
-					});
-				}
-			}
-
-			program = program.concat(function_list[i][1]);
-		}
-	}
-
-	var current_line = 1;
-	for (var i = 0; i < program.length; i++) {
-		if (program[i][0] == 'LINE') {
-			current_line = program[i][1];
-		} else if (program[i][0] == 'CALL') {
-			if (!functions[program[i][1]]) {
-				yy.parser.parseError("Undefined function: " + program[i][1], {
-					text: program[i][1],
-					line: current_line,
-          loc: program[i][3]
-				});
-			} else if (prototypes[program[i][1]] != program[i][2]) {
-				yy.parser.parseError("Function parameter mismatch: " + program[i][1], {
-					text: program[i][1],
-					line: current_line,
-          loc: program[i][4],          
-          parameters: program[i][2],
-				});
-			}
-			program[i][2] = program[i][1];
-			program[i][1] = functions[program[i][1]];
-      // Remove loc data which is only for error parsing
-      program[i].pop();
-      program[i].pop(); 
-		} else if (program[i][0] == 'PARAM') {
-      if (program[i][1] != 0) {
-        yy.parser.parseError("Unknown variable: " + program[i][1], {
-          text: program[i][1],
-          line: current_line,
-          loc: program[i][2]
-        });
-      } else {
-        program[i].pop();
-      }
-		}
-	}
-
-	return program;
-}
+const COMPILER= "RKP 1.0.0";
+const LANG = "ReKarel Pascal"
 /* generated by jison-lex 0.3.4 */
 var lexer = (function(){
 var lexer = ({
