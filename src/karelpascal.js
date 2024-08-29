@@ -185,7 +185,7 @@ case 14:
       this._$.last_line = _$[$0-2].last_line;
       this._$.last_column = _$[$0-2].last_column;
 
-      this.$ = [[$$[$0-2], $$[$0-3].concat($block).concat([['RET']]), [], this._$]]; 
+      this.$ = [[$$[$0-2],  $$[$0-3].concat($$[$0]).concat([['RET']]), [], this._$]]; 
     
 break;
 case 15:
@@ -196,7 +196,7 @@ case 15:
       this._$.last_line = _$[$0-5].last_line;
       this._$.last_column = _$[$0-5].last_column;
 
-    	this.$ = [[$$[$0-5], $$[$0-6].concat($block).concat([['RET']]), [$$[$0-3]], this._$]];
+    	this.$ = [[$$[$0-5],  $$[$0-6].concat($$[$0]).concat([['RET']]), [$$[$0-3]], this._$]];
     
 break;
 case 16:

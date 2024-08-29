@@ -267,10 +267,20 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
             throw new Error("VAR should have been removed");
         }
         if (instruction[0]==="CALL") {
+            let target = instruction[1];
+            if (!funcData.has(target)) {
+                data.yy.parser.parseError("Undefined function: " + target, {
+                    text: target,
+                    line: instruction[3].first_line - 1,
+                    loc: instruction[3]
+                });
+                return null;
+            }
+            
             program.push([
                 "CALL", 
-                funcData.get(instruction[1]).location,
-                instruction[1],
+                funcData.get(target).location,
+                target,
             ]);
             continue;
         }

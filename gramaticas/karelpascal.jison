@@ -192,7 +192,7 @@ def
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
 
-      $$ = [[$var, $line.concat($block).concat([['RET']]), [], @$]]; 
+      $$ = [[$var,  $line.concat($expr).concat([['RET']]), [], @$]]; 
     }
   | DEF line var '(' var ')' AS expr
     %{
@@ -202,7 +202,7 @@ def
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
 
-    	$$ = [[$3, $line.concat($block).concat([['RET']]), [$5], @$]];
+    	$$ = [[$3,  $line.concat($expr).concat([['RET']]), [$5], @$]];
     %}
   ;
 
