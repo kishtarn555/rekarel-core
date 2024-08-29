@@ -1,0 +1,11 @@
+
+class program {    
+    void clone(floor) {
+        iterate(floor) putbeeper();
+    }
+    program() {
+        clone(4);
+       
+        turnoff();
+    }
+}

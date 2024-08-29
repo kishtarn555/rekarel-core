@@ -1,0 +1,13 @@
+import rekarel.globals;
+
+class program {    
+    void clone(floor) {
+        move();
+        iterate(floor) putbeeper();
+    }
+    program() {
+        clone(4);
+       
+        turnoff();
+    }
+}

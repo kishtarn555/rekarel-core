@@ -1,0 +1,17 @@
+import rekarel.globals;
+
+class program {    
+    void clone(n) {
+        move();
+        iterate(n) putbeeper();
+    }
+    program() {
+        clone(floor);
+        move();
+        //Same as while nextToABeeper
+        while (!iszero(floor)) {
+            pickbeeper();
+        }
+        turnoff();
+    }
+}
