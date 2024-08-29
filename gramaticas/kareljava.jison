@@ -63,8 +63,8 @@
 
 %{
 
-const COMPILER= "ReKarel-Java 1.0.0";
-const LANG = "RKJ"
+const COMPILER= "RKJ 1.0.0";
+const LANG = "ReKarel Java"
 
 %}
 
@@ -80,7 +80,7 @@ program
         functions: $def_list,
         program: $block.concat([['LINE', yylineno], ['HALT']]),
         yy:yy,
-        requieresFunctionDeclaration: false
+        requieresFunctionPrototypes: false
       } 
     }
   | CLASS PROG BEGIN PROG '(' ')' block END EOF
@@ -92,7 +92,7 @@ program
         functions: [],
         program: $block.concat([['LINE', yylineno], ['HALT']]),
         yy:yy,
-        requieresFunctionDeclaration: false
+        requieresFunctionPrototypes: false
       }
     }
   |  import_list CLASS PROG BEGIN def_list PROG '(' ')' block END EOF
@@ -104,7 +104,7 @@ program
         functions: $def_list,
         program: $block.concat([['LINE', yylineno], ['HALT']]),
         yy:yy,
-        requieresFunctionDeclaration: false
+        requieresFunctionPrototypes: false
       }
     }
   | import_list CLASS PROG BEGIN PROG '(' ')' block END EOF
@@ -116,7 +116,7 @@ program
         functions: [],
         program: $block.concat([['LINE', yylineno], ['HALT']]),
         yy:yy,
-        requieresFunctionDeclaration: false
+        requieresFunctionPrototypes: false
       }
     }
   ;
@@ -164,7 +164,7 @@ def
       @$.first_column = @1.first_column;
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
-      $$ = [[$var, $line.concat($block).concat([['RET']]), 1, @$]];
+      $$ = [[$var, $line.concat($block).concat([['RET']]), [], @$]];
        }
   | DEF line var '(' var ')' block
     %{
@@ -172,21 +172,9 @@ def
       @$.first_column = @1.first_column;
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
-    	var result = $line.concat($block).concat([['RET']]);
-    	for (var i = 0; i < result.length; i++) {
-    		if (result[i][0] == 'PARAM') {
-    			if (result[i][1] == $5) {
-    				result[i][1] = 0;
-    			} else {
-						yy.parser.parseError("Unknown variable: " + $5, {
-							text: result[i][1],
-							line: yylineno,
-              loc:result[i][2]
-						});
-    			}
-    		}
-    	}
-    	$$ = [[$var, result, 2,@$]];
+    	let result = $line.concat($block).concat([['RET']]);
+      let params = [$5];
+    	$$ = [[$var, result, params ,@$]];
     %}
   ;
 
@@ -244,7 +232,6 @@ call
       @$.first_line = @1.first_line;
       @$.last_column = @4.last_column;
       @$.last_line = @4.last_line;
-      ;
       $$ = [['LINE', yylineno]].concat($integer).concat([['CALL', $var, 2, @1, @3], ['LINE', yylineno]]); 
     }
   ;
