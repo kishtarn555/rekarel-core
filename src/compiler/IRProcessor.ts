@@ -1,10 +1,4 @@
-
-/**
- * This are opcodes which do not requiere arguments
- */
-
-import { pascalCompiler } from "./compiler";
-import { ErrorLiteral, OpCode, RawProgram } from "./opcodes";
+import { ErrorLiteral, RawProgram } from "./opcodes";
 import { CompilerPackage, UnitePackages } from "./packages/package";
 import { JavaPackages, PascalPackages } from "./packages/rekarel.all";
 
