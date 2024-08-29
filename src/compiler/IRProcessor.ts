@@ -169,7 +169,7 @@ function loadPackages(data: IRObject): CompilerPackage {
     const compPackages = data.language === "ReKarel Java" ? JavaPackages : PascalPackages;
     const yy = data.yy;
 
-    let build: CompilerPackage = {
+    let bundle: CompilerPackage = {
         booleanVariables: new Map(),
         numberVariables: new Map(),
     };
@@ -195,16 +195,16 @@ function loadPackages(data: IRObject): CompilerPackage {
             });
         }
         const packObject:CompilerPackage = compPackages[pack[0]];
-        build = UnitePackages([build, packObject]);
+        bundle = UnitePackages([bundle, packObject]);
     }
 
-    return build;
+    return bundle;
 
 
 }
 
-function resolveVariables(IRInstructions: IRInstruction[], yy:YY, packages:CompilerPackage, parameters:string[]): IRInstruction[] {
-    const result:IRInstruction[] = [];
+function resolveVariables(IRInstructions: IRInstruction[], yy:YY, bundle:CompilerPackage, parameters:string[]): IRInstruction[] {
+    let result:IRInstruction[] = [];
     for (const instruction of IRInstructions) {
         if (instruction[0]!== "VAR") {
             result.push(instruction);
@@ -216,25 +216,25 @@ function resolveVariables(IRInstructions: IRInstruction[], yy:YY, packages:Compi
             result.push(["PARAM", parameterIdx]);
             continue;
         }
-        if (!packages.numberVariables.has(varName)) {
+        if (!bundle.numberVariables.has(varName)) {
             yy.parser.parseError("Unknown variable or parameter: "+varName, {
                 text:varName,
                 line: instruction[2].first_line - 1,
                 loc: instruction[2]
             });
         }
-        result.concat(packages.numberVariables.get(varName));
+        result = result.concat(bundle.numberVariables.get(varName));
     }
     return result;
 }
 
 export function generateOpcodesFromIR(data: IRObject): RawProgram {
-    const packs = loadPackages(data);
+    const bundle = loadPackages(data);
 
     if (!validateFunctions(data))
         throw new Error("This should not be reachable, it should have thrown before");
 
-    let IRProgram = resolveVariables(data.program, data.yy, packs, []);
+    let IRProgram = resolveVariables(data.program, data.yy, bundle, []);
 
 
     const funcData = new Map<string, FunctionData>();
@@ -248,7 +248,7 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
             arguments: func[2],
             location: IRProgram.length
         });
-        const code = resolveVariables(func[1], data.yy, packs, func[2]);
+        const code = resolveVariables(func[1], data.yy, bundle, func[2]);
         IRProgram = IRProgram.concat(code);
     }
     const program:RawProgram = []
