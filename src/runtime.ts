@@ -84,11 +84,11 @@ export class Runtime {
         this.program[3 * i + 1] = currentOpcode[1] as number;
       }
       if (currentOpcode[0] == 'CALL') {
-        if (!function_map.hasOwnProperty(currentOpcode[1])) {
-          function_map[currentOpcode[1]] = function_idx;
-          this.functionNames[function_idx++] = currentOpcode[1];
+        if (!function_map.hasOwnProperty(currentOpcode[2])) {
+          function_map[currentOpcode[2]] = function_idx;
+          this.functionNames[function_idx++] = currentOpcode[2];
         }
-        this.program[3 * i + 2] = function_map[currentOpcode[1]];
+        this.program[3 * i + 2] = function_map[currentOpcode[2]];
       } else if (currentOpcode[0] == 'EZ') {
         this.program[3 * i + 1] = error_mapping.indexOf(currentOpcode[1] as ErrorLiteral);
         if (this.program[3 * i + 1] == -1) {

@@ -229,14 +229,12 @@ function resolveVariables(IRInstructions: IRInstruction[], yy:YY, packages:Compi
 }
 
 export function generateOpcodesFromIR(data: IRObject): RawProgram {
-    console.log(Object.keys(data))
     const packs = loadPackages(data);
-    console.log(JSON.stringify(packs));
 
     if (!validateFunctions(data))
         throw new Error("This should not be reachable, it should have thrown before");
 
-    const IRProgram = resolveVariables(data.program, data.yy, packs, []);
+    let IRProgram = resolveVariables(data.program, data.yy, packs, []);
 
 
     const funcData = new Map<string, FunctionData>();
@@ -251,7 +249,8 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
             location: IRProgram.length
         });
         const code = resolveVariables(func[1], data.yy, packs, func[2]);
-        IRProgram.concat(code);
+        console.log(code)
+        IRProgram = IRProgram.concat(code);
     }
     const program:RawProgram = []
     for (const instruction of IRProgram) {
@@ -261,18 +260,13 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
         if (instruction[0]==="CALL") {
             program.push([
                 "CALL", 
+                funcData.get(instruction[1]).location,
                 instruction[1],
-                funcData.get(instruction[1]).location ,
-                instruction[2],
             ]);
             continue;
         }
 
         program.push(instruction);
     }
-
-
-
-
     return program;
 }

@@ -79,7 +79,7 @@ export type OpCode =
   [instruction: "DUP"] |
   [instruction: "DEC"] |
   [instruction: "INC"] |
-  [instruction: "CALL", fname: string, location:number, argCount: number] |
+  [instruction: "CALL", location:number, fname: string] |
   [instruction: "RET"] |
   [instruction: "PARAM", index: number]
   ;

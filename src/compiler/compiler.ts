@@ -64,12 +64,15 @@ export function compile(code:string) : RawProgram | null {
       default:
         return null;
     }  
-    return compiler(code);
+    const result = compiler(code);
+    console.log(result);
+    return result;
   }
   
 
 export function javaCompiler(code:string): RawProgram {
     const IR = javaParser(code);
+    console.log(IR);
     return generateOpcodesFromIR(IR); 
 }
 
