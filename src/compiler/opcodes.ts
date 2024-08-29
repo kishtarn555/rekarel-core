@@ -79,7 +79,7 @@ export type OpCode =
   ["DUP"] |
   ["DEC"] |
   ["INC"] |
-  ["CALL", fname: string, argCount: string] |
+  ["CALL", fname: string, argCount: string, location:number] |
   ["RET"] |
   ["PARAM", index: number]
   ;

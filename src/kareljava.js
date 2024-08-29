@@ -301,7 +301,7 @@ case 62:
  this.$ = [['ORIENTATION'], ['LOAD', 3], ['EQ'], ['NOT']]; 
 break;
 case 63:
- this.$ = [['PARAM', $$[$0], _$[$0]]]; 
+ this.$ = [['VAR', $$[$0], _$[$0]]]; 
 break;
 case 64:
  this.$ = [['LOAD', parseInt(yytext)]]; 

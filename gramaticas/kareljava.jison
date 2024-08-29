@@ -326,7 +326,7 @@ bool_fun
 
 integer
   : var
-    { $$ = [['PARAM', $var, @1]]; }
+    { $$ = [['VAR', $var, @1]]; }
   | NUM
     { $$ = [['LOAD', parseInt(yytext)]]; }
   | INC '(' integer ')'
