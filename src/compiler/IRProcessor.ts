@@ -50,8 +50,8 @@ export type IRInstruction =
     [instruction: "LOAD", value: number] |
     [instruction: "POP"] |
     [instruction: "DUP"] |
-    [instruction: "DEC"] |
-    [instruction: "INC"] |
+    [instruction: "DEC", amount: number] |
+    [instruction: "INC", amount: number] |
     [instruction: "CALL", fname: string, argCount: number, nameLoc: YYLoc, argLoc: YYLoc] |
     [instruction: "RET"] |
     [instruction: "PARAM", index: number] |

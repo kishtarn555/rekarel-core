@@ -66,7 +66,7 @@ export type OpCode =
   [instruction: "AND"] |
   [instruction: "OR"] |
   [instruction: "EQ"] |
-  [instruction: "EZ", error:ErrorLiteral] |
+  [instruction: "EZ", error: ErrorLiteral] |
   [instruction: "JZ"] |
   [instruction: "JMP", offset: number] |
   [instruction: "FORWARD"] |
@@ -77,9 +77,9 @@ export type OpCode =
   [instruction: "LOAD", value: number] |
   [instruction: "POP"] |
   [instruction: "DUP"] |
-  [instruction: "DEC"] |
-  [instruction: "INC"] |
-  [instruction: "CALL", location:number, fname: string] |
+  [instruction: "DEC", amount: number] |
+  [instruction: "INC", amount: number] |
+  [instruction: "CALL", location: number, fname: string] |
   [instruction: "RET"] |
   [instruction: "PARAM", index: number]
   ;
