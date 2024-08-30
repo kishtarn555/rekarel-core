@@ -388,12 +388,12 @@ export class Runtime {
         }
 
         case OpCodeID.DEC: {
-          this.state.stack[this.state.sp]--;
+          this.state.stack[this.state.sp] -= this.program[3 * this.state.pc + 1];
           break;
         }
 
         case OpCodeID.INC: {
-          this.state.stack[this.state.sp]++;
+          this.state.stack[this.state.sp] += this.program[3 * this.state.pc + 1];
           break;
         }
 
