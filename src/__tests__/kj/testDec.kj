@@ -1,0 +1,11 @@
+class program {
+    void test(n) {
+        iterate(pred(n, 5)) {
+            putbeeper();
+        }
+    }
+    program() {
+        test(pred(15));
+        turnoff();
+    }
+}

@@ -3,7 +3,15 @@ import { compile, World } from "../index"
 
 import fs from "fs"
 import { runAll } from "./world.test";
-const sourceFiles = ["turnoff.kj", "importAll.kj", "simpleFloor.kj", "simpleBackpack.kj", "globals.not.kj"]
+const sourceFiles = [
+    "turnoff.kj", 
+    "importAll.kj", 
+    "simpleFloor.kj", 
+    "simpleBackpack.kj", 
+    "globals.not.kj",
+    "testInc.kj",
+    "testDec.kj",
+]
 
 
 
@@ -21,6 +29,30 @@ describe("Java compilation tests ", ()=> {
             expect(Array.isArray(result)).toBe(true);
         }
         
+    });
+
+    test("Test simple sucede", () => {
+        const source = fs.readFileSync(__dirname + "/kj/testInc.kj").toString();
+        const opcodes = compile(source);
+        expect(opcodes).toBeDefined()
+        const world = new World(10, 10);
+        world.setBagBuzzers(20);
+        runAll(world, opcodes!);
+        expect(world.buzzers(1, 1)).toBe(16);
+        expect(world.bagBuzzers).toBe(4);
+
+    });
+
+    test("Test simple precede", () => {
+        const source = fs.readFileSync(__dirname + "/kj/testDec.kj").toString();
+        const opcodes = compile(source);
+        expect(opcodes).toBeDefined()
+        const world = new World(10, 10);
+        world.setBagBuzzers(20);
+        runAll(world, opcodes!);
+        expect(world.buzzers(1, 1)).toBe(9);
+        expect(world.bagBuzzers).toBe(11);
+
     });
 });
 
