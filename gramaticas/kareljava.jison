@@ -53,6 +53,7 @@
 ";"                             { return ';'; }
 "."                             { return '.'; }
 "*"                             { return '*'; }
+","                             { return ','; }
 [0-9]+                          { return 'NUM'; }
 [a-zA-Z][a-zA-Z0-9_]*           { return 'VAR'; }
 <<EOF>>                         { return 'EOF'; }
@@ -250,7 +251,7 @@ loop
 
 repeat
   : REPEAT line '(' integer ')' expr
-    { $$ = $line.concat($integer).concat([['DUP'], ['LOAD', 0], ['EQ'], ['NOT'], ['JZ', $expr.length + 2]]).concat($expr).concat([['DEC'], ['JMP', -1 -($expr.length + 6)], ['POP']]); }
+    { $$ = $line.concat($integer).concat([['DUP'], ['LOAD', 0], ['EQ'], ['NOT'], ['JZ', $expr.length + 2]]).concat($expr).concat([['DEC', 1], ['JMP', -1 -($expr.length + 6)], ['POP']]); }
   ;
 
 term
@@ -327,12 +328,21 @@ bool_fun
 integer
   : var
     { $$ = [['VAR', $var, @1]]; }
-  | NUM
-    { $$ = [['LOAD', parseInt(yytext)]]; }
+  | int_literal
+    { $$ = [['LOAD', $int_literal]]; }
   | INC '(' integer ')'
-    { $$ = $integer.concat([['INC']]); }
+    { $$ = $integer.concat([['INC', 1]]); }
   | DEC	 '(' integer ')'
-    { $$ = $integer.concat([['DEC']]); }
+    { $$ = $integer.concat([['DEC', 1]]); }
+  | INC '(' integer ',' int_literal ')'
+    { $$ = $integer.concat([['INC', $int_literal]]); }
+  | DEC	 '(' integer ',' int_literal ')'
+    { $$ = $integer.concat([['DEC', $int_literal]]); }
+  ;
+
+int_literal
+  : NUM
+    { $$ = parseInt(yytext); }
   ;
 
 var
@@ -341,6 +351,6 @@ var
   ;
 
 line
-  :
+  : 
     { $$ = [['LINE', yylineno]]; }
   ;
