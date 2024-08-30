@@ -2,15 +2,10 @@ import { RawProgram } from "../compiler/opcodes";
 import { compile, World } from "../index"
 
 import fs from "fs"
+import { runAll } from "./world.test";
 const sourceFiles = ["turnoff.kj", "importAll.kj", "simpleFloor.kj", "simpleBackpack.kj", "globals.not.kj"]
 
-function runAll(world:World, code:RawProgram) {
-    world.runtime.load(code);
-    world.runtime.start();
-    while (world.runtime.state.running) {
-        world.runtime.step();
-    }
-}
+
 
 describe("Java compilation tests ", ()=> {
     test("Test simple turnoff", ()=> {

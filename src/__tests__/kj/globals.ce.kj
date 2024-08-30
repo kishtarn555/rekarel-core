@@ -1,9 +1,9 @@
 import rekarel.globals;
 
 class program {    
-    void clone(floor) {
+    void clone(floorBeepers) {
         move();
-        iterate(floor) putbeeper();
+        iterate(floorBeepers) putbeeper();
     }
     program() {
         clone(4);
