@@ -1,4 +1,4 @@
-import { getOpCodeID } from "../opcodes";
+import { getOpCodeID } from "../compiler/opcodes";
 
 describe("OpCode test", ()=> {
     test("Test Halt Opcode", ()=> {

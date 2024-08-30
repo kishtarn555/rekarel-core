@@ -1,0 +1,17 @@
+usa rekarel.globales;
+
+iniciar-programa
+	inicia-ejecucion
+		repetir mochila veces
+		inicio
+			avanza;
+		fin;
+		mientras no si-es-cero(mochila) hacer
+			deja-zumbador;
+		repetir mochila veces
+		inicio
+			avanza;
+		fin;
+		apagate;
+	termina-ejecucion
+finalizar-programa

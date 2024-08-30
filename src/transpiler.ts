@@ -1,4 +1,4 @@
-import { RawProgram } from './opcodes.js';
+import { RawProgram } from './compiler/opcodes.js';
 
 import { java2pascalParser as j2pImported} from './java2pascal.js';
 import { pascal2javaParser as p2jImported} from './pascal2java.js';

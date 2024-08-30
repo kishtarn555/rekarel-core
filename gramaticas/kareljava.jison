@@ -63,102 +63,62 @@
 
 %{
 
-const rekarelModules= [
-  "*",
-];
+const COMPILER= "RKJ 1.0.0";
+const LANG = "ReKarel Java"
 
-function validate(packages, function_list, program, yy) {
-
-  const flags = new Set();
-  for (const pack of packages) {
-    const namespace = pack[0].split(".")[0];
-    const mod = pack[0].split(".")[1];
-    if (namespace != "rekarel") {
-      
-      yy.parser.parseError("Package not recognized: " + pack[0])
-      return; //TODO: Throw exception
-    }
-    if (!rekarelModules.includes(mod)) {
-      yy.parser.parseError("Rekarel has no module: " + mod)
-      return;
-    }
-    flags.add(pack[0]);
-  }
-  function checkReKarelFlag(flag) {
-    if (flags.has("*")) return true;
-    return flag.has(flag);
-  }
-
-	var functions = {};
-	var prototypes = {};
-
-	for (var i = 0; i < function_list.length; i++) {
-		if (functions[function_list[i][0]]) {
-			yy.parser.parseError("Function redefinition: " + function_list[i][0], {
-				text: function_list[i][0],
-				line: function_list[i][1][0][1],
-        loc: function_list[i][3]
-			});
-		}
-
-		functions[function_list[i][0]] = program.length;
-		prototypes[function_list[i][0]] = function_list[i][2];
-		program = program.concat(function_list[i][1]);
-	}
-
-	var current_line = 1;
-	for (var i = 0; i < program.length; i++) {
-		if (program[i][0] == 'LINE') {
-			current_line = program[i][1];
-		} else if (program[i][0] == 'CALL') {
-			if (!functions[program[i][1]] || !prototypes[program[i][1]]) {
-				yy.parser.parseError("Undefined function: " + program[i][1], {
-					text: program[i][1],
-					line: current_line,
-          loc: program[i][3]
-				});
-			} else if (prototypes[program[i][1]] != program[i][2]) {
-				yy.parser.parseError("Function parameter mismatch: " + program[i][1], {
-					text: program[i][1],
-					line: current_line,
-          loc: program[i][4],
-          parameters: program[i][2],
-				});
-			}
-
-			program[i][2] = program[i][1];
-			program[i][1] = functions[program[i][1]];
-      // Remove loc data which is only for error parsing
-      program[i].pop();
-      program[i].pop(); 
-		} else if (program[i][0] == 'PARAM') {
-      if (program[i][1] != 0) {
-        yy.parser.parseError("Unknown variable: " + program[i][1], {
-          text: program[i][1],
-          line: current_line,
-          loc: program[i][2]
-        });
-      } else {
-        program[i].pop();
-      }
-		}
-	}
-
-	return program;
-}
 %}
 
 %%
 
 program
   : CLASS PROG BEGIN def_list PROG '(' ')' block END EOF
-    { return validate([], $def_list, $block.concat([['LINE', yylineno], ['HALT']]), yy); }
+    { 
+      return {
+        compiler: COMPILER,
+        language: LANG,
+        packages: [],
+        functions: $def_list,
+        program: $block.concat([['LINE', yylineno], ['HALT']]),
+        yy:yy,
+        requieresFunctionPrototypes: false
+      } 
+    }
   | CLASS PROG BEGIN PROG '(' ')' block END EOF
-    { return validate([], [], $block.concat([['LINE', yylineno], ['HALT']]), yy); }
+    { 
+      return {
+        compiler: COMPILER,
+        language: LANG,
+        packages: [],
+        functions: [],
+        program: $block.concat([['LINE', yylineno], ['HALT']]),
+        yy:yy,
+        requieresFunctionPrototypes: false
+      }
+    }
   |  import_list CLASS PROG BEGIN def_list PROG '(' ')' block END EOF
-    { return validate($import_list, $def_list, $block.concat([['LINE', yylineno], ['HALT']]), yy); }
+    { 
+      return {
+        compiler: COMPILER,
+        language: LANG,
+        packages: $import_list,
+        functions: $def_list,
+        program: $block.concat([['LINE', yylineno], ['HALT']]),
+        yy:yy,
+        requieresFunctionPrototypes: false
+      }
+    }
   | import_list CLASS PROG BEGIN PROG '(' ')' block END EOF
-    { return validate($import_list, [], $block.concat([['LINE', yylineno], ['HALT']]), yy); }
+    { 
+      return {
+        compiler: COMPILER,
+        language: LANG,
+        packages: $import_list,
+        functions: [],
+        program: $block.concat([['LINE', yylineno], ['HALT']]),
+        yy:yy,
+        requieresFunctionPrototypes: false
+      }
+    }
   ;
 
 block
@@ -204,7 +164,7 @@ def
       @$.first_column = @1.first_column;
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
-      $$ = [[$var, $line.concat($block).concat([['RET']]), 1, @$]];
+      $$ = [[$var, $line.concat($block).concat([['RET']]), [], @$]];
        }
   | DEF line var '(' var ')' block
     %{
@@ -212,21 +172,9 @@ def
       @$.first_column = @1.first_column;
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
-    	var result = $line.concat($block).concat([['RET']]);
-    	for (var i = 0; i < result.length; i++) {
-    		if (result[i][0] == 'PARAM') {
-    			if (result[i][1] == $5) {
-    				result[i][1] = 0;
-    			} else {
-						yy.parser.parseError("Unknown variable: " + $5, {
-							text: result[i][1],
-							line: yylineno,
-              loc:result[i][2]
-						});
-    			}
-    		}
-    	}
-    	$$ = [[$var, result, 2,@$]];
+    	let result = $line.concat($block).concat([['RET']]);
+      let params = [$5];
+    	$$ = [[$var, result, params ,@$]];
     %}
   ;
 
@@ -284,7 +232,6 @@ call
       @$.first_line = @1.first_line;
       @$.last_column = @4.last_column;
       @$.last_line = @4.last_line;
-      ;
       $$ = [['LINE', yylineno]].concat($integer).concat([['CALL', $var, 2, @1, @3], ['LINE', yylineno]]); 
     }
   ;
@@ -379,7 +326,7 @@ bool_fun
 
 integer
   : var
-    { $$ = [['PARAM', $var, @1]]; }
+    { $$ = [['VAR', $var, @1]]; }
   | NUM
     { $$ = [['LOAD', parseInt(yytext)]]; }
   | INC '(' integer ')'

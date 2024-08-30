@@ -84,16 +84,56 @@ performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* actio
 var $0 = $$.length - 1;
 switch (yystate) {
 case 1:
- return validate([], $$[$0-6], $$[$0-2].concat([['LINE', yylineno], ['HALT']]), yy); 
+ 
+      return {
+        compiler: COMPILER,
+        language: LANG,
+        packages: [],
+        functions: $$[$0-6],
+        program: $$[$0-2].concat([['LINE', yylineno], ['HALT']]),
+        yy:yy,
+        requieresFunctionPrototypes: false
+      } 
+    
 break;
 case 2:
- return validate([], [], $$[$0-2].concat([['LINE', yylineno], ['HALT']]), yy); 
+ 
+      return {
+        compiler: COMPILER,
+        language: LANG,
+        packages: [],
+        functions: [],
+        program: $$[$0-2].concat([['LINE', yylineno], ['HALT']]),
+        yy:yy,
+        requieresFunctionPrototypes: false
+      }
+    
 break;
 case 3:
- return validate($$[$0-10], $$[$0-6], $$[$0-2].concat([['LINE', yylineno], ['HALT']]), yy); 
+ 
+      return {
+        compiler: COMPILER,
+        language: LANG,
+        packages: $$[$0-10],
+        functions: $$[$0-6],
+        program: $$[$0-2].concat([['LINE', yylineno], ['HALT']]),
+        yy:yy,
+        requieresFunctionPrototypes: false
+      }
+    
 break;
 case 4:
- return validate($$[$0-9], [], $$[$0-2].concat([['LINE', yylineno], ['HALT']]), yy); 
+ 
+      return {
+        compiler: COMPILER,
+        language: LANG,
+        packages: $$[$0-9],
+        functions: [],
+        program: $$[$0-2].concat([['LINE', yylineno], ['HALT']]),
+        yy:yy,
+        requieresFunctionPrototypes: false
+      }
+    
 break;
 case 5: case 23: case 44:
  this.$ = $$[$0-1]; 
@@ -123,7 +163,7 @@ case 13:
       this._$.first_column = _$[$0-5].first_column;
       this._$.last_line = _$[$0-3].last_line;
       this._$.last_column = _$[$0-3].last_column;
-      this.$ = [[$$[$0-3], $$[$0-4].concat($$[$0]).concat([['RET']]), 1, this._$]];
+      this.$ = [[$$[$0-3], $$[$0-4].concat($$[$0]).concat([['RET']]), [], this._$]];
        
 break;
 case 14:
@@ -132,21 +172,9 @@ case 14:
       this._$.first_column = _$[$0-6].first_column;
       this._$.last_line = _$[$0-4].last_line;
       this._$.last_column = _$[$0-4].last_column;
-    	var result = $$[$0-5].concat($$[$0]).concat([['RET']]);
-    	for (var i = 0; i < result.length; i++) {
-    		if (result[i][0] == 'PARAM') {
-    			if (result[i][1] == $$[$0-2]) {
-    				result[i][1] = 0;
-    			} else {
-						yy.parser.parseError("Unknown variable: " + $$[$0-2], {
-							text: result[i][1],
-							line: yylineno,
-              loc:result[i][2]
-						});
-    			}
-    		}
-    	}
-    	this.$ = [[$$[$0-4], result, 2,this._$]];
+    	let result = $$[$0-5].concat($$[$0]).concat([['RET']]);
+      let params = [$$[$0-2]];
+    	this.$ = [[$$[$0-4], result, params ,this._$]];
     
 break;
 case 17:
@@ -188,7 +216,6 @@ case 30:
       this._$.first_line = _$[$0-3].first_line;
       this._$.last_column = _$[$0].last_column;
       this._$.last_line = _$[$0].last_line;
-      ;
       this.$ = [['LINE', yylineno]].concat($$[$0-1]).concat([['CALL', $$[$0-3], 2, _$[$0-3], _$[$0-1]], ['LINE', yylineno]]); 
     
 break;
@@ -274,7 +301,7 @@ case 62:
  this.$ = [['ORIENTATION'], ['LOAD', 3], ['EQ'], ['NOT']]; 
 break;
 case 63:
- this.$ = [['PARAM', $$[$0], _$[$0]]]; 
+ this.$ = [['VAR', $$[$0], _$[$0]]]; 
 break;
 case 64:
  this.$ = [['LOAD', parseInt(yytext)]]; 
@@ -443,89 +470,9 @@ parse: function parse(input) {
 }};
 
 
-const rekarelModules= [
-  "*",
-];
+const COMPILER= "RKJ 1.0.0";
+const LANG = "ReKarel Java"
 
-function validate(packages, function_list, program, yy) {
-
-  const flags = new Set();
-  for (const pack of packages) {
-    const namespace = pack[0].split(".")[0];
-    const mod = pack[0].split(".")[1];
-    if (namespace != "rekarel") {
-      
-      yy.parser.parseError("Package not recognized: " + pack[0])
-      return; //TODO: Throw exception
-    }
-    if (!rekarelModules.includes(mod)) {
-      yy.parser.parseError("Rekarel has no module: " + mod)
-      return;
-    }
-    flags.add(pack[0]);
-  }
-  function checkReKarelFlag(flag) {
-    if (flags.has("*")) return true;
-    return flag.has(flag);
-  }
-
-	var functions = {};
-	var prototypes = {};
-
-	for (var i = 0; i < function_list.length; i++) {
-		if (functions[function_list[i][0]]) {
-			yy.parser.parseError("Function redefinition: " + function_list[i][0], {
-				text: function_list[i][0],
-				line: function_list[i][1][0][1],
-        loc: function_list[i][3]
-			});
-		}
-
-		functions[function_list[i][0]] = program.length;
-		prototypes[function_list[i][0]] = function_list[i][2];
-		program = program.concat(function_list[i][1]);
-	}
-
-	var current_line = 1;
-	for (var i = 0; i < program.length; i++) {
-		if (program[i][0] == 'LINE') {
-			current_line = program[i][1];
-		} else if (program[i][0] == 'CALL') {
-			if (!functions[program[i][1]] || !prototypes[program[i][1]]) {
-				yy.parser.parseError("Undefined function: " + program[i][1], {
-					text: program[i][1],
-					line: current_line,
-          loc: program[i][3]
-				});
-			} else if (prototypes[program[i][1]] != program[i][2]) {
-				yy.parser.parseError("Function parameter mismatch: " + program[i][1], {
-					text: program[i][1],
-					line: current_line,
-          loc: program[i][4],
-          parameters: program[i][2],
-				});
-			}
-
-			program[i][2] = program[i][1];
-			program[i][1] = functions[program[i][1]];
-      // Remove loc data which is only for error parsing
-      program[i].pop();
-      program[i].pop(); 
-		} else if (program[i][0] == 'PARAM') {
-      if (program[i][1] != 0) {
-        yy.parser.parseError("Unknown variable: " + program[i][1], {
-          text: program[i][1],
-          line: current_line,
-          loc: program[i][2]
-        });
-      } else {
-        program[i].pop();
-      }
-		}
-	}
-
-	return program;
-}
 /* generated by jison-lex 0.3.4 */
 var lexer = (function(){
 var lexer = ({

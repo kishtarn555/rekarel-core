@@ -1,0 +1,12 @@
+iniciar-programa
+	define-nueva-instruccion clone(zumbadores-del-piso) como
+	inicio
+		repetir zumbadores-del-piso veces
+			deja-zumbador;
+	fin;
+
+	inicia-ejecucion
+		clone(4);
+		apagate;
+	termina-ejecucion
+finalizar-programa
