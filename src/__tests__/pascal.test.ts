@@ -4,11 +4,47 @@ import { compile, World } from "../index"
 import fs from "fs"
 import { runAll } from "./world.test";
 
+/**
+ * All valid source files, this list is tested for it to compile correctly
+ */
+const sourceFiles = [
+    "turnoff.kp", 
+    "simpleFloor.kp", 
+    "simpleBackpack.kp", 
+    "globals.not.kp",
+    "testInc.kp", 
+    "testDec.kp",
+]
+
 describe("Pascal compilation tests ", () => {
     test("Test simple turnoff", () => {
         const source = fs.readFileSync(__dirname + "/kp/turnoff.kp").toString();
         const result = compile(source);
         expect(result).toEqual([['LINE', 3], ['HALT'], ['LINE', 5], ['HALT']])
+
+    });
+
+    test("Test simple sucede", () => {
+        const source = fs.readFileSync(__dirname + "/kp/testInc.kp").toString();
+        const opcodes = compile(source);
+        expect(opcodes).toBeDefined()
+        const world = new World(10, 10);
+        world.setBagBuzzers(20);
+        runAll(world, opcodes!);
+        expect(world.buzzers(1, 1)).toBe(16);
+        expect(world.bagBuzzers).toBe(4);
+
+    });
+
+    test("Test simple precede", () => {
+        const source = fs.readFileSync(__dirname + "/kp/testDec.kp").toString();
+        const opcodes = compile(source);
+        expect(opcodes).toBeDefined()
+        const world = new World(10, 10);
+        world.setBagBuzzers(20);
+        runAll(world, opcodes!);
+        expect(world.buzzers(1, 1)).toBe(9);
+        expect(world.bagBuzzers).toBe(11);
 
     });
 });
