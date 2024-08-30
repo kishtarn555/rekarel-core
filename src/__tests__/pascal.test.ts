@@ -3,10 +3,10 @@ import { compile, World } from "../index"
 
 import fs from "fs"
 import { runAll } from "./world.test";
-describe("Java compilation tests ", ()=> {
+describe("Pascal compilation tests ", ()=> {
     test("Test simple turnoff", ()=> {
-        const turnoffJava = fs.readFileSync(__dirname +"/kp/turnoff.kp").toString();
-        const result = compile (turnoffJava);
+        const source = fs.readFileSync(__dirname +"/kp/turnoff.kp").toString();
+        const result = compile (source);
         expect(result).toEqual([ [ 'LINE', 3 ], [ 'HALT' ], [ 'LINE', 5 ], [ 'HALT' ] ])
         
     });
