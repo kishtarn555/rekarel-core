@@ -1,0 +1,12 @@
+iniciar-programa
+	define-nueva-instruccion test(n) como
+	inicio
+		repetir sucede(n, 10) veces
+			deja-zumbador;
+	fin;
+
+	inicia-ejecucion
+		test(sucede(5));
+		apagate;
+	termina-ejecucion
+finalizar-programa
