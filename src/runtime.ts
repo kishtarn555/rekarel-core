@@ -31,6 +31,7 @@ type RuntimeState = {
   fp: number
   line: number
   ic: number
+  ret: number
   stack: Int32Array
   stackSize: number
 
@@ -111,6 +112,7 @@ export class Runtime {
       fp: -1,
       line: -1,
       ic: 0,
+      ret:0,
       stack: new Int32Array(new ArrayBuffer((0xffff * 16 + 40) * 4)),
       stackSize: 0,
 
@@ -464,6 +466,11 @@ export class Runtime {
             this.state.stack[
             this.state.fp + 3 + this.program[3 * this.state.pc + 1]
             ];
+          break;
+        }
+        
+        case OpCodeID.SRET: {
+          this.state.ret = this.state.stack[this.state.sp--];
           break;
         }
 
