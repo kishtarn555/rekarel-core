@@ -209,7 +209,7 @@ def
 
       $$ = [[
         $var,  
-        $line.concat($expr).concat([['RET', '__DEFAULT']]), 
+        $line.concat($expr).concat([['RET', '__DEFAULT', @1]]), //FIXME: This should be in the end of the expression
         [], 
         @$,
         $funct_type
@@ -225,7 +225,7 @@ def
 
     	$$ = [[
         $4,
-        $line.concat($expr).concat([['RET', '__DEFAULT']]),
+        $line.concat($expr).concat([['RET', '__DEFAULT', @1]]), //FIXME: This should be in the end of the expression
         [$6],
         @$,        
         $funct_type
@@ -281,9 +281,9 @@ expr
 
 return
   : RET 
-    { $$ = [['LINE', yylineno], ['RET', 'VOID']]; }
+    { $$ = [['LINE', yylineno], ['RET', 'VOID', @1]]; }
   | RET '(' integer ')'
-    { $$ = [['LINE', yylineno], ...$integer, ['SRET'], [ 'RET', 'INT']]; }
+    { $$ = [['LINE', yylineno], ...$integer, ['SRET'], [ 'RET', 'INT', @1]]; }
   ;
 
 call

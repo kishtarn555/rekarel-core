@@ -168,7 +168,7 @@ def
       @$.last_column = @3.last_column;
       $$ = [[
         $var, 
-        $line.concat($block).concat([['RET', '__DEFAULT']]), 
+        $line.concat($block).concat([['RET', '__DEFAULT', @1]]),  //FIXME: This should be in the closing bracket of block
         [], 
         @$, 
         $funct_type
@@ -180,7 +180,7 @@ def
       @$.first_column = @1.first_column;
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
-    	let result = $line.concat($block).concat([['RET', '__DEFAULT']]);
+    	let result = $line.concat($block).concat([['RET', '__DEFAULT', @1]]);
       let params = [$5];
     	$$ = [[
         $var, 
@@ -236,9 +236,9 @@ expr
 
 return
   : RET '(' ')'
-    { $$ = [['LINE', yylineno], ['RET', 'VOID']]; }
+    { $$ = [['LINE', yylineno], ['RET', 'VOID', @1]]; }
   | RET '(' integer ')'
-    { $$ = [['LINE', yylineno], ...$integer, ['SRET'], [ 'RET', 'INT']]; }
+    { $$ = [['LINE', yylineno], ...$integer, ['SRET'], [ 'RET', 'INT', @1]]; }
   ;
 
 call

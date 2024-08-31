@@ -199,7 +199,7 @@ case 14:
 
       this.$ = [[
         $$[$0-2],  
-        $$[$0-3].concat($$[$0]).concat([['RET', '__DEFAULT']]), 
+        $$[$0-3].concat($$[$0]).concat([['RET', '__DEFAULT', _$[$0-5]]]), //FIXME: This should be in the end of the expression
         [], 
         this._$,
         $$[$0-4]
@@ -216,7 +216,7 @@ case 15:
 
     	this.$ = [[
         $$[$0-5],
-        $$[$0-6].concat($$[$0]).concat([['RET', '__DEFAULT']]),
+        $$[$0-6].concat($$[$0]).concat([['RET', '__DEFAULT', _$[$0-8]]]), //FIXME: This should be in the end of the expression
         [$$[$0-3]],
         this._$,        
         $$[$0-7]
@@ -251,10 +251,10 @@ case 26:
  this.$ = [['LINE', yylineno], ['HALT']]; 
 break;
 case 33:
- this.$ = [['LINE', yylineno], ['RET', 'VOID']]; 
+ this.$ = [['LINE', yylineno], ['RET', 'VOID', _$[$0]]]; 
 break;
 case 34:
- this.$ = [['LINE', yylineno], ...$$[$0-1], ['SRET'], [ 'RET', 'INT']]; 
+ this.$ = [['LINE', yylineno], ...$$[$0-1], ['SRET'], [ 'RET', 'INT', _$[$0-3]]]; 
 break;
 case 35:
  this.$ = [['LINE', yylineno], ['LOAD', 0], ['CALL', $$[$0].toLowerCase(), 1, _$[$0], _$[$0]], ['LINE', yylineno]]; 

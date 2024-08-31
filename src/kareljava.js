@@ -165,7 +165,7 @@ case 13:
       this._$.last_column = _$[$0-3].last_column;
       this.$ = [[
         $$[$0-3], 
-        $$[$0-4].concat($$[$0]).concat([['RET', '__DEFAULT']]), 
+        $$[$0-4].concat($$[$0]).concat([['RET', '__DEFAULT', _$[$0-5]]]),  //FIXME: This should be in the closing bracket of block
         [], 
         this._$, 
         $$[$0-5]
@@ -178,7 +178,7 @@ case 14:
       this._$.first_column = _$[$0-6].first_column;
       this._$.last_line = _$[$0-4].last_line;
       this._$.last_column = _$[$0-4].last_column;
-    	let result = $$[$0-5].concat($$[$0]).concat([['RET', '__DEFAULT']]);
+    	let result = $$[$0-5].concat($$[$0]).concat([['RET', '__DEFAULT', _$[$0-6]]]);
       let params = [$$[$0-2]];
     	this.$ = [[
         $$[$0-4], 
@@ -214,10 +214,10 @@ case 30:
  this.$ = []; 
 break;
 case 31:
- this.$ = [['LINE', yylineno], ['RET', 'VOID']]; 
+ this.$ = [['LINE', yylineno], ['RET', 'VOID', _$[$0-2]]]; 
 break;
 case 32:
- this.$ = [['LINE', yylineno], ...$$[$0-1], ['SRET'], [ 'RET', 'INT']]; 
+ this.$ = [['LINE', yylineno], ...$$[$0-1], ['SRET'], [ 'RET', 'INT', _$[$0-3]]]; 
 break;
 case 33:
  
