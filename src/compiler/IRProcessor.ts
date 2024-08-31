@@ -56,6 +56,7 @@ export type IRInstruction =
     [instruction: "RET", returnType: string, retLoc:YYLoc] |
     [instruction: "PARAM", index: number] |
     [instruction: "SRET"] |
+    [instruction: "LRET"] |
     //This one is a IR instruction only, it must be resolved to a correct opcode
     [instruction: "VAR", name: string, loc: YYLoc]
     ;
