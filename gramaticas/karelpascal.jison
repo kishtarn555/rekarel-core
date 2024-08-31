@@ -298,7 +298,7 @@ call
             target:$var.toLowerCase(), 
             argCount:1, 
             nameLoc: @1, 
-            argCount: @1
+            argLoc: @1
           }
         ],
         ['LINE', yylineno]

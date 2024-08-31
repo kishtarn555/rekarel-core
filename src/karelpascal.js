@@ -267,7 +267,7 @@ case 35:
             target:$$[$0].toLowerCase(), 
             argCount:1, 
             nameLoc: _$[$0], 
-            argCount: _$[$0]
+            argLoc: _$[$0]
           }
         ],
         ['LINE', yylineno]
