@@ -474,6 +474,11 @@ export class Runtime {
           break;
         }
 
+        case OpCodeID.LRET: {
+          this.state.stack[++this.state.sp] = this.state.ret;
+          break;
+        }
+
         default: {
           this.state.running = false;
           if (this.debug) {
@@ -485,6 +490,10 @@ export class Runtime {
           }
 
           this.state.error = ErrorType.INVALIDOPCODE;
+          this.state.errorData = {
+            type:ErrorType.INSTRUCTION,
+            instruction: OpCodeID[this.program[this.state.pc*3]] as OpCodeLiteral
+          }
           return false;
         }
       }
