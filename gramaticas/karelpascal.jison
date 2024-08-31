@@ -19,8 +19,10 @@
 "usa"			                                  { return 'IMPORT'; }
 "define-prototipo-instruccion"              { return 'PROTO'; }
 "define-prototipo-instrucción"              { return 'PROTO'; }
+"entera"                                    { return 'INT'; }
 "sal-de-instruccion"                        { return 'RET'; }
 "sal-de-instrucción"                        { return 'RET'; }
+"regresa"                                   { return 'RET'; }
 "como"                                      { return 'AS'; }
 "apagate"                                   { return 'HALT'; }
 "apágate"                                   { return 'HALT'; }
@@ -186,16 +188,22 @@ def
       @$.last_column = @6.last_column;
       $$ = [[$var.toLowerCase(), null, [$5],  @$] ]; 
       }
-  | DEF line var AS expr
+  | DEF line var funct_type AS expr
     { 
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
 
-      $$ = [[$var,  $line.concat($expr).concat([['RET']]), [], @$]]; 
+      $$ = [[
+        $var,  
+        $line.concat($expr).concat([['RET', '__DEFAULT']]), 
+        [], 
+        @$,
+        $funct_type
+      ]]; 
     }
-  | DEF line var '(' var ')' AS expr
+  | DEF line var '(' var ')' funct_type AS expr
     %{
       
       @$.first_line = @1.first_line;
@@ -203,10 +211,22 @@ def
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
 
-    	$$ = [[$3,  $line.concat($expr).concat([['RET']]), [$5], @$]];
+    	$$ = [[
+        $3,
+        $line.concat($expr).concat([['RET', '__DEFAULT']]),
+        [$5],
+        @$,        
+        $funct_type
+      ]];
     %}
   ;
 
+funct_type
+  : INT
+    { $$ = "INT"; }
+  | 
+    { $$ = "VOID"; }
+  ;
 
 expr_list
   : expr_list ';' genexpr
@@ -233,8 +253,8 @@ expr
     { $$ = [['LINE', yylineno], ['BAGBUZZERS'], ['EZ', 'BAGUNDERFLOW'], ['LEAVEBUZZER']]; }
   | HALT
     { $$ = [['LINE', yylineno], ['HALT']]; }
-  | RET
-    { $$ = [['LINE', yylineno], ['RET']]; }
+  | return
+    { $$ = $return; }
   | call
     { $$ = $call; }
   | cond
@@ -245,6 +265,13 @@ expr
     { $$ = $repeat; }
   | BEGIN expr_list END
     { $$ = $expr_list; }
+  ;
+
+return
+  : RET 
+    { $$ = [['LINE', yylineno], ['RET', 'VOID']]; }
+  | RET '(' integer ')'
+    { $$ = [['LINE', yylineno], ...$integer, ['SRET'], [ 'RET', 'INT']]; }
   ;
 
 call
