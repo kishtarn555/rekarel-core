@@ -258,14 +258,33 @@ function resolveVariables(IRInstructions: IRInstruction[], yy: YY, bundle: Compi
             result.push(["PARAM", parameterIdx]);
             continue;
         }
-        if (!bundle.numberVariables.has(data.target)) {
-            yy.parser.parseError("Unknown variable or parameter: " + data.target, {
-                text: data.target,
-                line: data.loc.first_line - 1,
-                loc: data.loc
-            });
+
+        if (bundle.numberVariables.has(data.target)) {            
+            result = result.concat(bundle.numberVariables.get(data.target));
+            continue;
         }
-        result = result.concat(bundle.numberVariables.get(data.target));
+
+        if (data.couldBeFunction) {
+            //Resolve as an parameterless call
+            result.push(["LOAD", 0]); //FIXME: Don't forget to remove me after you change how variables work!
+            result.push([
+                "CALL",
+                {
+                    target: data.target,
+                    argCount:1,
+                    argLoc: data.loc,
+                    nameLoc: data.loc
+                }
+            ]);
+            result.push(["LRET"]);
+            continue;
+        }
+        
+        yy.parser.parseError("Unknown variable or parameter: " + data.target, {
+            text: data.target,
+            line: data.loc.first_line - 1,
+            loc: data.loc
+        });
     }
     return result;
 }
