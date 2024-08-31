@@ -228,7 +228,20 @@ case 33:
         last_line: _$[$0].last_line,
         last_column: _$[$0].last_column,
       };
-      this.$ = [['LINE', yylineno], ['LOAD', 0], ['CALL', $$[$0-2], 1, _$[$0-2], loc], ['LINE', yylineno]]; 
+      this.$ = [
+        ['LINE', yylineno], 
+        ['LOAD', 0], 
+        [
+          'CALL', 
+          {
+            target: $$[$0-2], 
+            argCount: 1, 
+            nameLoc: _$[$0-2], 
+            argLoc: loc
+          }
+        ], 
+        ['LINE', yylineno]
+      ]; 
     
 break;
 case 34:
@@ -237,7 +250,20 @@ case 34:
       this._$.first_line = _$[$0-3].first_line;
       this._$.last_column = _$[$0].last_column;
       this._$.last_line = _$[$0].last_line;
-      this.$ = [['LINE', yylineno]].concat($$[$0-1]).concat([['CALL', $$[$0-3], 2, _$[$0-3], _$[$0-1]], ['LINE', yylineno]]); 
+      this.$ = [
+        ['LINE', yylineno],
+        ...$$[$0-1],
+        [
+          'CALL',
+          {
+            target:$$[$0-3], 
+            argCount:2, 
+            nameLoc: _$[$0-3], 
+            argLoc: _$[$0-1]
+          } 
+        ], 
+        ['LINE', yylineno]
+      ]; 
     
 break;
 case 35:
@@ -322,7 +348,16 @@ case 66:
  this.$ = [['ORIENTATION'], ['LOAD', 3], ['EQ'], ['NOT']]; 
 break;
 case 67:
- this.$ = [['VAR', $$[$0], _$[$0]]]; 
+ 
+      this.$ = [[
+        'VAR', 
+        {
+          target:$$[$0], 
+          loc: _$[$0],
+          couldBeFunction: false
+        }
+      ]]; 
+    
 break;
 case 68:
  this.$ = [['LOAD', $$[$0]]]; 

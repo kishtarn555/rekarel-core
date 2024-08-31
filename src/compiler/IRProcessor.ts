@@ -24,6 +24,25 @@ type YYLoc = {
 }
 
 /**
+ * Data for a call IRInstructions
+ */
+type IRCall = {
+    target: string,
+    argCount: number,
+    nameLoc: YYLoc,
+    argLoc: YYLoc
+};
+
+/**
+ * Data for a var IRInstructions
+ */
+type IRVar= {
+    target: string,
+    loc: YYLoc,
+    couldBeFunction:boolean
+};
+
+/**
  * Represents the type of instructions that are available in the IR
  */
 export type IRInstruction =
@@ -52,13 +71,13 @@ export type IRInstruction =
     [instruction: "DUP"] |
     [instruction: "DEC", amount: number] |
     [instruction: "INC", amount: number] |
-    [instruction: "CALL", fname: string, argCount: number, nameLoc: YYLoc, argLoc: YYLoc] |
+    [instruction: "CALL", data:IRCall] |
     [instruction: "RET", returnType: string, retLoc:YYLoc] |
     [instruction: "PARAM", index: number] |
     [instruction: "SRET"] |
     [instruction: "LRET"] |
     //This one is a IR instruction only, it must be resolved to a correct opcode
-    [instruction: "VAR", name: string, loc: YYLoc]
+    [instruction: "VAR", data:IRVar]
     ;
 
 /**
@@ -151,14 +170,14 @@ export function validateFunctions(data: IRObject, bundle: CompilerPackage): bool
             if (data.requieresFunctionPrototypes && instruction[0] === "CALL") {
                 //This check is only needed if declaration order mater, for languages like C or Pascal
                 //Checks that the function called at this time has been declared above.
-                const target = instruction[1];
-                    if (!prototypes.has(target)) {
+                const data = instruction[1];
+                    if (!prototypes.has(data.target)) {
                         
 
-                    yy.parser.parseError("Undefined function: " + target, {
-                        text: target,
-                        line: instruction[3].first_line - 1,
-                        loc: instruction[3]
+                    yy.parser.parseError("Undefined function: " + data.target, {
+                        text: data.target,
+                        line: data.nameLoc.first_line - 1,
+                        loc: data.nameLoc
                     });
                     return false;
                 }
@@ -233,20 +252,20 @@ function resolveVariables(IRInstructions: IRInstruction[], yy: YY, bundle: Compi
             result.push(instruction);
             continue;
         }
-        const varName = instruction[1];
-        const parameterIdx = parameters.indexOf(varName);
+        const data = instruction[1];
+        const parameterIdx = parameters.indexOf(data.target);
         if (parameterIdx !== -1) {
             result.push(["PARAM", parameterIdx]);
             continue;
         }
-        if (!bundle.numberVariables.has(varName)) {
-            yy.parser.parseError("Unknown variable or parameter: " + varName, {
-                text: varName,
-                line: instruction[2].first_line - 1,
-                loc: instruction[2]
+        if (!bundle.numberVariables.has(data.target)) {
+            yy.parser.parseError("Unknown variable or parameter: " + data.target, {
+                text: data.target,
+                line: data.loc.first_line - 1,
+                loc: data.loc
             });
         }
-        result = result.concat(bundle.numberVariables.get(varName));
+        result = result.concat(bundle.numberVariables.get(data.target));
     }
     return result;
 }
@@ -280,29 +299,29 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
             throw new Error("VAR should have been removed");
         }
         if (instruction[0] === "CALL") {
-            let target = instruction[1];
-            if (!funcData.has(target)) {
-                data.yy.parser.parseError("Undefined function: " + target, {
-                    text: target,
-                    line: instruction[3].first_line - 1,
-                    loc: instruction[3]
+            const iData = instruction[1];
+            if (!funcData.has(iData.target)) {
+                data.yy.parser.parseError("Undefined function: " + iData.target, {
+                    text: iData.target,
+                    line: iData.nameLoc.first_line - 1,
+                    loc: iData.nameLoc
                 });
                 return null;
             }
-            const targetFunc = funcData.get(target);
-            if (targetFunc.arguments.length != instruction[2] - 1) {
-                data.yy.parser.parseError("Function parameter mismatch: " + target, {
-                    text: target,
-                    line: instruction[3].first_line - 1,
-                    loc: instruction[3],
-                    parameters: instruction[3], //Fixme: add Parameter IR location
+            const targetFunc = funcData.get(iData.target);
+            if (targetFunc.arguments.length != iData.argCount - 1) {
+                data.yy.parser.parseError("Function parameter mismatch: " + iData.target, {
+                    text: iData.target,
+                    line: iData.argLoc.first_line - 1,
+                    loc: iData.argLoc,
+                    parameters: iData.argLoc, //Fixme: add Parameter IR location
                 });
             }
 
             program.push([
                 "CALL",
                 targetFunc.location,
-                target,
+                iData.target,
             ]);
             continue;
         }

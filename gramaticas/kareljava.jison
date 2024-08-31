@@ -252,7 +252,20 @@ call
         last_line: @3.last_line,
         last_column: @3.last_column,
       };
-      $$ = [['LINE', yylineno], ['LOAD', 0], ['CALL', $var, 1, @1, loc], ['LINE', yylineno]]; 
+      $$ = [
+        ['LINE', yylineno], 
+        ['LOAD', 0], 
+        [
+          'CALL', 
+          {
+            target: $var, 
+            argCount: 1, 
+            nameLoc: @1, 
+            argLoc: loc
+          }
+        ], 
+        ['LINE', yylineno]
+      ]; 
     %}
   | var '(' integer ')'
     { 
@@ -260,7 +273,20 @@ call
       @$.first_line = @1.first_line;
       @$.last_column = @4.last_column;
       @$.last_line = @4.last_line;
-      $$ = [['LINE', yylineno]].concat($integer).concat([['CALL', $var, 2, @1, @3], ['LINE', yylineno]]); 
+      $$ = [
+        ['LINE', yylineno],
+        ...$integer,
+        [
+          'CALL',
+          {
+            target:$var, 
+            argCount:2, 
+            nameLoc: @1, 
+            argLoc: @3
+          } 
+        ], 
+        ['LINE', yylineno]
+      ]; 
     }
   ;
 
@@ -354,7 +380,16 @@ bool_fun
 
 integer
   : var
-    { $$ = [['VAR', $var, @1]]; }
+    { 
+      $$ = [[
+        'VAR', 
+        {
+          target:$var, 
+          loc: @1,
+          couldBeFunction: false
+        }
+      ]]; 
+    }
   | int_literal
     { $$ = [['LOAD', $int_literal]]; }
   | INC '(' integer ')'

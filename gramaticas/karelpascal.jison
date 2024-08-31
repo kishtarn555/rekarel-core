@@ -288,9 +288,45 @@ return
 
 call
   : var
-    { $$ = [['LINE', yylineno], ['LOAD', 0], ['CALL', $var.toLowerCase(), 1, @1, @1], ['LINE', yylineno]]; }
-  | var '(' integer ')'
-    { $$ = [['LINE', yylineno]].concat($integer).concat([['CALL', $var.toLowerCase(), 2, @1, @3], ['LINE', yylineno]]); }
+    { 
+      $$ = [
+        ['LINE', yylineno],
+        ['LOAD', 0],
+        [
+          'CALL', 
+          {
+            target:$var.toLowerCase(), 
+            argCount:1, 
+            nameLoc: @1, 
+            argCount: @1
+          }
+        ],
+        ['LINE', yylineno]
+      ];
+    }
+  | parameteredCall
+    { $$ = $parameteredCall; } 
+    
+  ;
+
+parameteredCall 
+  : var '(' integer ')'
+    { 
+      $$ = [
+        ['LINE', yylineno], 
+        ...$integer, 
+        [
+          'CALL', 
+          {
+            target: $var.toLowerCase(), 
+            argCount: 2, 
+            nameLoc: @1, 
+            argLoc: @3
+          }
+        ], 
+        ['LINE', yylineno]
+      ]; 
+    }
   ;
 
 cond
@@ -381,7 +417,15 @@ bool_fun
 
 integer
   : var
-    { $$ = [['VAR', $var.toLowerCase(), @1]]; }
+    { $$ = [[
+        'VAR',
+        {
+          target: $var.toLowerCase(), 
+          loc: @1, 
+          couldBeFunction: true
+        }
+      ]]; 
+    }
   | int_literal
     { $$ = [['LOAD',  $int_literal]]; }
   | INC '(' integer ')'
