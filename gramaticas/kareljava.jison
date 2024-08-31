@@ -11,6 +11,7 @@
 "define"			{ return 'DEF'; }
 "import"			{ return 'IMPORT'; }
 "void"				{ return 'DEF'; }
+"int"				  { return 'INT'; }
 "return"      { return 'RET'; }
 "turnoff"                       { return 'HALT'; }
 "turnleft"	                { return 'LEFT'; }
@@ -159,15 +160,15 @@ def_list
   ;
 
 def
-  : DEF line var '(' ')' block
+  : funct_type line var '(' ')' block
     { 
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
-      $$ = [[$var, $line.concat($block).concat([['RET']]), [], @$]];
+      $$ = [[$var, $line.concat($block).concat([['RET']]), [], @$, $funct_type]];
        }
-  | DEF line var '(' var ')' block
+  | funct_type line var '(' var ')' block
     %{
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
@@ -175,8 +176,15 @@ def
       @$.last_column = @3.last_column;
     	let result = $line.concat($block).concat([['RET']]);
       let params = [$5];
-    	$$ = [[$var, result, params ,@$]];
+    	$$ = [[$var, result, params ,@$, $funct_type]];
     %}
+  ;
+
+funct_type
+  : DEF 
+    { $$ = "VOID"; }
+  | int
+    { $$ = "INT"; }
   ;
 
 
