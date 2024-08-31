@@ -183,7 +183,7 @@ def
 funct_type
   : DEF 
     { $$ = "VOID"; }
-  | int
+  | INT
     { $$ = "INT"; }
   ;
 
