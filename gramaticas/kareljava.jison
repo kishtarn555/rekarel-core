@@ -166,17 +166,29 @@ def
       @$.first_column = @1.first_column;
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
-      $$ = [[$var, $line.concat($block).concat([['RET']]), [], @$, $funct_type]];
-       }
+      $$ = [[
+        $var, 
+        $line.concat($block).concat([['RET', '__DEFAULT']]), 
+        [], 
+        @$, 
+        $funct_type
+      ]];
+    }
   | funct_type line var '(' var ')' block
     %{
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
-    	let result = $line.concat($block).concat([['RET']]);
+    	let result = $line.concat($block).concat([['RET', '__DEFAULT']]);
       let params = [$5];
-    	$$ = [[$var, result, params ,@$, $funct_type]];
+    	$$ = [[
+        $var, 
+        result, 
+        params,
+        @$, 
+        $funct_type
+      ]];
     %}
   ;
 
@@ -206,8 +218,8 @@ expr
     { $$ = [['LINE', yylineno], ['BAGBUZZERS'], ['EZ', 'BAGUNDERFLOW'], ['LEAVEBUZZER']]; }
   | HALT '(' ')' ';'
     { $$ = [['LINE', yylineno], ['HALT']]; }
-  | RET '(' ')' ';'
-    { $$ = [['LINE', yylineno], ['RET']]; }
+  | return ';'
+    { $$ = $return; }
   | call ';'
     { $$ = $call; }
   | cond
@@ -220,6 +232,13 @@ expr
     { $$ = $block; }
   | ';'
     { $$ = []; }
+  ;
+
+return
+  : RET '(' ')'
+    { $$ = [['LINE', yylineno], ['RET', 'VOID']]; }
+  | RET '(' integer ')'
+    { $$ = [['LINE', yylineno], ...$integer, ['SRET'], [ 'RET', 'INT']]; }
   ;
 
 call
