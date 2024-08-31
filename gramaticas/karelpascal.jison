@@ -172,23 +172,35 @@ def_list
   ;
 
 def
-  : PROTO line var
+  : PROTO funct_type line var
     { 
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
-      $$ = [[$var.toLowerCase(), null, [],  @$] ]; 
+      $$ = [[
+        $var.toLowerCase(), 
+        null, 
+        [],  
+        @$,
+        $funct_type
+      ]]; 
     }
-  | PROTO line var '(' var ')'
+  | PROTO funct_type line var '(' var ')'
     { 
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
       @$.last_line = @6.last_line;
       @$.last_column = @6.last_column;
-      $$ = [[$var.toLowerCase(), null, [$5],  @$] ]; 
+      $$ = [[
+        $var.toLowerCase(), 
+        null, 
+        [$6],  
+        @$,
+        $funct_type
+      ]]; 
       }
-  | DEF line var funct_type AS expr
+  | DEF funct_type line var  AS expr
     { 
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
@@ -203,7 +215,7 @@ def
         $funct_type
       ]]; 
     }
-  | DEF line var '(' var ')' funct_type AS expr
+  | DEF funct_type line var '(' var ')' AS expr
     %{
       
       @$.first_line = @1.first_line;
@@ -212,9 +224,9 @@ def
       @$.last_column = @3.last_column;
 
     	$$ = [[
-        $3,
+        $4,
         $line.concat($expr).concat([['RET', '__DEFAULT']]),
-        [$5],
+        [$6],
         @$,        
         $funct_type
       ]];
