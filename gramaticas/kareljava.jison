@@ -365,6 +365,8 @@ integer
     { $$ = $integer.concat([['INC', $int_literal]]); }
   | DEC	 '(' integer ',' int_literal ')'
     { $$ = $integer.concat([['DEC', $int_literal]]); }
+  | call 
+    {{ $$ = [...$call, ['LRET']] }}
   ;
 
 int_literal
