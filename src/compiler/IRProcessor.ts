@@ -53,7 +53,7 @@ export type IRInstruction =
     [instruction: "DEC", amount: number] |
     [instruction: "INC", amount: number] |
     [instruction: "CALL", fname: string, argCount: number, nameLoc: YYLoc, argLoc: YYLoc] |
-    [instruction: "RET"] |
+    [instruction: "RET", returnType: string, retLoc:YYLoc] |
     [instruction: "PARAM", index: number] |
     //This one is a IR instruction only, it must be resolved to a correct opcode
     [instruction: "VAR", name: string, loc: YYLoc]
@@ -62,7 +62,7 @@ export type IRInstruction =
 /**
  * IR Function representation
  */
-type IRFunction = [name: string, code: null | IRInstruction[], params: string[], loc: YYLoc]
+type IRFunction = [name: string, code: null | IRInstruction[], params: string[], loc: YYLoc, returnType: string]
 
 
 /**
@@ -144,25 +144,36 @@ export function validateFunctions(data: IRObject, bundle: CompilerPackage): bool
 
         prototypes.set(name, { argCount: func[2].length, defined: true });
 
-        if (!data.requieresFunctionPrototypes)
-            continue;
-        //This check are only needed if declaration order mater, for languages like C or Pascal
-        //Checks that the function called at this time has been declared above.
+
         for (const instruction of func[1]) {
-            if (instruction[0] !== "CALL")
-                continue;
+            if (data.requieresFunctionPrototypes && instruction[0] === "CALL") {
+                //This check is only needed if declaration order mater, for languages like C or Pascal
+                //Checks that the function called at this time has been declared above.
+                const target = instruction[1];
+                    if (!prototypes.has(target)) {
+                        
 
-            const target = instruction[1];
+                    yy.parser.parseError("Undefined function: " + target, {
+                        text: target,
+                        line: instruction[3].first_line - 1,
+                        loc: instruction[3]
+                    });
+                    return false;
+                }
+            }
 
-            if (prototypes.has(target))
-                continue;
-
-            yy.parser.parseError("Undefined function: " + target, {
-                text: target,
-                line: instruction[3].first_line - 1,
-                loc: instruction[3]
-            });
-            return false;
+            if (instruction[0] === "RET") {
+                // Check that it returns the correct type
+                if (instruction[1] !== "__DEFAULT" && instruction[1] !== func[4]) {
+                    yy.parser.parseError("Cannot return a type: " + instruction[1]+", in a function of type: "+func[4], {
+                        expectedType: func[4],
+                        returnedType: instruction[1],
+                        line: instruction[2].first_line - 1,
+                        loc: instruction[2]
+                    });
+                    return false;
+                }
+            }
         }
 
     }
@@ -291,6 +302,10 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
                 targetFunc.location,
                 target,
             ]);
+            continue;
+        }
+        if (instruction[0] === "RET") {
+            program.push(["RET"]);
             continue;
         }
 
