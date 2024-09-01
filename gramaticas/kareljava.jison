@@ -237,7 +237,9 @@ expr
 return
   : RET '(' ')'
     { $$ = [['LINE', yylineno], ['RET', 'VOID', @1]]; }
-  | RET '(' integer ')'
+  | RET 
+    { $$ = [['LINE', yylineno], ['RET', 'VOID', @1]]; }
+  | RET  integer 
     { $$ = [['LINE', yylineno], ...$integer, ['SRET'], [ 'RET', 'INT', @1]]; }
   ;
 
