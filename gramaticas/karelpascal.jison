@@ -19,7 +19,9 @@
 "usa"			                                  { return 'IMPORT'; }
 "define-prototipo-instruccion"              { return 'PROTO'; }
 "define-prototipo-instrucción"              { return 'PROTO'; }
-"entera"                                    { return 'INT'; }
+"define-prototipo-entero"                   { return 'PROTO_INT'; }
+"define-instrucción-entera"                 { return 'DEF_INT'; }
+"define-instruccion-entera"                 { return 'DEF_INT'; }
 "sal-de-instruccion"                        { return 'RET'; }
 "sal-de-instrucción"                        { return 'RET'; }
 "regresa"                                   { return 'RET'; }
@@ -172,7 +174,7 @@ def_list
   ;
 
 def
-  : PROTO funct_type line var
+  : prototype_type line var
     { 
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
@@ -186,7 +188,7 @@ def
         returnType: $funct_type
       }]; 
     }
-  | PROTO funct_type line var '(' var ')'
+  | prototype_type line var '(' var ')'
     { 
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
@@ -195,12 +197,12 @@ def
       $$ = [{
         name: $var.toLowerCase(), 
         code: null, 
-        params: [$6],  
+        params: [$5],  
         loc: @$,
         returnType: $funct_type
       }]; 
       }
-  | DEF funct_type line var  AS expr
+  | funct_type line var  AS expr
     { 
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
@@ -215,7 +217,7 @@ def
         returnType: $funct_type
       }]; 
     }
-  | DEF funct_type line var '(' var ')' AS expr
+  | funct_type line var '(' var ')' AS expr
     %{
       
       @$.first_line = @1.first_line;
@@ -224,9 +226,9 @@ def
       @$.last_column = @3.last_column;
 
     	$$ = [{
-        name: $4,
+        name: $3,
         code: $line.concat($expr).concat([['RET', '__DEFAULT', @1]]), //FIXME: This should be in the end of the expression
-        params: [$6],
+        params: [$5],
         loc: @$,        
         returnType: $funct_type
       }];
@@ -234,9 +236,16 @@ def
   ;
 
 funct_type
-  : INT
+  : DEF_INT
     { $$ = "INT"; }
-  | 
+  | DEF
+    { $$ = "VOID"; }
+  ;
+
+prototype_type
+  : PROTO_INT
+    { $$ = "INT"; }
+  | PROTO
     { $$ = "VOID"; }
   ;
 
