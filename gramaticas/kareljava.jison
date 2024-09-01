@@ -401,7 +401,11 @@ integer
   | DEC	 '(' integer ',' int_literal ')'
     { $$ = $integer.concat([['DEC', $int_literal]]); }
   | call 
-    {{ $$ = [...$call, ['LRET']] }}
+    %{ 
+      const callData = $call;
+      callData[callData.length-2][1].expectedType = 'INT'; //Set expected int to call instruction
+      $$ = [...callData, ['LRET']] 
+    %}
   ;
 
 int_literal

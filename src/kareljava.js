@@ -375,7 +375,11 @@ case 72:
  this.$ = $$[$0-3].concat([['DEC', $$[$0-1]]]); 
 break;
 case 73:
- this.$ = [...$$[$0], ['LRET']] 
+ 
+      const callData = $$[$0];
+      callData[callData.length-2][1].expectedType = 'INT'; //Set expected int to call instruction
+      this.$ = [...callData, ['LRET']] 
+    
 break;
 case 74:
  this.$ = parseInt(yytext); 
