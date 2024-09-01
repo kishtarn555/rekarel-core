@@ -83,7 +83,13 @@ export type IRInstruction =
 /**
  * IR Function representation
  */
-type IRFunction = [name: string, code: null | IRInstruction[], params: string[], loc: YYLoc, returnType: string]
+type IRFunction = {
+    name: string, 
+    code: null | IRInstruction[], 
+    params: string[], 
+    loc: YYLoc, 
+    returnType: string
+}
 
 
 /**
@@ -111,62 +117,60 @@ export function validateFunctions(data: IRObject, bundle: CompilerPackage): bool
     const yy = data.yy;
     const prototypes = new Map<string, PrototypeData>();
     for (const func of data.functions) {
-        const name = func[0];
-
         //Check that the parameters do not overload a global
-        for (const parameter of func[2]) {
+        for (const parameter of func.params) {
             if (
                 bundle.numberVariables.has(parameter) ||
                 bundle.booleanVariables.has(parameter)
             ) {
                 yy.parser.parseError("Cannot name a parameter as a global variable", {
                     text: parameter,
-                    line: func[3].first_line - 1
+                    line: func.loc.first_line - 1
                 })
                 return false;
             }
         }
 
         //Check if current func is a prototype
-        if (func[1] == null) {
-            if (prototypes.has(name)) {
-                yy.parser.parseError("Prototype redefinition: " + name, {
-                    text: name,
-                    line: func[3].first_line - 1,
-                    loc: func[3],
+        if (func.code == null) {
+            if (prototypes.has(func.name)) {
+                yy.parser.parseError("Prototype redefinition: " + func.name, {
+                    text: func.name,
+                    line: func.loc.first_line - 1,
+                    loc: func.loc,
                 });
                 return false;
             }
-            prototypes.set(name, { argCount: func[2].length, defined: false });
+            prototypes.set(func.name, { argCount: func.params.length, defined: false });
             continue;
         }
 
-        if (!prototypes.has(name)) {
-            prototypes.set(name, { argCount: func[2].length, defined: false });
+        if (!prototypes.has(func.name)) {
+            prototypes.set(func.name, { argCount: func.params.length, defined: false });
         }
-        const proto = prototypes.get(name);
+        const proto = prototypes.get(func.name);
         if (proto.defined) {
             yy.parser.parseError("Function redefinition: " + name, {
                 text: name,
-                line: func[3].first_line - 1,
-                loc: func[3],
+                line: func.loc.first_line - 1,
+                loc: func.loc,
             });
             return false;
         }
 
-        if (proto.argCount !== func[2].length) {
+        if (proto.argCount !== func.params.length) {
             yy.parser.parseError("Prototype parameter mismatch: " + name, {
                 text: name,
-                line: func[3].first_line - 1,
-                loc: func[3],
+                line: func.loc.first_line - 1,
+                loc: func.loc,
             });
             return false;
         }
 
-        prototypes.set(name, { argCount: func[2].length, defined: true });
+        prototypes.set(func.name, { argCount: func.params.length, defined: true });
 
 
-        for (const instruction of func[1]) {
+        for (const instruction of func.code) {
             if (data.requieresFunctionPrototypes && instruction[0] === "CALL") {
                 //This check is only needed if declaration order mater, for languages like C or Pascal
                 //Checks that the function called at this time has been declared above.
@@ -185,9 +189,9 @@ export function validateFunctions(data: IRObject, bundle: CompilerPackage): bool
 
             if (instruction[0] === "RET") {
                 // Check that it returns the correct type
-                if (instruction[1] !== "__DEFAULT" && instruction[1] !== func[4]) {
-                    yy.parser.parseError("Cannot return a type: " + instruction[1]+", in a function of type: "+func[4], {
-                        expectedType: func[4],
+                if (instruction[1] !== "__DEFAULT" && instruction[1] !== func.returnType) {
+                    yy.parser.parseError("Cannot return a type: " + instruction[1]+", in a function of type: "+func.returnType, {
+                        expectedType: func.returnType,
                         returnedType: instruction[1],
                         line: instruction[2].first_line - 1,
                         loc: instruction[2]
@@ -301,15 +305,15 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
     const funcData = new Map<string, FunctionData>();
 
     for (const func of data.functions) {
-        if (func[1] == null) {
+        if (func.code == null) {
             //Skip prototypes
             continue;
         }
-        funcData.set(func[0], {
-            arguments: func[2],
+        funcData.set(func.name, {
+            arguments: func.params,
             location: IRProgram.length
         });
-        const code = resolveVariables(func[1], data.yy, bundle, func[2]);
+        const code = resolveVariables(func.code, data.yy, bundle, func.params);
         IRProgram = IRProgram.concat(code);
     }
     const program: RawProgram = []

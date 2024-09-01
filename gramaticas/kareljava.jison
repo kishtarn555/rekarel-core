@@ -166,13 +166,13 @@ def
       @$.first_column = @1.first_column;
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
-      $$ = [[
-        $var, 
-        $line.concat($block).concat([['RET', '__DEFAULT', @1]]),  //FIXME: This should be in the closing bracket of block
-        [], 
-        @$, 
-        $funct_type
-      ]];
+      $$ = [{
+        name: $var, 
+        code: $line.concat($block).concat([['RET', '__DEFAULT', @1]]),  //FIXME: This should be in the closing bracket of block
+        params: [], 
+        loc: @$, 
+        returnType: $funct_type
+      }];
     }
   | funct_type line var '(' var ')' block
     %{
@@ -182,13 +182,13 @@ def
       @$.last_column = @3.last_column;
     	let result = $line.concat($block).concat([['RET', '__DEFAULT', @1]]);
       let params = [$5];
-    	$$ = [[
-        $var, 
-        result, 
-        params,
-        @$, 
-        $funct_type
-      ]];
+    	$$ = [{
+        name: $var, 
+        code: result, 
+        params: params,
+        loc: @$, 
+        returnType: $funct_type
+      }];
     %}
   ;
 

@@ -166,13 +166,13 @@ case 12:
       this._$.first_column = _$[$0-3].first_column;
       this._$.last_line = _$[$0-1].last_line;
       this._$.last_column = _$[$0-1].last_column;
-      this.$ = [[
-        $$[$0].toLowerCase(), 
-        null, 
-        [],  
-        this._$,
-        $$[$0-2]
-      ]]; 
+      this.$ = [{
+        name: $$[$0].toLowerCase(), 
+        code: null, 
+        params: [],  
+        loc: this._$,
+        returnType: $$[$0-2]
+      }]; 
     
 break;
 case 13:
@@ -181,13 +181,13 @@ case 13:
       this._$.first_column = _$[$0-6].first_column;
       this._$.last_line = _$[$0-1].last_line;
       this._$.last_column = _$[$0-1].last_column;
-      this.$ = [[
-        $$[$0-3].toLowerCase(), 
-        null, 
-        [$$[$0-1]],  
-        this._$,
-        $$[$0-5]
-      ]]; 
+      this.$ = [{
+        name: $$[$0-3].toLowerCase(), 
+        code: null, 
+        params: [$$[$0-1]],  
+        loc: this._$,
+        returnType: $$[$0-5]
+      }]; 
       
 break;
 case 14:
@@ -197,13 +197,13 @@ case 14:
       this._$.last_line = _$[$0-3].last_line;
       this._$.last_column = _$[$0-3].last_column;
 
-      this.$ = [[
-        $$[$0-2],  
-        $$[$0-3].concat($$[$0]).concat([['RET', '__DEFAULT', _$[$0-5]]]), //FIXME: This should be in the end of the expression
-        [], 
-        this._$,
-        $$[$0-4]
-      ]]; 
+      this.$ = [{
+        name: $$[$0-2],  
+        code: $$[$0-3].concat($$[$0]).concat([['RET', '__DEFAULT', _$[$0-5]]]), //FIXME: This should be in the end of the expression
+        params: [], 
+        loc: this._$,
+        returnType: $$[$0-4]
+      }]; 
     
 break;
 case 15:
@@ -214,13 +214,13 @@ case 15:
       this._$.last_line = _$[$0-6].last_line;
       this._$.last_column = _$[$0-6].last_column;
 
-    	this.$ = [[
-        $$[$0-5],
-        $$[$0-6].concat($$[$0]).concat([['RET', '__DEFAULT', _$[$0-8]]]), //FIXME: This should be in the end of the expression
-        [$$[$0-3]],
-        this._$,        
-        $$[$0-7]
-      ]];
+    	this.$ = [{
+        name: $$[$0-5],
+        code: $$[$0-6].concat($$[$0]).concat([['RET', '__DEFAULT', _$[$0-8]]]), //FIXME: This should be in the end of the expression
+        params: [$$[$0-3]],
+        loc: this._$,        
+        returnType: $$[$0-7]
+      }];
     
 break;
 case 16:

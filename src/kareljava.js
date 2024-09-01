@@ -163,13 +163,13 @@ case 13:
       this._$.first_column = _$[$0-5].first_column;
       this._$.last_line = _$[$0-3].last_line;
       this._$.last_column = _$[$0-3].last_column;
-      this.$ = [[
-        $$[$0-3], 
-        $$[$0-4].concat($$[$0]).concat([['RET', '__DEFAULT', _$[$0-5]]]),  //FIXME: This should be in the closing bracket of block
-        [], 
-        this._$, 
-        $$[$0-5]
-      ]];
+      this.$ = [{
+        name: $$[$0-3], 
+        code: $$[$0-4].concat($$[$0]).concat([['RET', '__DEFAULT', _$[$0-5]]]),  //FIXME: This should be in the closing bracket of block
+        params: [], 
+        loc: this._$, 
+        returnType: $$[$0-5]
+      }];
     
 break;
 case 14:
@@ -180,13 +180,13 @@ case 14:
       this._$.last_column = _$[$0-4].last_column;
     	let result = $$[$0-5].concat($$[$0]).concat([['RET', '__DEFAULT', _$[$0-6]]]);
       let params = [$$[$0-2]];
-    	this.$ = [[
-        $$[$0-4], 
-        result, 
-        params,
-        this._$, 
-        $$[$0-6]
-      ]];
+    	this.$ = [{
+        name: $$[$0-4], 
+        code: result, 
+        params: params,
+        loc: this._$, 
+        returnType: $$[$0-6]
+      }];
     
 break;
 case 15:

@@ -178,13 +178,13 @@ def
       @$.first_column = @1.first_column;
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
-      $$ = [[
-        $var.toLowerCase(), 
-        null, 
-        [],  
-        @$,
-        $funct_type
-      ]]; 
+      $$ = [{
+        name: $var.toLowerCase(), 
+        code: null, 
+        params: [],  
+        loc: @$,
+        returnType: $funct_type
+      }]; 
     }
   | PROTO funct_type line var '(' var ')'
     { 
@@ -192,13 +192,13 @@ def
       @$.first_column = @1.first_column;
       @$.last_line = @6.last_line;
       @$.last_column = @6.last_column;
-      $$ = [[
-        $var.toLowerCase(), 
-        null, 
-        [$6],  
-        @$,
-        $funct_type
-      ]]; 
+      $$ = [{
+        name: $var.toLowerCase(), 
+        code: null, 
+        params: [$6],  
+        loc: @$,
+        returnType: $funct_type
+      }]; 
       }
   | DEF funct_type line var  AS expr
     { 
@@ -207,13 +207,13 @@ def
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
 
-      $$ = [[
-        $var,  
-        $line.concat($expr).concat([['RET', '__DEFAULT', @1]]), //FIXME: This should be in the end of the expression
-        [], 
-        @$,
-        $funct_type
-      ]]; 
+      $$ = [{
+        name: $var,  
+        code: $line.concat($expr).concat([['RET', '__DEFAULT', @1]]), //FIXME: This should be in the end of the expression
+        params: [], 
+        loc: @$,
+        returnType: $funct_type
+      }]; 
     }
   | DEF funct_type line var '(' var ')' AS expr
     %{
@@ -223,13 +223,13 @@ def
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
 
-    	$$ = [[
-        $4,
-        $line.concat($expr).concat([['RET', '__DEFAULT', @1]]), //FIXME: This should be in the end of the expression
-        [$6],
-        @$,        
-        $funct_type
-      ]];
+    	$$ = [{
+        name: $4,
+        code: $line.concat($expr).concat([['RET', '__DEFAULT', @1]]), //FIXME: This should be in the end of the expression
+        params: [$6],
+        loc: @$,        
+        returnType: $funct_type
+      }];
     %}
   ;
 
