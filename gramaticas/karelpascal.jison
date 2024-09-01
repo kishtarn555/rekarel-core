@@ -436,6 +436,12 @@ integer
     { $$ = $integer.concat([['INC', $int_literal]]); }
   | DEC	 '(' integer ',' int_literal ')'
     { $$ = $integer.concat([['DEC', $int_literal]]); }
+  | parameteredCall 
+    %{
+      const call = $parameteredCall
+      call[call.length-2][1].expectedType = "INT"
+      $$ = [...call, ["LRET"]]      
+    %}
   ;
 
 int_literal
