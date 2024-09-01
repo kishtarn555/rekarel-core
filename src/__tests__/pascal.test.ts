@@ -20,6 +20,7 @@ const sourceFiles = [
 const compilationError:[string,string | RegExp][] = [
     ["returnVoidToInt.kp", "Cannot return a type: VOID, in a function of type: INT"],
     ["returnIntToVoid.kp", "Cannot return a type: INT, in a function of type: VOID"],
+    ["voidAsInt.kp", "Expected a function of type INT, but otro-func is VOID"],
 ]
 
 

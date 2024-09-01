@@ -1,0 +1,24 @@
+class program {
+    int func() {
+        return 5;
+    }
+    void otherFunc(n) {
+        if (iszero(n)) {
+            return;
+        }
+        move();
+    }
+    program() {
+        iterate(func()) {
+            putbeeper();
+        }
+        iterate(otherFunc(7)) {
+            move();
+        }
+        iterate(otherFunc(0)) {
+            putbeeper();
+        }
+
+        otherFunc(3);
+    }    
+}
