@@ -1,0 +1,10 @@
+iniciar-programa
+    define-nueva-instruccion test(n) como
+    inicio
+        regresa 5;
+    fin;
+	inicia-ejecucion
+		test(5);
+		apagate;
+	termina-ejecucion
+finalizar-programa
