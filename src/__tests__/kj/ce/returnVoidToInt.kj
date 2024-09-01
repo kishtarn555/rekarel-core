@@ -1,0 +1,9 @@
+class program {
+    int test(n) {
+        return;
+    }
+    program() {
+        test(succ(5));
+        turnoff();
+    }
+}
