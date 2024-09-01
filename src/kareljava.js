@@ -354,7 +354,8 @@ case 67:
         {
           target:$$[$0], 
           loc: _$[$0],
-          couldBeFunction: false
+          couldBeFunction: false,          
+          expectedType: 'INT'
         }
       ]]; 
     

@@ -422,7 +422,8 @@ integer
         {
           target: $var.toLowerCase(), 
           loc: @1, 
-          couldBeFunction: true
+          couldBeFunction: true,
+          expectedType: 'INT'
         }
       ]]; 
     }

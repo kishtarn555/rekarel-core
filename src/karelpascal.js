@@ -376,7 +376,8 @@ case 69:
         {
           target: $$[$0].toLowerCase(), 
           loc: _$[$0], 
-          couldBeFunction: true
+          couldBeFunction: true,
+          expectedType: 'INT'
         }
       ]]; 
     

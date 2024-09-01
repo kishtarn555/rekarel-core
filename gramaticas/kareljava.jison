@@ -386,7 +386,8 @@ integer
         {
           target:$var, 
           loc: @1,
-          couldBeFunction: false
+          couldBeFunction: false,          
+          expectedType: 'INT'
         }
       ]]; 
     }

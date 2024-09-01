@@ -40,7 +40,8 @@ type IRCall = {
 type IRVar= {
     target: string,
     loc: YYLoc,
-    couldBeFunction:boolean
+    couldBeFunction:boolean,
+    expectedType: string
 };
 
 /**
@@ -282,7 +283,8 @@ function resolveVariables(IRInstructions: IRInstruction[], yy: YY, bundle: Compi
                     target: data.target,
                     argCount:1,
                     argLoc: data.loc,
-                    nameLoc: data.loc
+                    nameLoc: data.loc,
+                    expectedType: data.expectedType
                 }
             ]);
             result.push(["LRET"]);
