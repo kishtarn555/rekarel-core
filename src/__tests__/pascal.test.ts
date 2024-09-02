@@ -16,6 +16,15 @@ const sourceFiles = [
     "testDec.kp",
 ]
 
+
+const compilationError:[string,string | RegExp][] = [
+    ["returnVoidToInt.kp", "Cannot return a type: VOID, in a function of type: INT"],
+    ["returnIntToVoid.kp", "Cannot return a type: INT, in a function of type: VOID"],
+    ["voidAsInt.kp", "Expected a function of type INT, but otro-func is VOID"],
+]
+
+
+
 describe("Pascal compilation tests ", () => {
     test("Test simple turnoff", () => {
         const source = fs.readFileSync(__dirname + "/kp/turnoff.kp").toString();
@@ -47,8 +56,31 @@ describe("Pascal compilation tests ", () => {
         expect(world.bagBuzzers).toBe(11);
 
     });
+
+    test("Test integer function", () => {
+        const source = fs.readFileSync(__dirname + "/kp/intfunc.kp").toString();
+        const opcodes = compile(source);
+        expect(opcodes).toBeDefined()
+        const world = new World(10, 10);
+        world.setBagBuzzers(-1);
+        runAll(world, opcodes!);
+        expect(world.buzzers(1, 1)).toBe(5);
+        expect(world.buzzers(10, 1)).toBe(40);
+        expect(world.i).toBe(10); 
+        expect(world.j).toBe(1);
+        
+    });
 });
 
+
+describe("Test Pascal compilation errors" ,  ()=> {
+    for (const [file, expectedError] of compilationError) {
+        test("Test CE of "+file,  ()=> {
+            const source = fs.readFileSync(__dirname + "/kp/ce/"+file).toString();
+            expect( ()=> compile(source)).toThrow(expectedError);
+        });
+    }
+});
 
 describe("Pascal globals test ", () => {
     test("Test floor variable", () => {

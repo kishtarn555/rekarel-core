@@ -28,7 +28,9 @@ export enum OpCodeID {
   INC,
   CALL,
   RET,
-  PARAM
+  PARAM,
+  SRET,
+  LRET,
 };
 
 export type OpCodeLiteral = keyof typeof OpCodeID
@@ -81,7 +83,9 @@ export type OpCode =
   [instruction: "INC", amount: number] |
   [instruction: "CALL", location: number, fname: string] |
   [instruction: "RET"] |
-  [instruction: "PARAM", index: number]
+  [instruction: "PARAM", index: number] |
+  [instruction: "SRET"] |
+  [instruction: "LRET"] 
   ;
 
 export type RawProgram = OpCode[]

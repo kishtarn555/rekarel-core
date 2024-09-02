@@ -31,6 +31,7 @@ type RuntimeState = {
   fp: number
   line: number
   ic: number
+  ret: number
   stack: Int32Array
   stackSize: number
 
@@ -111,6 +112,7 @@ export class Runtime {
       fp: -1,
       line: -1,
       ic: 0,
+      ret:0,
       stack: new Int32Array(new ArrayBuffer((0xffff * 16 + 40) * 4)),
       stackSize: 0,
 
@@ -466,6 +468,16 @@ export class Runtime {
             ];
           break;
         }
+        
+        case OpCodeID.SRET: {
+          this.state.ret = this.state.stack[this.state.sp--];
+          break;
+        }
+
+        case OpCodeID.LRET: {
+          this.state.stack[++this.state.sp] = this.state.ret;
+          break;
+        }
 
         default: {
           this.state.running = false;
@@ -478,6 +490,10 @@ export class Runtime {
           }
 
           this.state.error = ErrorType.INVALIDOPCODE;
+          this.state.errorData = {
+            type:ErrorType.INSTRUCTION,
+            instruction: OpCodeID[this.program[this.state.pc*3]] as OpCodeLiteral
+          }
           return false;
         }
       }

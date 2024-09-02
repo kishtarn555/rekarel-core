@@ -19,8 +19,12 @@
 "usa"			                                  { return 'IMPORT'; }
 "define-prototipo-instruccion"              { return 'PROTO'; }
 "define-prototipo-instrucción"              { return 'PROTO'; }
+"define-prototipo-entero"                   { return 'PROTO_INT'; }
+"define-instrucción-entera"                 { return 'DEF_INT'; }
+"define-instruccion-entera"                 { return 'DEF_INT'; }
 "sal-de-instruccion"                        { return 'RET'; }
 "sal-de-instrucción"                        { return 'RET'; }
+"regresa"                                   { return 'RET'; }
 "como"                                      { return 'AS'; }
 "apagate"                                   { return 'HALT'; }
 "apágate"                                   { return 'HALT'; }
@@ -170,32 +174,50 @@ def_list
   ;
 
 def
-  : PROTO line var
+  : prototype_type line var
     { 
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
-      $$ = [[$var.toLowerCase(), null, [],  @$] ]; 
+      $$ = [{
+        name: $var.toLowerCase(), 
+        code: null, 
+        params: [],  
+        loc: @$,
+        returnType: $funct_type
+      }]; 
     }
-  | PROTO line var '(' var ')'
+  | prototype_type line var '(' var ')'
     { 
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
       @$.last_line = @6.last_line;
       @$.last_column = @6.last_column;
-      $$ = [[$var.toLowerCase(), null, [$5],  @$] ]; 
+      $$ = [{
+        name: $var.toLowerCase(), 
+        code: null, 
+        params: [$5],  
+        loc: @$,
+        returnType: $funct_type
+      }]; 
       }
-  | DEF line var AS expr
+  | funct_type line var  AS expr
     { 
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
 
-      $$ = [[$var,  $line.concat($expr).concat([['RET']]), [], @$]]; 
+      $$ = [{
+        name: $var,  
+        code: $line.concat($expr).concat([['RET', '__DEFAULT', @1]]), //FIXME: This should be in the end of the expression
+        params: [], 
+        loc: @$,
+        returnType: $funct_type
+      }]; 
     }
-  | DEF line var '(' var ')' AS expr
+  | funct_type line var '(' var ')' AS expr
     %{
       
       @$.first_line = @1.first_line;
@@ -203,10 +225,29 @@ def
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
 
-    	$$ = [[$3,  $line.concat($expr).concat([['RET']]), [$5], @$]];
+    	$$ = [{
+        name: $3,
+        code: $line.concat($expr).concat([['RET', '__DEFAULT', @1]]), //FIXME: This should be in the end of the expression
+        params: [$5],
+        loc: @$,        
+        returnType: $funct_type
+      }];
     %}
   ;
 
+funct_type
+  : DEF_INT
+    { $$ = "INT"; }
+  | DEF
+    { $$ = "VOID"; }
+  ;
+
+prototype_type
+  : PROTO_INT
+    { $$ = "INT"; }
+  | PROTO
+    { $$ = "VOID"; }
+  ;
 
 expr_list
   : expr_list ';' genexpr
@@ -233,8 +274,8 @@ expr
     { $$ = [['LINE', yylineno], ['BAGBUZZERS'], ['EZ', 'BAGUNDERFLOW'], ['LEAVEBUZZER']]; }
   | HALT
     { $$ = [['LINE', yylineno], ['HALT']]; }
-  | RET
-    { $$ = [['LINE', yylineno], ['RET']]; }
+  | return
+    { $$ = $return; }
   | call
     { $$ = $call; }
   | cond
@@ -247,11 +288,54 @@ expr
     { $$ = $expr_list; }
   ;
 
+return
+  : RET 
+    { $$ = [['LINE', yylineno], ['RET', 'VOID', @1]]; }
+  | RET integer
+    { $$ = [['LINE', yylineno], ...$integer, ['SRET'], [ 'RET', 'INT', @1]]; }
+  ;
+
 call
   : var
-    { $$ = [['LINE', yylineno], ['LOAD', 0], ['CALL', $var.toLowerCase(), 1, @1, @1], ['LINE', yylineno]]; }
-  | var '(' integer ')'
-    { $$ = [['LINE', yylineno]].concat($integer).concat([['CALL', $var.toLowerCase(), 2, @1, @3], ['LINE', yylineno]]); }
+    { 
+      $$ = [
+        ['LINE', yylineno],
+        ['LOAD', 0],
+        [
+          'CALL', 
+          {
+            target:$var.toLowerCase(), 
+            argCount:1, 
+            nameLoc: @1, 
+            argLoc: @1
+          }
+        ],
+        ['LINE', yylineno]
+      ];
+    }
+  | parameteredCall
+    { $$ = $parameteredCall; } 
+    
+  ;
+
+parameteredCall 
+  : var '(' integer ')'
+    { 
+      $$ = [
+        ['LINE', yylineno], 
+        ...$integer, 
+        [
+          'CALL', 
+          {
+            target: $var.toLowerCase(), 
+            argCount: 2, 
+            nameLoc: @1, 
+            argLoc: @3
+          }
+        ], 
+        ['LINE', yylineno]
+      ]; 
+    }
   ;
 
 cond
@@ -342,7 +426,16 @@ bool_fun
 
 integer
   : var
-    { $$ = [['VAR', $var.toLowerCase(), @1]]; }
+    { $$ = [[
+        'VAR',
+        {
+          target: $var.toLowerCase(), 
+          loc: @1, 
+          couldBeFunction: true,
+          expectedType: 'INT'
+        }
+      ]]; 
+    }
   | int_literal
     { $$ = [['LOAD',  $int_literal]]; }
   | INC '(' integer ')'
@@ -353,6 +446,12 @@ integer
     { $$ = $integer.concat([['INC', $int_literal]]); }
   | DEC	 '(' integer ',' int_literal ')'
     { $$ = $integer.concat([['DEC', $int_literal]]); }
+  | parameteredCall 
+    %{
+      const call = $parameteredCall
+      call[call.length-2][1].expectedType = "INT"
+      $$ = [...call, ["LRET"]]      
+    %}
   ;
 
 int_literal

@@ -11,6 +11,7 @@
 "define"			{ return 'DEF'; }
 "import"			{ return 'IMPORT'; }
 "void"				{ return 'DEF'; }
+"int"				  { return 'INT'; }
 "return"      { return 'RET'; }
 "turnoff"                       { return 'HALT'; }
 "turnleft"	                { return 'LEFT'; }
@@ -159,24 +160,43 @@ def_list
   ;
 
 def
-  : DEF line var '(' ')' block
+  : funct_type line var '(' ')' block
     { 
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
-      $$ = [[$var, $line.concat($block).concat([['RET']]), [], @$]];
-       }
-  | DEF line var '(' var ')' block
+      $$ = [{
+        name: $var, 
+        code: $line.concat($block).concat([['RET', '__DEFAULT', @1]]),  //FIXME: This should be in the closing bracket of block
+        params: [], 
+        loc: @$, 
+        returnType: $funct_type
+      }];
+    }
+  | funct_type line var '(' var ')' block
     %{
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
-    	let result = $line.concat($block).concat([['RET']]);
+    	let result = $line.concat($block).concat([['RET', '__DEFAULT', @1]]);
       let params = [$5];
-    	$$ = [[$var, result, params ,@$]];
+    	$$ = [{
+        name: $var, 
+        code: result, 
+        params: params,
+        loc: @$, 
+        returnType: $funct_type
+      }];
     %}
+  ;
+
+funct_type
+  : DEF 
+    { $$ = "VOID"; }
+  | INT
+    { $$ = "INT"; }
   ;
 
 
@@ -198,8 +218,8 @@ expr
     { $$ = [['LINE', yylineno], ['BAGBUZZERS'], ['EZ', 'BAGUNDERFLOW'], ['LEAVEBUZZER']]; }
   | HALT '(' ')' ';'
     { $$ = [['LINE', yylineno], ['HALT']]; }
-  | RET '(' ')' ';'
-    { $$ = [['LINE', yylineno], ['RET']]; }
+  | return ';'
+    { $$ = $return; }
   | call ';'
     { $$ = $call; }
   | cond
@@ -214,6 +234,15 @@ expr
     { $$ = []; }
   ;
 
+return
+  : RET '(' ')'
+    { $$ = [['LINE', yylineno], ['RET', 'VOID', @1]]; }
+  | RET 
+    { $$ = [['LINE', yylineno], ['RET', 'VOID', @1]]; }
+  | RET  integer 
+    { $$ = [['LINE', yylineno], ...$integer, ['SRET'], [ 'RET', 'INT', @1]]; }
+  ;
+
 call
   : var '(' ')'
     
@@ -225,7 +254,20 @@ call
         last_line: @3.last_line,
         last_column: @3.last_column,
       };
-      $$ = [['LINE', yylineno], ['LOAD', 0], ['CALL', $var, 1, @1, loc], ['LINE', yylineno]]; 
+      $$ = [
+        ['LINE', yylineno], 
+        ['LOAD', 0], 
+        [
+          'CALL', 
+          {
+            target: $var, 
+            argCount: 1, 
+            nameLoc: @1, 
+            argLoc: loc
+          }
+        ], 
+        ['LINE', yylineno]
+      ]; 
     %}
   | var '(' integer ')'
     { 
@@ -233,7 +275,20 @@ call
       @$.first_line = @1.first_line;
       @$.last_column = @4.last_column;
       @$.last_line = @4.last_line;
-      $$ = [['LINE', yylineno]].concat($integer).concat([['CALL', $var, 2, @1, @3], ['LINE', yylineno]]); 
+      $$ = [
+        ['LINE', yylineno],
+        ...$integer,
+        [
+          'CALL',
+          {
+            target:$var, 
+            argCount:2, 
+            nameLoc: @1, 
+            argLoc: @3
+          } 
+        ], 
+        ['LINE', yylineno]
+      ]; 
     }
   ;
 
@@ -327,7 +382,17 @@ bool_fun
 
 integer
   : var
-    { $$ = [['VAR', $var, @1]]; }
+    { 
+      $$ = [[
+        'VAR', 
+        {
+          target:$var, 
+          loc: @1,
+          couldBeFunction: false,          
+          expectedType: 'INT'
+        }
+      ]]; 
+    }
   | int_literal
     { $$ = [['LOAD', $int_literal]]; }
   | INC '(' integer ')'
@@ -338,6 +403,12 @@ integer
     { $$ = $integer.concat([['INC', $int_literal]]); }
   | DEC	 '(' integer ',' int_literal ')'
     { $$ = $integer.concat([['DEC', $int_literal]]); }
+  | call 
+    %{ 
+      const callData = $call;
+      callData[callData.length-2][1].expectedType = 'INT'; //Set expected int to call instruction
+      $$ = [...callData, ['LRET']] 
+    %}
   ;
 
 int_literal
