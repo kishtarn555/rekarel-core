@@ -1,4 +1,4 @@
-import type { IRInstruction } from "../IRProcessor";
+import type { IRInstruction } from "../InterRep/IRInstruction";
 import { OpCode } from "../opcodes"
 
 /**

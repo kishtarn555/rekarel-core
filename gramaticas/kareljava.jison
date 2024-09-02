@@ -67,6 +67,16 @@
 
 const COMPILER= "RKJ 1.0.0";
 const LANG = "ReKarel Java"
+//Tag counter
+let tagCnt = 1;
+
+
+function UniqueTag(tag) {
+  return `${tag}.${tagCnt++}`;
+}
+function resetCompiler(tag) {
+  tagCnt = 1;
+}
 
 %}
 
@@ -79,7 +89,8 @@ const LANG = "ReKarel Java"
 
 program
   : CLASS PROG BEGIN def_list PROG '(' ')' block END EOF
-    { 
+    %{ 
+      resetCompiler();
       return {
         compiler: COMPILER,
         language: LANG,
@@ -89,9 +100,10 @@ program
         yy:yy,
         requieresFunctionPrototypes: false
       } 
-    }
+    %}
   | CLASS PROG BEGIN PROG '(' ')' block END EOF
-    { 
+    %{  
+      resetCompiler();
       return {
         compiler: COMPILER,
         language: LANG,
@@ -101,9 +113,10 @@ program
         yy:yy,
         requieresFunctionPrototypes: false
       }
-    }
+    %}
   |  import_list CLASS PROG BEGIN def_list PROG '(' ')' block END EOF
-    { 
+    %{  
+      resetCompiler();
       return {
         compiler: COMPILER,
         language: LANG,
@@ -113,9 +126,10 @@ program
         yy:yy,
         requieresFunctionPrototypes: false
       }
-    }
+    %}
   | import_list CLASS PROG BEGIN PROG '(' ')' block END EOF
-    { 
+    %{  
+      resetCompiler();
       return {
         compiler: COMPILER,
         language: LANG,
@@ -125,7 +139,7 @@ program
         yy:yy,
         requieresFunctionPrototypes: false
       }
-    }
+    %}
   ;
 
 block
@@ -299,14 +313,20 @@ call
 
 cond
   : IF line '(' bool_term ')' expr %prec XIF
-    { $$ = $line.concat($term).concat([['JZ', $expr.length]]).concat($expr); }
+    { 
+      $$ = [...$line, ...$bool_term, ['JZ', $expr.length] ...$expr];
+    }
   | IF line '(' bool_term ')' expr ELSE expr
-    { $$ = $line.concat($term).concat([['JZ', 1 + $6.length]]).concat($6).concat([['JMP', $8.length]]).concat($8); }
+    { 
+      $$ = [...$line, ...$bool_term, ['JZ', 1 + $6.length], ...$6, ['JMP', $8.length], ...$8]; 
+    }
   ;
 
 loop
   : WHILE line '(' bool_term ')' expr
-    { $$ = $line.concat($term).concat([['JZ', 1 + $expr.length]]).concat($expr).concat([['JMP', -1 -($term.length + $expr.length + 2)]]); }
+    { 
+      $$ = [...$line, ...$bool_term, ['JZ', 1 + $expr.length], ...$expr ['JMP', -1 -($bool_term.length + $expr.length + 2)] ];
+    }
   ;
 
 repeat
@@ -319,11 +339,29 @@ repeat
 
 term
   : term OR term 
-    { $$ = {left: $1, right: $1, suffix: [['OR']], dataType:"BOOL" }; }
+    { $$ = {
+        left: $1, 
+        right: $1, 
+        operation: "OR", 
+        dataType:"BOOL" 
+      }; }
   | term AND term 
-    { $$ = {left: $1, right: $1, suffix: [['AND']], dataType:"BOOL" }; }
+    { 
+      $$ = {
+        left: $1, 
+        right: $1, 
+        operation: "AND", 
+        dataType:"BOOL"
+      };
+    }
   | NOT term 
-    { $$ = {left: $1, suffix: [['NOT']], dataType:"BOOL" }; }
+    { 
+      $$ = {
+        term: $1,       
+        operation: "OR",
+        dataType:"BOOL" 
+      };
+      }
   | '(' term ')'
     { $$ = $1; }
   | clause
@@ -333,24 +371,42 @@ term
 bool_term
   : term 
     { 
-      $$ = [
+      $$ = [[
         'TERM', 
         {
           term:$term, 
           expectedType: 'BOOL'
         }    
-      ];
+      ]];
     }
   ;
 
 
 clause
   : IFZ '(' integer ')'
-    { $$ = $integer.concat([['NOT']]); }
+    { 
+      $$ = {
+        operation: "ATOM",
+        instructions: $integer.concat([['NOT']]),
+        dataType: "BOOL"
+      };
+    }
   | bool_fun
-    { $$ = $bool_fun; }
+    { 
+      $$ = {
+        operation: "ATOM",
+        instructions: $bool_fun,
+        dataType: "BOOL"
+      };
+    }
   | bool_fun '(' ')'
-    { $$ = $bool_fun; }
+    { 
+      $$ = {
+        operation: "ATOM",
+        instructions: $bool_fun,
+        dataType: "BOOL"
+      };
+    }
   ;
 
 bool_fun
