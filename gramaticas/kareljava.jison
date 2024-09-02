@@ -70,6 +70,11 @@ const LANG = "ReKarel Java"
 
 %}
 
+
+%left OR
+%left AND
+%right NOT
+
 %%
 
 program
@@ -293,14 +298,14 @@ call
   ;
 
 cond
-  : IF line '(' term ')' expr %prec XIF
+  : IF line '(' bool_term ')' expr %prec XIF
     { $$ = $line.concat($term).concat([['JZ', $expr.length]]).concat($expr); }
-  | IF line '(' term ')' expr ELSE expr
+  | IF line '(' bool_term ')' expr ELSE expr
     { $$ = $line.concat($term).concat([['JZ', 1 + $6.length]]).concat($6).concat([['JMP', $8.length]]).concat($8); }
   ;
 
 loop
-  : WHILE line '(' term ')' expr
+  : WHILE line '(' bool_term ')' expr
     { $$ = $line.concat($term).concat([['JZ', 1 + $expr.length]]).concat($expr).concat([['JMP', -1 -($term.length + $expr.length + 2)]]); }
   ;
 
@@ -309,26 +314,35 @@ repeat
     { $$ = $line.concat($integer).concat([['DUP'], ['LOAD', 0], ['EQ'], ['NOT'], ['JZ', $expr.length + 2]]).concat($expr).concat([['DEC', 1], ['JMP', -1 -($expr.length + 6)], ['POP']]); }
   ;
 
+
+
+
 term
-  : term OR and_term
-    { $$ = $term.concat($and_term).concat([['OR']]); }
-  | and_term
-    { $$ = $and_term; }
-  ;
-
-and_term
-  : and_term AND not_term
-    { $$ = $and_term.concat($not_term).concat([['AND']]); }
-  | not_term
-    { $$ = $not_term; }
-  ;
-
-not_term
-  : NOT clause
-    { $$ = $clause.concat([['NOT']]); }
+  : term OR term 
+    { $$ = {left: $1, right: $1, suffix: [['OR']], dataType:"BOOL" }; }
+  | term AND term 
+    { $$ = {left: $1, right: $1, suffix: [['AND']], dataType:"BOOL" }; }
+  | NOT term 
+    { $$ = {left: $1, suffix: [['NOT']], dataType:"BOOL" }; }
+  | '(' term ')'
+    { $$ = $1; }
   | clause
-    { $$ = $clause; }
+    { $$ = $1; }
   ;
+
+bool_term
+  : term 
+    { 
+      $$ = [
+        'TERM', 
+        {
+          term:$term, 
+          expectedType: 'BOOL'
+        }    
+      ];
+    }
+  ;
+
 
 clause
   : IFZ '(' integer ')'
@@ -337,8 +351,6 @@ clause
     { $$ = $bool_fun; }
   | bool_fun '(' ')'
     { $$ = $bool_fun; }
-  | '(' term ')'
-    { $$ = $term; }
   ;
 
 bool_fun
