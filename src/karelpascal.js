@@ -161,7 +161,7 @@ break;
 case 10:
  this.$ = $$[$0-2].concat($$[$0-1]); 
 break;
-case 11: case 34:
+case 11: case 34: case 47:
  this.$ = $$[$0-1]; 
 break;
 case 12:
@@ -386,9 +386,6 @@ case 46:
         dataType:"BOOL" 
       };
       
-break;
-case 47:
- this.$ = $$[$0-2]; 
 break;
 case 49:
  

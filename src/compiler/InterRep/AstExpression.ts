@@ -51,7 +51,8 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, parameters: str
             yy.parser.parseError(`Expected a term of type ${tree.dataType}, but got ${termType}`, {
                 //FIXME: Add data (?)
             } );
-        }  
+        }
+        return tree.dataType;  
 
     }
 

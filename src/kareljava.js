@@ -143,7 +143,7 @@ case 4:
       }
     
 break;
-case 5: case 24: case 25:
+case 5: case 24: case 25: case 43:
  this.$ = $$[$0-1]; 
 break;
 case 6: case 11: case 17:
@@ -367,9 +367,6 @@ case 42:
         dataType:"BOOL" 
       };
       
-break;
-case 43:
- this.$ = $$[$0-2]; 
 break;
 case 45:
  
