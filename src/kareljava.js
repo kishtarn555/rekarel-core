@@ -89,11 +89,12 @@ case 1:
       return {
         compiler: COMPILER,
         language: LANG,
+        variablesCanBeFunctions: VarsAsFuncs,
+        requieresFunctionPrototypes: reqsPrototypes,
         packages: [],
         functions: $$[$0-6],
         program: $$[$0-2].concat([['LINE', yylineno], ['HALT']]),
         yy:yy,
-        requieresFunctionPrototypes: false
       } 
     
 break;
@@ -103,11 +104,12 @@ case 2:
       return {
         compiler: COMPILER,
         language: LANG,
+        requieresFunctionPrototypes: reqsPrototypes,
+        variablesCanBeFunctions: VarsAsFuncs,
         packages: [],
         functions: [],
         program: $$[$0-2].concat([['LINE', yylineno], ['HALT']]),
         yy:yy,
-        requieresFunctionPrototypes: false
       }
     
 break;
@@ -117,11 +119,12 @@ case 3:
       return {
         compiler: COMPILER,
         language: LANG,
+        requieresFunctionPrototypes: reqsPrototypes,
+        variablesCanBeFunctions: VarsAsFuncs,
         packages: $$[$0-10],
         functions: $$[$0-6],
         program: $$[$0-2].concat([['LINE', yylineno], ['HALT']]),
         yy:yy,
-        requieresFunctionPrototypes: false
       }
     
 break;
@@ -132,10 +135,11 @@ case 4:
         compiler: COMPILER,
         language: LANG,
         packages: $$[$0-9],
+        requieresFunctionPrototypes: reqsPrototypes,
+        variablesCanBeFunctions: VarsAsFuncs,
         functions: [],
         program: $$[$0-2].concat([['LINE', yylineno], ['HALT']]),
         yy:yy,
-        requieresFunctionPrototypes: false
       }
     
 break;
@@ -275,17 +279,45 @@ case 35:
 break;
 case 36:
  
-      this.$ = [...$$[$0-4], ...$$[$0-2], ['JZ', $$[$0].length] ...$$[$0]];
+      const skipTag = UniqueTag('iskip');
+      this.$ = [
+        ...$$[$0-4], 
+        ...$$[$0-2], 
+        ['TJZ', skipTag],
+        ...$$[$0],
+        ['TAG', skipTag ],
+      ];
     
 break;
 case 37:
  
-      this.$ = [...$$[$0-6], ...$$[$0-4], ['JZ', 1 + $$[$0-2].length], ...$$[$0-2], ['JMP', $$[$0].length], ...$$[$0]]; 
+      const toElse = UniqueTag('ielse');
+      const skipElse = UniqueTag('iskipelse');
+      this.$ = [
+        ...$$[$0-6], 
+        ...$$[$0-4], 
+        ['TJZ', toElse ], 
+        ...$$[$0-2], 
+        ['TJMP',  skipElse], 
+        ['TAG', toElse  ],
+        ...$$[$0],        
+        ['TAG', skipElse ],
+      ]; 
     
 break;
 case 38:
  
-      this.$ = [...$$[$0-4], ...$$[$0-2], ['JZ', 1 + $$[$0].length], ...$$[$0] ['JMP', -1 -($$[$0-2].length + $$[$0].length + 2)] ];
+      const repeatTag = UniqueTag('lrepeat');
+      const endTag = UniqueTag('lend');
+      this.$ = [
+        ['TAG',  repeatTag ],
+        ...$$[$0-4], 
+        ...$$[$0-2], 
+        ['TJZ',  endTag], 
+        ...$$[$0], 
+        ['TJMP', repeatTag],
+        ['TAG', endTag],
+      ];
     
 break;
 case 39:
@@ -312,8 +344,8 @@ break;
 case 42:
  
       this.$ = {
-        term: $$[$0-1],       
-        operation: "OR",
+        term: $$[$0],       
+        operation: "NOT",
         dataType:"BOOL" 
       };
       
@@ -327,7 +359,8 @@ case 45:
         'TERM', 
         {
           term:$$[$0], 
-          expectedType: 'BOOL'
+          operation: 'PASS',
+          dataType: 'BOOL'
         }    
       ]];
     
@@ -610,7 +643,9 @@ parse: function parse(input) {
 
 
 const COMPILER= "RKJ 1.0.0";
-const LANG = "ReKarel Java"
+const LANG = "ReKarel Java";
+const VarsAsFuncs = false;
+const reqsPrototypes = false;
 //Tag counter
 let tagCnt = 1;
 

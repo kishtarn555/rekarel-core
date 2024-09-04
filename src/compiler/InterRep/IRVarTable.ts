@@ -17,41 +17,17 @@ type VariableTable = Map<string, VarData>
 /**
  * Represents a table with all definition data
  */
-export class DefinitionTable {
+export class DefinitionTable {    
     private functions: FunctionTable
     private variables: VariableTable
     private variablesCanBeFunctions: boolean
 
     constructor(variablesCanBeFunctions: boolean) {
         this.functions = new Map();
+        this.variables = new Map();
         this.variablesCanBeFunctions = variablesCanBeFunctions;
     }
 
-    resolveVariable(variable: IRVar) : IRInstruction[] {
-        if (this.variables.has(variable.target)) {
-            return this.variables.get(variable.target).instructions;
-        }
-        if (!this.variablesCanBeFunctions) {
-            return [];
-        }
-        if (this.functions.has(variable.target)) {
-            return [
-                ["LOAD", 0],
-                [
-                    "CALL",
-                    {
-                        target: variable.target,
-                        argCount:1,
-                        argLoc: variable.loc,
-                        nameLoc: variable.loc,
-                        expectedType: variable.expectedType
-                    }
-                ],
-                ["LRET"]
-            ];
-        }
-        return [];
-    }
 
     getType(identifier: string) {
         if (this.variables.has(identifier)) {
@@ -60,6 +36,7 @@ export class DefinitionTable {
         if (this.functions.has(identifier)) {
             return this.functions.get(identifier).returnType;
         }
+        return "undefined";        
     }
 
 
@@ -69,6 +46,31 @@ export class DefinitionTable {
             location: 0,
             returnType: func.returnType
         })
+    }
+
+    
+    hasFunction(name:string) {
+        return this.functions.has(name);
+    }
+
+    getFunction(name: string) {
+        return this.functions.get(name);
+    }
+
+    setFunctionLoc(target:string, location: number) {
+        this.functions.get(target).location = location;
+    }
+
+    registerVar(name:string, val:VarData) {
+        this.variables.set(name, val);
+    }
+
+    hasVar(name:string) {
+        return this.variables.has(name);
+    }
+
+    getVar(name: string) {
+        return this.variables.get(name);
     }
 
 }

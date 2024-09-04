@@ -53,9 +53,15 @@ export type IRTerm =
         instructions: IRInstruction[],
         dataType: string
     }
+    | {
+        operation: "PASS",
+        term: IRTerm,
+        dataType: string
+    }
 ;
 
 
+export type IRTagRecord = Record<string, number>;
 /**
  * Represents the type of instructions that are available in the IR
  */
@@ -73,7 +79,7 @@ export type IRInstruction =
     [instruction: "OR"] |
     [instruction: "EQ"] |
     [instruction: "EZ", error: ErrorLiteral] |
-    [instruction: "JZ"] |
+    [instruction: "JZ", offset:number] |
     [instruction: "JMP", offset: number] |
     [instruction: "FORWARD"] |
     [instruction: "WORLDBUZZERS"] |
@@ -90,7 +96,10 @@ export type IRInstruction =
     [instruction: "PARAM", index: number] |
     [instruction: "SRET"] |
     [instruction: "LRET"] |
-    //This one is a IR instruction only, it must be resolved to a correct opcode
+    //These ones are a IR only instructions, they must be resolved to a correct opcode
     [instruction: "VAR", data:IRVar] |
-    [instruction: "TERM", data:IRTerm]
+    [instruction: "TERM", data:IRTerm] | //Represents a term like a || b || !(x)
+    [instruction: "TAG", data:string] | //Represents a tag
+    [instruction: "TJMP", data:string] |  //Jumps to a opcode by tag
+    [instruction: "TJZ", data:string]  //Jumps to a opcode by tag if stack has zerp
     ;

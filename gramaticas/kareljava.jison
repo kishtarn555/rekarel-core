@@ -66,7 +66,9 @@
 %{
 
 const COMPILER= "RKJ 1.0.0";
-const LANG = "ReKarel Java"
+const LANG = "ReKarel Java";
+const VarsAsFuncs = false;
+const reqsPrototypes = false;
 //Tag counter
 let tagCnt = 1;
 
@@ -94,11 +96,12 @@ program
       return {
         compiler: COMPILER,
         language: LANG,
+        variablesCanBeFunctions: VarsAsFuncs,
+        requieresFunctionPrototypes: reqsPrototypes,
         packages: [],
         functions: $def_list,
         program: $block.concat([['LINE', yylineno], ['HALT']]),
         yy:yy,
-        requieresFunctionPrototypes: false
       } 
     %}
   | CLASS PROG BEGIN PROG '(' ')' block END EOF
@@ -107,11 +110,12 @@ program
       return {
         compiler: COMPILER,
         language: LANG,
+        requieresFunctionPrototypes: reqsPrototypes,
+        variablesCanBeFunctions: VarsAsFuncs,
         packages: [],
         functions: [],
         program: $block.concat([['LINE', yylineno], ['HALT']]),
         yy:yy,
-        requieresFunctionPrototypes: false
       }
     %}
   |  import_list CLASS PROG BEGIN def_list PROG '(' ')' block END EOF
@@ -120,11 +124,12 @@ program
       return {
         compiler: COMPILER,
         language: LANG,
+        requieresFunctionPrototypes: reqsPrototypes,
+        variablesCanBeFunctions: VarsAsFuncs,
         packages: $import_list,
         functions: $def_list,
         program: $block.concat([['LINE', yylineno], ['HALT']]),
         yy:yy,
-        requieresFunctionPrototypes: false
       }
     %}
   | import_list CLASS PROG BEGIN PROG '(' ')' block END EOF
@@ -134,10 +139,11 @@ program
         compiler: COMPILER,
         language: LANG,
         packages: $import_list,
+        requieresFunctionPrototypes: reqsPrototypes,
+        variablesCanBeFunctions: VarsAsFuncs,
         functions: [],
         program: $block.concat([['LINE', yylineno], ['HALT']]),
         yy:yy,
-        requieresFunctionPrototypes: false
       }
     %}
   ;
@@ -313,20 +319,48 @@ call
 
 cond
   : IF line '(' bool_term ')' expr %prec XIF
-    { 
-      $$ = [...$line, ...$bool_term, ['JZ', $expr.length] ...$expr];
-    }
+    %{ 
+      const skipTag = UniqueTag('iskip');
+      $$ = [
+        ...$line, 
+        ...$bool_term, 
+        ['TJZ', skipTag],
+        ...$expr,
+        ['TAG', skipTag ],
+      ];
+    %}
   | IF line '(' bool_term ')' expr ELSE expr
-    { 
-      $$ = [...$line, ...$bool_term, ['JZ', 1 + $6.length], ...$6, ['JMP', $8.length], ...$8]; 
-    }
+    %{ 
+      const toElse = UniqueTag('ielse');
+      const skipElse = UniqueTag('iskipelse');
+      $$ = [
+        ...$line, 
+        ...$bool_term, 
+        ['TJZ', toElse ], 
+        ...$6, 
+        ['TJMP',  skipElse], 
+        ['TAG', toElse  ],
+        ...$8,        
+        ['TAG', skipElse ],
+      ]; 
+    %}
   ;
 
 loop
-  : WHILE line '(' bool_term ')' expr
-    { 
-      $$ = [...$line, ...$bool_term, ['JZ', 1 + $expr.length], ...$expr ['JMP', -1 -($bool_term.length + $expr.length + 2)] ];
-    }
+  : WHILE line  '(' bool_term ')' expr
+    %{ 
+      const repeatTag = UniqueTag('lrepeat');
+      const endTag = UniqueTag('lend');
+      $$ = [
+        ['TAG',  repeatTag ],
+        ...$line, 
+        ...$bool_term, 
+        ['TJZ',  endTag], 
+        ...$expr, 
+        ['TJMP', repeatTag],
+        ['TAG', endTag],
+      ];
+    %}
   ;
 
 repeat
@@ -357,8 +391,8 @@ term
   | NOT term 
     { 
       $$ = {
-        term: $1,       
-        operation: "OR",
+        term: $2,       
+        operation: "NOT",
         dataType:"BOOL" 
       };
       }
@@ -375,7 +409,8 @@ bool_term
         'TERM', 
         {
           term:$term, 
-          expectedType: 'BOOL'
+          operation: 'PASS',
+          dataType: 'BOOL'
         }    
       ]];
     }

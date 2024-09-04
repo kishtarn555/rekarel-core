@@ -69,7 +69,7 @@ export type OpCode =
   [instruction: "OR"] |
   [instruction: "EQ"] |
   [instruction: "EZ", error: ErrorLiteral] |
-  [instruction: "JZ"] |
+  [instruction: "JZ", offset:number] |
   [instruction: "JMP", offset: number] |
   [instruction: "FORWARD"] |
   [instruction: "WORLDBUZZERS"] |
