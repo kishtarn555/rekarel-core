@@ -393,7 +393,7 @@ term
   : term OR term 
     { $$ = {
         left: $1, 
-        right: $1, 
+        right: $3, 
         operation: "OR", 
         dataType:"BOOL" 
       }; }
@@ -401,7 +401,7 @@ term
     { 
       $$ = {
         left: $1, 
-        right: $1, 
+        right: $3, 
         operation: "AND", 
         dataType:"BOOL"
       };

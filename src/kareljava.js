@@ -344,7 +344,7 @@ break;
 case 40:
  this.$ = {
         left: $$[$0-2], 
-        right: $$[$0-2], 
+        right: $$[$0], 
         operation: "OR", 
         dataType:"BOOL" 
       }; 
@@ -353,7 +353,7 @@ case 41:
  
       this.$ = {
         left: $$[$0-2], 
-        right: $$[$0-2], 
+        right: $$[$0], 
         operation: "AND", 
         dataType:"BOOL"
       };
