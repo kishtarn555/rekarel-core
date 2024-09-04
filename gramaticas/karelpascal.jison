@@ -88,13 +88,31 @@
 
 const COMPILER= "RKP 1.0.0";
 const LANG = "ReKarel Pascal"
+
+let tagCnt = 1;
+
+function UniqueTag(tag) {
+  return `${tag}.${tagCnt++}`;
+}
+function resetCompiler(tag) {
+  tagCnt = 1;
+}
+
 %}
+
+
+
+%left OR
+%left AND
+%right NOT
+
 
 %%
 
 program
   : import_list BEGINPROG def_list BEGINEXEC expr_list ENDEXEC ENDPROG EOF
-    { 
+    %{ 
+      resetCompiler();
       return {
         compiler: COMPILER,
         language: LANG,
@@ -104,9 +122,10 @@ program
         program: $expr_list.concat([['LINE', yylineno], ['HALT']]),
         yy:yy,
       }; 
-    }
+    %}
   | import_list  BEGINPROG BEGINEXEC expr_list ENDEXEC ENDPROG EOF
-    { 
+    %{ 
+      resetCompiler();
       return {
         compiler: COMPILER,
         language: LANG,
@@ -116,9 +135,10 @@ program
         program: $expr_list.concat([['LINE', yylineno], ['HALT']]),
         yy:yy,
       }; 
-    }
+    %}
     | BEGINPROG def_list BEGINEXEC expr_list ENDEXEC ENDPROG EOF
-    { 
+    %{ 
+      resetCompiler();
       return {
         compiler: COMPILER,
         language: LANG,
@@ -128,9 +148,10 @@ program
         program: $expr_list.concat([['LINE', yylineno], ['HALT']]),
         yy:yy,
       }; 
-    }
+    %}
   |  BEGINPROG BEGINEXEC expr_list ENDEXEC ENDPROG EOF
-    { 
+    %{ 
+      resetCompiler();
       return {
         compiler: COMPILER,
         language: LANG,
@@ -140,7 +161,7 @@ program
         program: $expr_list.concat([['LINE', yylineno], ['HALT']]),
         yy:yy,
       }; 
-    }
+    %}
   ;
 
 import_list 
@@ -339,50 +360,136 @@ parameteredCall
   ;
 
 cond
-  : IF line term THEN expr %prec XIF
-    { $$ = $line.concat($term).concat([['JZ', $expr.length]]).concat($expr); }
-  | IF line term THEN expr ELSE expr
-    { $$ = $line.concat($term).concat([['JZ', 1 + $5.length]]).concat($5).concat([['JMP', $7.length]]).concat($7); }
+  : IF line bool_term THEN expr %prec XIF
+    %{ 
+      const skipTag = UniqueTag('iskip');
+      $$ = [
+        ...$line,
+        ...$bool_term,        
+        ['TJZ', skipTag],
+        ...$expr,
+        ['TAG', skipTag ],
+      ];
+    %}
+  | IF line bool_term THEN expr ELSE expr
+     %{ 
+      const toElse = UniqueTag('ielse');
+      const skipElse = UniqueTag('iskipelse');
+      $$ = [
+        ...$line, 
+        ...$bool_term, 
+        ['TJZ', toElse ], 
+        ...$5, 
+        ['TJMP',  skipElse], 
+        ['TAG', toElse  ],
+        ...$7,        
+        ['TAG', skipElse ],
+      ]; 
+    %}
   ;
 
 loop
-  : WHILE line term DO expr
-    { $$ = $line.concat($term).concat([['JZ', 1 + $expr.length]]).concat($expr).concat([['JMP', -1 -($term.length + $expr.length + 2)]]); }
+  : WHILE line bool_term DO expr
+    %{ 
+      const repeatTag = UniqueTag('lrepeat');
+      const endTag = UniqueTag('lend');
+      $$ = [
+        ['TAG',  repeatTag ],
+        ...$line,
+        ...$bool_term,
+        ['TJZ',  endTag],
+        ...$expr,
+        ['TJMP', repeatTag],
+        ['TAG', endTag],
+      ];
+    %}
   ;
 
 repeat
   : REPEAT line integer TIMES expr
-    { $$ = $line.concat($integer).concat([['DUP'], ['LOAD', 0], ['EQ'], ['NOT'], ['JZ', $expr.length + 2]]).concat($expr).concat([['DEC', 1], ['JMP', -1 -($expr.length + 6)], ['POP']]); }
+    %{ 
+      const repeatEnd = UniqueTag('rend');
+      const repeatLoop = UniqueTag('rloop');
+      $$ = [ 
+        ...$line,
+        ...$integer,
+        ['TAG', repeatLoop],
+        ['DUP'],
+        ['LOAD', 0], 
+        ['EQ'], 
+        ['NOT'], 
+        ['TJZ', repeatEnd],
+        ...$expr,
+        ['DEC', 1], 
+        ['TJMP', repeatLoop], 
+        ['TAG', repeatEnd],
+        ['POP'], 
+      ]; 
+    %}
   ;
 
 term
-  : term OR and_term
-    { $$ = $term.concat($and_term).concat([['OR']]); }
-  | and_term
-    { $$ = $and_term; }
-  ;
-
-and_term
-  : and_term AND not_term
-    { $$ = $and_term.concat($not_term).concat([['AND']]); }
-  | not_term
-    { $$ = $not_term; }
-  ;
-
-not_term
-  : NOT clause
-    { $$ = $clause.concat([['NOT']]); }
+  : term OR term 
+    { $$ = {
+        left: $1, 
+        right: $3, 
+        operation: "OR", 
+        dataType:"BOOL" 
+      }; }
+  | term AND term 
+    { 
+      $$ = {
+        left: $1, 
+        right: $3, 
+        operation: "AND", 
+        dataType:"BOOL"
+      };
+    }
+  | NOT term 
+    { 
+      $$ = {
+        term: $2,       
+        operation: "NOT",
+        dataType:"BOOL" 
+      };
+      }
+  | '(' term ')'
+    { $$ = $1; }
   | clause
-    { $$ = $clause; }
+    { $$ = $1; }
+  ;
+
+bool_term
+  : term 
+    { 
+      $$ = [[
+        'TERM', 
+        {
+          term:$term, 
+          operation: 'PASS',
+          dataType: 'BOOL'
+        }    
+      ]];
+    }
   ;
 
 clause
   : IFZ '(' integer ')'
-    { $$ = $integer.concat([['NOT']]); }
+    { 
+       $$ = {
+        operation: "ATOM",
+        instructions: $integer.concat([['NOT']]),
+        dataType: "BOOL"
+      };
+    }
   | bool_fun
-    { $$ = $bool_fun; }
-  | '(' term ')'
-    { $$ = $term; }
+    { 
+      $$ = {
+        operation: "ATOM",
+        instructions: $bool_fun,
+        dataType: "BOOL"
+      }; 
+    }
   ;
 
 bool_fun
