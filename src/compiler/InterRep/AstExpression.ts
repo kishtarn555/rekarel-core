@@ -118,8 +118,6 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
         }
 
         if (instruction[0] === "TAG") {
-            console.log("TagTho")
-            console.log(instruction)
             tags[instruction[1]] = target.length;
             continue;
         }

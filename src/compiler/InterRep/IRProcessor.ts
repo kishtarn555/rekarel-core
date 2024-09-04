@@ -201,7 +201,6 @@ function resolveComplexIR(IRInstructions: IRInstruction[], yy: YY, definitions: 
     const tags: IRTagRecord = {};
     //Resolve AST and populate tags
     resolveListWithASTs(IRInstructions, definitions, parameters, result, tags, yy);
-    console.log(tags);
     // Resolve TJMP to JMP
     result = result.map((instruction, idx): IRInstruction => {
         if (instruction[0] === "TJMP") {
@@ -218,7 +217,6 @@ function resolveComplexIR(IRInstructions: IRInstruction[], yy: YY, definitions: 
 }
 
 export function generateOpcodesFromIR(data: IRObject): RawProgram {
-    console.log(data.program);
     const definitions = new DefinitionTable(data.variablesCanBeFunctions);
     // Step 1 - Populate global definitions, and check for repeated definitions
     loadPackages(data, definitions);
