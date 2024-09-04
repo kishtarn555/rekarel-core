@@ -321,7 +321,25 @@ case 38:
     
 break;
 case 39:
- this.$ = $$[$0-4].concat($$[$0-2]).concat([['DUP'], ['LOAD', 0], ['EQ'], ['NOT'], ['JZ', $$[$0].length + 2]]).concat($$[$0]).concat([['DEC', 1], ['JMP', -1 -($$[$0].length + 6)], ['POP']]); 
+ 
+      const repeatEnd = UniqueTag('rend');
+      const repeatLoop = UniqueTag('rloop');
+      this.$ = [ 
+        ...$$[$0-4],
+        ...$$[$0-2],
+        ['TAG', repeatLoop],
+        ['DUP'],
+        ['LOAD', 0], 
+        ['EQ'], 
+        ['NOT'], 
+        ['TJZ', repeatEnd],
+        ...$$[$0],
+        ['DEC', 1], 
+        ['TJMP', repeatLoop], 
+        ['TAG', repeatEnd],
+        ['POP'], 
+      ]; 
+    
 break;
 case 40:
  this.$ = {

@@ -365,7 +365,25 @@ loop
 
 repeat
   : REPEAT line '(' integer ')' expr
-    { $$ = $line.concat($integer).concat([['DUP'], ['LOAD', 0], ['EQ'], ['NOT'], ['JZ', $expr.length + 2]]).concat($expr).concat([['DEC', 1], ['JMP', -1 -($expr.length + 6)], ['POP']]); }
+    %{ 
+      const repeatEnd = UniqueTag('rend');
+      const repeatLoop = UniqueTag('rloop');
+      $$ = [ 
+        ...$line,
+        ...$integer,
+        ['TAG', repeatLoop],
+        ['DUP'],
+        ['LOAD', 0], 
+        ['EQ'], 
+        ['NOT'], 
+        ['TJZ', repeatEnd],
+        ...$expr,
+        ['DEC', 1], 
+        ['TJMP', repeatLoop], 
+        ['TAG', repeatEnd],
+        ['POP'], 
+      ]; 
+    %}
   ;
 
 
