@@ -9,6 +9,7 @@ export type IRCall = {
     argCount: number,
     nameLoc: YYLoc,
     argLoc: YYLoc,
+    params: IRTerm[],
     expectedType?: string
 };
 
@@ -60,6 +61,10 @@ export type IRTerm =
     }
 ;
 
+export type IRRet = {
+    term:IRTerm,
+    loc: YYLoc
+}
 
 export type IRTagRecord = Record<string, number>;
 /**
@@ -92,7 +97,8 @@ export type IRInstruction =
     [instruction: "DEC", amount: number] |
     [instruction: "INC", amount: number] |
     [instruction: "CALL", data:IRCall] |
-    [instruction: "RET", returnType: string, retLoc:YYLoc] |
+    [instruction: "RET", term: IRRet] |
+    [instruction: "RET", "__DEFAULT", loc:YYLoc] |
     [instruction: "PARAM", index: number] |
     [instruction: "SRET"] |
     [instruction: "LRET"] |

@@ -113,19 +113,6 @@ function validateAndGetFunctionDefinitions(data: IRObject, definitionTable: Defi
                     return false;
                 }
             }
-
-            if (instruction[0] === "RET") {
-                // Check that it returns the correct type
-                if (instruction[1] !== "__DEFAULT" && instruction[1] !== func.returnType) {
-                    yy.parser.parseError("Cannot return a type: " + instruction[1] + ", in a function of type: " + func.returnType, {
-                        expectedType: func.returnType,
-                        returnedType: instruction[1],
-                        line: instruction[2].first_line - 1,
-                        loc: instruction[2]
-                    });
-                    return false;
-                }
-            }
         }
 
     }
@@ -194,13 +181,14 @@ function loadPackages(data: IRObject, definitions: DefinitionTable) {
  * @param yy Compiler information, used to throw compilation errors
  * @param definitions Table of global definitions
  * @param parameters Parameters of the scope
+ * @param expectedReturn The return type of the current scope
  * @returns The IR with the complex IR resolved into simple IR
  */
-function resolveComplexIR(IRInstructions: IRInstruction[], yy: YY, definitions: DefinitionTable, parameters: string[]): IRInstruction[] {
+function resolveComplexIR(IRInstructions: IRInstruction[], yy: YY, definitions: DefinitionTable, parameters: string[], expectedReturn:string): IRInstruction[] {
     let result: IRInstruction[] = [];
     const tags: IRTagRecord = {};
     //Resolve AST and populate tags
-    resolveListWithASTs(IRInstructions, definitions, parameters, result, tags, yy);
+    resolveListWithASTs(IRInstructions, definitions, parameters, expectedReturn, result, tags, yy);
     // Resolve TJMP to JMP
     result = result.map((instruction, idx): IRInstruction => {
         if (instruction[0] === "TJMP") {
@@ -224,7 +212,7 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
         throw new Error("This should not be reachable, it should have thrown before");
 
     // Step 2 - Resolve all AST/tags, such as terms.
-    let IRProgram = resolveComplexIR(data.program, data.yy, definitions, []);
+    let IRProgram = resolveComplexIR(data.program, data.yy, definitions,  [], "VOID");
 
     // Step 3 - Resolve all AST/tags from functions and Generate a single IR array.
     for (const func of data.functions) {
@@ -233,7 +221,7 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
             continue;
         }
         definitions.setFunctionLoc(func.name, IRProgram.length)
-        const code = resolveComplexIR(func.code, data.yy, definitions, func.params);
+        const code = resolveComplexIR(func.code, data.yy, definitions, func.params, func.returnType);
         IRProgram = IRProgram.concat(code);
     }
     //Step 4: Generate opcode. Resolve CALL into correct opcode

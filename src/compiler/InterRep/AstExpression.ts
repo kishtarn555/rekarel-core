@@ -1,4 +1,4 @@
-import type { IRTerm, IRInstruction, IRTagRecord, IRVar } from "./IRInstruction";
+import type { IRTerm, IRInstruction, IRTagRecord, IRVar, IRCall, IRRet } from "./IRInstruction";
 import { YY } from "./IRParserTypes";
 import { DefinitionTable } from "./IRVarTable";
 
@@ -8,51 +8,56 @@ import { DefinitionTable } from "./IRVarTable";
  * @param tree The ast expression to solve
  * @param table Definition table
  * @param yy Requiered to emmit compilation error
+ * @param expectedReturn The type of the return in the current scope
  * @returns Returns the equivalent AST into IRInstructions without AST
  */
-function resolveTerm(tree: IRTerm, definitions: DefinitionTable, parameters: string[], target: IRInstruction[], tags: IRTagRecord, yy: YY): string {
+function resolveTerm(tree: IRTerm, definitions: DefinitionTable, parameters: string[], expectedReturn: string, target: IRInstruction[], tags: IRTagRecord, yy: YY): string {
     if (tree.operation === "ATOM") {
-        resolveListWithASTs(tree.instructions, definitions, parameters, target, tags, yy);
+        resolveListWithASTs(tree.instructions, definitions, parameters, expectedReturn, target, tags, yy);
         if (tree.dataType.startsWith("$")) {
+            const termType = tree.dataType.substring(1);
+            if (parameters.includes(termType)) {
+                return "INT";
+            }
             return definitions.getType(tree.dataType.substring(1));
         }
         return tree.dataType;
     }
 
-    if (tree.operation === "AND" || tree.operation === "OR") {        
-        const leftType = resolveTerm(tree.left, definitions, parameters, target, tags, yy);
-        const rightType = resolveTerm(tree.right, definitions, parameters, target, tags, yy);
+    if (tree.operation === "AND" || tree.operation === "OR") {
+        const leftType = resolveTerm(tree.left, definitions, parameters, expectedReturn, target, tags, yy);
+        const rightType = resolveTerm(tree.right, definitions, parameters, expectedReturn, target, tags, yy);
         if (leftType !== "BOOL") {
             yy.parser.parseError(`${tree.operation} operator uses booleans terms only, left is of type: ${leftType}`, {
                 //FIXME: Add data (?)
-            } );
+            });
         }
         if (rightType !== "BOOL") {
             yy.parser.parseError(`${tree.operation} operator uses booleans terms only, right is of type: ${rightType}`, {
                 //FIXME: Add data (?)
-            } );
+            });
         }
         target.push([tree.operation]);
         return tree.dataType;
     }
-    if (tree.operation === "NOT") {        
-        const termType = resolveTerm(tree.term, definitions, parameters, target, tags, yy);        
+    if (tree.operation === "NOT") {
+        const termType = resolveTerm(tree.term, definitions, parameters, expectedReturn, target, tags, yy);
         if (termType !== "BOOL") {
             yy.parser.parseError(`${tree.operation} operator uses a boolean terms only, but tried to negate a term of type: ${termType}`, {
                 //FIXME: Add data (?)
-            } );
-        }        
+            });
+        }
         target.push([tree.operation]);
         return tree.dataType;
     }
     if (tree.operation === "PASS") {
-        const termType = resolveTerm(tree.term, definitions, parameters, target, tags, yy);        
+        const termType = resolveTerm(tree.term, definitions, parameters, expectedReturn, target, tags, yy);
         if (termType !== tree.dataType) {
             yy.parser.parseError(`Expected a term of type ${tree.dataType}, but got ${termType}`, {
                 //FIXME: Add data (?)
-            } );
+            });
         }
-        return tree.dataType;  
+        return tree.dataType;
 
     }
 
@@ -84,7 +89,9 @@ function resolveVar(data: IRVar, definitions: DefinitionTable, parameters: strin
                 argCount: 1,
                 argLoc: data.loc,
                 nameLoc: data.loc,
-                expectedType: data.expectedType
+                expectedType: data.expectedType,
+                params: [],
+
             }
         ]);
         target.push(["LRET"]);
@@ -98,6 +105,35 @@ function resolveVar(data: IRVar, definitions: DefinitionTable, parameters: strin
     });
 }
 
+
+function resolveCall(data: IRCall, definitions: DefinitionTable, parameters: string[], expectedReturn: string, target: IRInstruction[], tags: IRTagRecord, yy: YY) {
+    target.push(
+        ["LINE", data.nameLoc.first_line - 1]
+    );
+    for (const parameter of data.params) {
+        resolveTerm(parameter, definitions, parameters, expectedReturn, target, tags, yy);
+    }
+    target.push(["CALL", data]);
+    target.push(
+        ["LINE", data.nameLoc.first_line - 1]
+    );
+
+
+}
+function resolveReturn(data: IRRet, definitions: DefinitionTable, parameters: string[], expectedReturn: string, target: IRInstruction[], tags: IRTagRecord, yy: YY) {
+    const retType = resolveTerm(data.term, definitions, parameters,expectedReturn,  target, tags, yy);
+    if (expectedReturn !== retType) {
+        yy.parser.parseError(`Cannot return a type: ${retType}, in a function of type: ${expectedReturn}`, {
+            line: data.loc.first_line - 1,
+            loc: data.loc
+        });
+    }
+    target.push(["SRET"]);
+    target.push(["RET", data]);
+
+
+}
+
 /**
  * @throws Iterates through an IR list and resolve any AST it finds
  * @param tree The ast expression to solve
@@ -105,7 +141,7 @@ function resolveVar(data: IRVar, definitions: DefinitionTable, parameters: strin
  * @param yy Requiered to emmit compilation error
  * @returns Returns the equivalent AST into IRInstructions without AST
  */
-export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions: DefinitionTable, parameters: string[], target: IRInstruction[], tags: IRTagRecord, yy: YY) {
+export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions: DefinitionTable, parameters: string[], expectedReturn: string, target: IRInstruction[], tags: IRTagRecord, yy: YY) {
     for (const instruction of IRInstructions) {
         // Fixme: All vars should be in terms
         if (instruction[0] === "VAR") {
@@ -114,12 +150,28 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
         }
 
         if (instruction[0] === "TERM") {
-            resolveTerm(instruction[1], definitions, parameters, target, tags, yy);
+            resolveTerm(instruction[1], definitions, parameters, expectedReturn, target, tags, yy);
             continue;
         }
 
         if (instruction[0] === "TAG") {
             tags[instruction[1]] = target.length;
+            continue;
+        }
+
+        if (instruction[0] === "CALL") {
+            resolveCall(instruction[1], definitions, parameters, expectedReturn, target, tags, yy);
+            continue;
+        }
+        if (instruction[0] === "RET"  ) {
+            if (instruction[1] === "__DEFAULT") {
+                //set SRET to 0
+                target.push(["LOAD",0])
+                target.push(["SRET"])
+                target.push(instruction);
+                continue;
+            }
+            resolveReturn(instruction[1], definitions, parameters, expectedReturn, target, tags, yy);
             continue;
         }
 

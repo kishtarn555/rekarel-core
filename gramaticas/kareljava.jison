@@ -12,6 +12,7 @@
 "import"			{ return 'IMPORT'; }
 "void"				{ return 'DEF'; }
 "int"				  { return 'INT'; }
+"bool"				  { return 'BOOL'; }
 "return"      { return 'RET'; }
 "turnoff"                       { return 'HALT'; }
 "turnleft"	                { return 'LEFT'; }
@@ -222,6 +223,8 @@ funct_type
     { $$ = "VOID"; }
   | INT
     { $$ = "INT"; }
+  | BOOL
+    { $$ = "BOOL"; }
   ;
 
 
@@ -261,11 +264,30 @@ expr
 
 return
   : RET '(' ')'
-    { $$ = [['LINE', yylineno], ['RET', 'VOID', @1]]; }
+    { $$ = [
+      ['LINE', yylineno],
+      ['RET', {
+        term: { operation: "ATOM", instructions:[["LOAD", 0]], dataType:"VOID" },
+        loc: @1
+      }]
+    ]; }
   | RET 
-    { $$ = [['LINE', yylineno], ['RET', 'VOID', @1]]; }
-  | RET  integer 
-    { $$ = [['LINE', yylineno], ...$integer, ['SRET'], [ 'RET', 'INT', @1]]; }
+    { $$ = [
+      ['LINE', yylineno],
+      ['RET', {
+        term: { operation: "ATOM", instructions:[["LOAD", 0]], dataType:"VOID" },
+        loc: @1
+      }]
+    ]; }
+  | RET  term 
+    
+    { $$ = [
+      ['LINE', yylineno],
+      ['RET', {
+        term: $term,
+        loc: @1
+      }]
+    ]; }
   ;
 
 call
@@ -279,45 +301,40 @@ call
         last_line: @3.last_line,
         last_column: @3.last_column,
       };
-      $$ = [
-        ['LINE', yylineno], 
-        ['LOAD', 0], 
-        [
-          'CALL', 
-          {
-            target: $var, 
-            argCount: 1, 
-            nameLoc: @1, 
-            argLoc: loc
-          }
-        ], 
-        ['LINE', yylineno]
-      ]; 
+      $$ = [[
+        'CALL', 
+        {
+          target: $var, 
+          argCount: 1, 
+          params: [
+            { operation:"ATOM",  dataType:"INT", instructions: [["LOAD", 0]] }
+          ],
+          nameLoc: @1, 
+          argLoc: loc,
+        }
+      ]]; 
     %}
-  | var '(' integer ')'
+  | var '(' term ')'
     { 
       @$.first_column = @1.first_column;
       @$.first_line = @1.first_line;
       @$.last_column = @4.last_column;
       @$.last_line = @4.last_line;
-      $$ = [
-        ['LINE', yylineno],
-        ...$integer,
-        [
-          'CALL',
-          {
-            target:$var, 
-            argCount:2, 
-            nameLoc: @1, 
-            argLoc: @3
-          } 
-        ], 
-        ['LINE', yylineno]
-      ]; 
+      $$ = [[
+        'CALL', 
+        {
+          target: $var, 
+          argCount: 2, 
+          params: [$term],
+          nameLoc: @1, 
+          argLoc: loc,
+          line: yylineno,
+        }
+      ]];  
     }
   ;
-
 cond
+
   : IF line '(' bool_term ')' expr %prec XIF
     %{ 
       const skipTag = UniqueTag('iskip');
@@ -364,13 +381,13 @@ loop
   ;
 
 repeat
-  : REPEAT line '(' integer ')' expr
+  : REPEAT line '(' int_term ')' expr
     %{ 
       const repeatEnd = UniqueTag('rend');
       const repeatLoop = UniqueTag('rloop');
       $$ = [ 
         ...$line,
-        ...$integer,
+        ...$int_term,
         ['TAG', repeatLoop],
         ['DUP'],
         ['LOAD', 0], 
@@ -434,13 +451,27 @@ bool_term
     }
   ;
 
+int_term
+  : term 
+    { 
+      $$ = [[
+        'TERM', 
+        {
+          term:$term, 
+          operation: 'PASS',
+          dataType: 'INT'
+        }    
+      ]];
+    }
+  ;
+
 
 clause
-  : IFZ '(' integer ')'
+  : IFZ '(' int_term ')'
     { 
       $$ = {
         operation: "ATOM",
-        instructions: $integer.concat([['NOT']]),
+        instructions: $int_term.concat([['NOT']]),
         dataType: "BOOL"
       };
     }
@@ -460,6 +491,24 @@ clause
         dataType: "BOOL"
       };
     }
+  | integer
+    {
+      $$ = {
+        operation: "ATOM",
+        instructions: $integer,
+        dataType: "INT"
+      };
+    }
+  | call 
+    %{ 
+      const callIR = $call;
+      const callData = callIR[0][1];
+      $$ = {
+        operation: "ATOM",
+        instructions: [...callIR, ['LRET']],
+        dataType: "$"+callData.target
+      }
+    %}
   ;
 
 bool_fun
@@ -516,20 +565,15 @@ integer
     }
   | int_literal
     { $$ = [['LOAD', $int_literal]]; }
-  | INC '(' integer ')'
-    { $$ = $integer.concat([['INC', 1]]); }
-  | DEC	 '(' integer ')'
-    { $$ = $integer.concat([['DEC', 1]]); }
-  | INC '(' integer ',' int_literal ')'
-    { $$ = $integer.concat([['INC', $int_literal]]); }
-  | DEC	 '(' integer ',' int_literal ')'
-    { $$ = $integer.concat([['DEC', $int_literal]]); }
-  | call 
-    %{ 
-      const callData = $call;
-      callData[callData.length-2][1].expectedType = 'INT'; //Set expected int to call instruction
-      $$ = [...callData, ['LRET']] 
-    %}
+  | INC '(' int_term ')'
+    { $$ = $int_term.concat([['INC', 1]]); }
+  | DEC	 '(' int_term ')'
+    { $$ = $int_term.concat([['DEC', 1]]); }
+  | INC '(' int_term ',' int_literal ')'
+    { $$ = $int_term.concat([['INC', $int_literal]]); }
+  | DEC	 '(' int_term ',' int_literal ')'
+    { $$ = $int_term.concat([['DEC', $int_literal]]); }
+  
   ;
 
 int_literal
