@@ -175,7 +175,7 @@ case 12:
         code: null, 
         params: [],  
         loc: this._$,
-        returnType: $funct_type
+        returnType: $$[$0-2]
       }]; 
     
 break;
@@ -190,7 +190,7 @@ case 13:
         code: null, 
         params: [$$[$0-1]],  
         loc: this._$,
-        returnType: $funct_type
+        returnType: $$[$0-5]
       }]; 
       
 break;

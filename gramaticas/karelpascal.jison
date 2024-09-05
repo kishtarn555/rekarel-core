@@ -206,7 +206,7 @@ def
         code: null, 
         params: [],  
         loc: @$,
-        returnType: $funct_type
+        returnType: $prototype_type
       }]; 
     }
   | prototype_type line var '(' var ')'
@@ -220,7 +220,7 @@ def
         code: null, 
         params: [$5],  
         loc: @$,
-        returnType: $funct_type
+        returnType: $prototype_type
       }]; 
       }
   | funct_type line var  AS expr
