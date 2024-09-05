@@ -92,6 +92,7 @@
 const COMPILER= "RKP 1.0.0";
 const LANG = "ReKarel Pascal"
 const VarsAsFuncs = true;
+const reqsPrototypes = false;
 
 let tagCnt = 1;
 
@@ -120,7 +121,7 @@ program
       return {
         compiler: COMPILER,
         language: LANG,
-        requieresFunctionPrototypes: true, 
+        requieresFunctionPrototypes: reqsPrototypes, 
         variablesCanBeFunctions: VarsAsFuncs,
         packages: $import_list,
         functions: $def_list,
@@ -134,7 +135,7 @@ program
       return {
         compiler: COMPILER,
         language: LANG,
-        requieresFunctionPrototypes: true, 
+        requieresFunctionPrototypes: reqsPrototypes, 
         variablesCanBeFunctions: VarsAsFuncs,
         packages: $import_list,
         functions: [],
@@ -148,7 +149,7 @@ program
       return {
         compiler: COMPILER,
         language: LANG,
-        requieresFunctionPrototypes: true,  
+        requieresFunctionPrototypes: reqsPrototypes,  
         variablesCanBeFunctions: VarsAsFuncs,
         packages: [],
         functions: $def_list,
@@ -162,7 +163,7 @@ program
       return {
         compiler: COMPILER,
         language: LANG,
-        requieresFunctionPrototypes: true, 
+        requieresFunctionPrototypes: reqsPrototypes, 
         variablesCanBeFunctions: VarsAsFuncs,
         packages: [],
         functions: [],
