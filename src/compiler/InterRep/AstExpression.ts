@@ -1,4 +1,4 @@
-import type { IRTerm, IRInstruction, IRTagRecord, IRVar } from "./IRInstruction";
+import type { IRTerm, IRInstruction, IRTagRecord, IRVar, IRCall } from "./IRInstruction";
 import { YY } from "./IRParserTypes";
 import { DefinitionTable } from "./IRVarTable";
 
@@ -14,6 +14,10 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, parameters: str
     if (tree.operation === "ATOM") {
         resolveListWithASTs(tree.instructions, definitions, parameters, target, tags, yy);
         if (tree.dataType.startsWith("$")) {
+            const termType = tree.dataType.substring(1);
+            if (parameters.includes(termType)) {
+                return "INT";
+            }
             return definitions.getType(tree.dataType.substring(1));
         }
         return tree.dataType;
@@ -84,7 +88,9 @@ function resolveVar(data: IRVar, definitions: DefinitionTable, parameters: strin
                 argCount: 1,
                 argLoc: data.loc,
                 nameLoc: data.loc,
-                expectedType: data.expectedType
+                expectedType: data.expectedType,
+                params:[],
+                
             }
         ]);
         target.push(["LRET"]);
@@ -96,6 +102,22 @@ function resolveVar(data: IRVar, definitions: DefinitionTable, parameters: strin
         line: data.loc.first_line - 1,
         loc: data.loc
     });
+}
+
+
+function resolveCall(data: IRCall, definitions: DefinitionTable, parameters: string[], target: IRInstruction[], tags: IRTagRecord, yy: YY) {
+    target.push(
+        ["LINE", data.nameLoc.first_line]
+    );
+    for (const parameter of data.params) {
+        resolveTerm(parameter, definitions, parameters, target, tags, yy);
+    }
+    target.push(["CALL", data]); 
+    target.push(
+        ["LINE", data.nameLoc.first_line]
+    );
+
+
 }
 
 /**
@@ -120,6 +142,11 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
 
         if (instruction[0] === "TAG") {
             tags[instruction[1]] = target.length;
+            continue;
+        }
+
+        if (instruction[0] === "CALL") {
+            resolveCall(instruction[1], definitions, parameters, target, tags, yy);
             continue;
         }
 

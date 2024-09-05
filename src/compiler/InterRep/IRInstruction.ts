@@ -9,6 +9,7 @@ export type IRCall = {
     argCount: number,
     nameLoc: YYLoc,
     argLoc: YYLoc,
+    params: IRTerm[],
     expectedType?: string
 };
 

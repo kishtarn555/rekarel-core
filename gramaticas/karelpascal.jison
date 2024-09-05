@@ -88,6 +88,7 @@
 
 const COMPILER= "RKP 1.0.0";
 const LANG = "ReKarel Pascal"
+const VarsAsFuncs = true;
 
 let tagCnt = 1;
 
@@ -117,6 +118,7 @@ program
         compiler: COMPILER,
         language: LANG,
         requieresFunctionPrototypes: true, 
+        variablesCanBeFunctions: VarsAsFuncs,
         packages: $import_list,
         functions: $def_list,
         program: $expr_list.concat([['LINE', yylineno], ['HALT']]),
@@ -129,7 +131,8 @@ program
       return {
         compiler: COMPILER,
         language: LANG,
-        requieresFunctionPrototypes: true,
+        requieresFunctionPrototypes: true, 
+        variablesCanBeFunctions: VarsAsFuncs,
         packages: $import_list,
         functions: [],
         program: $expr_list.concat([['LINE', yylineno], ['HALT']]),
@@ -142,7 +145,8 @@ program
       return {
         compiler: COMPILER,
         language: LANG,
-        requieresFunctionPrototypes: true, 
+        requieresFunctionPrototypes: true,  
+        variablesCanBeFunctions: VarsAsFuncs,
         packages: [],
         functions: $def_list,
         program: $expr_list.concat([['LINE', yylineno], ['HALT']]),
@@ -155,7 +159,8 @@ program
       return {
         compiler: COMPILER,
         language: LANG,
-        requieresFunctionPrototypes: true,
+        requieresFunctionPrototypes: true, 
+        variablesCanBeFunctions: VarsAsFuncs,
         packages: [],
         functions: [],
         program: $expr_list.concat([['LINE', yylineno], ['HALT']]),
@@ -231,7 +236,7 @@ def
       @$.last_column = @3.last_column;
 
       $$ = [{
-        name: $var,  
+        name: $var.toLowerCase(),  
         code: $line.concat($expr).concat([['RET', '__DEFAULT', @1]]), //FIXME: This should be in the end of the expression
         params: [], 
         loc: @$,
@@ -247,7 +252,7 @@ def
       @$.last_column = @3.last_column;
 
     	$$ = [{
-        name: $3,
+        name: $3.toLowerCase(),
         code: $line.concat($expr).concat([['RET', '__DEFAULT', @1]]), //FIXME: This should be in the end of the expression
         params: [$5],
         loc: @$,        
@@ -320,18 +325,18 @@ call
   : var
     { 
       $$ = [
-        ['LINE', yylineno],
-        ['LOAD', 0],
         [
           'CALL', 
           {
             target:$var.toLowerCase(), 
             argCount:1, 
+            params: [
+              { operation:"ATOM",  dataType:"INT", instructions: [["LOAD", 0]] }
+            ],
             nameLoc: @1, 
             argLoc: @1
           }
-        ],
-        ['LINE', yylineno]
+        ]
       ];
     }
   | parameteredCall
@@ -340,21 +345,21 @@ call
   ;
 
 parameteredCall 
-  : var '(' integer ')'
+  : var '(' int_term ')'
     { 
       $$ = [
-        ['LINE', yylineno], 
-        ...$integer, 
         [
           'CALL', 
           {
             target: $var.toLowerCase(), 
-            argCount: 2, 
+            argCount: 2,
+            params: [
+              { operation:"ATOM",  dataType:"INT", instructions: $int_term }
+            ],
             nameLoc: @1, 
-            argLoc: @3
+            argLoc: @3,
           }
-        ], 
-        ['LINE', yylineno]
+        ]
       ]; 
     }
   ;
@@ -406,13 +411,13 @@ loop
   ;
 
 repeat
-  : REPEAT line integer TIMES expr
+  : REPEAT line int_term TIMES expr
     %{ 
       const repeatEnd = UniqueTag('rend');
       const repeatLoop = UniqueTag('rloop');
       $$ = [ 
         ...$line,
-        ...$integer,
+        ...$int_term,
         ['TAG', repeatLoop],
         ['DUP'],
         ['LOAD', 0], 
@@ -473,12 +478,27 @@ bool_term
     }
   ;
 
+  
+int_term
+  : term 
+    { 
+      $$ = [[
+        'TERM', 
+        {
+          term:$term, 
+          operation: 'PASS',
+          dataType: 'INT'
+        }    
+      ]];
+    }
+  ;
+
 clause
-  : IFZ '(' integer ')'
+  : IFZ '(' int_term ')'
     { 
        $$ = {
         operation: "ATOM",
-        instructions: $integer.concat([['NOT']]),
+        instructions: $int_term.concat([['NOT']]),
         dataType: "BOOL"
       };
     }
@@ -490,6 +510,42 @@ clause
         dataType: "BOOL"
       }; 
     }
+  | integer 
+    {
+      $$ = {
+        operation: "ATOM",
+        instructions: $integer,
+        dataType: "INT"
+      }; 
+      
+    }
+  |
+    var
+      %{ 
+        const ir = [[
+          'VAR',
+          {
+            target: $var.toLowerCase(), 
+            loc: @1, 
+            couldBeFunction: true
+          }
+        ]]; 
+        $$ = {
+          operation: "ATOM",
+          instructions: ir,
+          dataType: "$"+$var.toLowerCase()
+        }; 
+      %}
+  | parameteredCall 
+    %{ 
+      const callIR = $parameteredCall;
+      const callData = callIR[0][1];
+      $$ = {
+        operation: "ATOM",
+        instructions: [...callIR, ['LRET']],
+        dataType: "$"+callData.target
+      }
+    %}
   ;
 
 bool_fun
@@ -532,33 +588,16 @@ bool_fun
   ;
 
 integer
-  : var
-    { $$ = [[
-        'VAR',
-        {
-          target: $var.toLowerCase(), 
-          loc: @1, 
-          couldBeFunction: true,
-          expectedType: 'INT'
-        }
-      ]]; 
-    }
-  | int_literal
+  : int_literal
     { $$ = [['LOAD',  $int_literal]]; }
-  | INC '(' integer ')'
-    { $$ = $integer.concat([['INC', 1]]); }
-  | DEC	 '(' integer ')'
-    { $$ = $integer.concat([['DEC', 1]]); }
-  | INC '(' integer ',' int_literal ')'
-    { $$ = $integer.concat([['INC', $int_literal]]); }
-  | DEC	 '(' integer ',' int_literal ')'
-    { $$ = $integer.concat([['DEC', $int_literal]]); }
-  | parameteredCall 
-    %{
-      const call = $parameteredCall
-      call[call.length-2][1].expectedType = "INT"
-      $$ = [...call, ["LRET"]]      
-    %}
+  | INC '(' int_term ')'
+    { $$ = $int_term.concat([['INC', 1]]); }
+  | DEC	 '(' int_term ')'
+    { $$ = $int_term.concat([['DEC', 1]]); }
+  | INC '(' int_term ',' int_literal ')'
+    { $$ = $int_term.concat([['INC', $int_literal]]); }
+  | DEC	 '(' int_term ',' int_literal ')'
+    { $$ = $int_term.concat([['DEC', $int_literal]]); }
   ;
 
 int_literal
