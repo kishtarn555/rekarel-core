@@ -12,6 +12,7 @@
 "import"			{ return 'IMPORT'; }
 "void"				{ return 'DEF'; }
 "int"				  { return 'INT'; }
+"bool"				  { return 'BOOL'; }
 "return"      { return 'RET'; }
 "turnoff"                       { return 'HALT'; }
 "turnleft"	                { return 'LEFT'; }
@@ -222,6 +223,8 @@ funct_type
     { $$ = "VOID"; }
   | INT
     { $$ = "INT"; }
+  | BOOL
+    { $$ = "BOOL"; }
   ;
 
 
