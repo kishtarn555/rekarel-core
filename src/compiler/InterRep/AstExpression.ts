@@ -108,14 +108,14 @@ function resolveVar(data: IRVar, definitions: DefinitionTable, parameters: strin
 
 function resolveCall(data: IRCall, definitions: DefinitionTable, parameters: string[], expectedReturn: string, target: IRInstruction[], tags: IRTagRecord, yy: YY) {
     target.push(
-        ["LINE", data.nameLoc.first_line]
+        ["LINE", data.nameLoc.first_line - 1]
     );
     for (const parameter of data.params) {
         resolveTerm(parameter, definitions, parameters, expectedReturn, target, tags, yy);
     }
     target.push(["CALL", data]);
     target.push(
-        ["LINE", data.nameLoc.first_line]
+        ["LINE", data.nameLoc.first_line - 1]
     );
 
 
