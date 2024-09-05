@@ -22,6 +22,9 @@
 "define-prototipo-entero"                   { return 'PROTO_INT'; }
 "define-instrucción-entera"                 { return 'DEF_INT'; }
 "define-instruccion-entera"                 { return 'DEF_INT'; }
+"define-prototipo-booleana"                 { return 'PROTO_BOOL'; }
+"define-instrucción-booleana"               { return 'DEF_BOOL'; }
+"define-instruccion-booleana"               { return 'DEF_BOOL'; }
 "sal-de-instruccion"                        { return 'RET'; }
 "sal-de-instrucción"                        { return 'RET'; }
 "regresa"                                   { return 'RET'; }
@@ -264,6 +267,8 @@ def
 funct_type
   : DEF_INT
     { $$ = "INT"; }
+  | DEF_BOOL
+    { $$ = "BOOL"; }
   | DEF
     { $$ = "VOID"; }
   ;
@@ -271,6 +276,8 @@ funct_type
 prototype_type
   : PROTO_INT
     { $$ = "INT"; }
+  | PROTO_BOOL
+    { $$ = "BOOL"; }
   | PROTO
     { $$ = "VOID"; }
   ;
