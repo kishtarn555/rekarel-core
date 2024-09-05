@@ -509,6 +509,22 @@ clause
         dataType: "$"+callData.target
       }
     %}
+  | var
+    %{ 
+      const ir = [[
+        'VAR', 
+        {
+          target:$var, 
+          loc: @1,
+          couldBeFunction: false,
+        }
+      ]];        
+      $$ = {
+        operation: "ATOM",
+        instructions: ir,
+        dataType: "$"+$var
+      }; 
+    %}
   ;
 
 bool_fun
@@ -551,19 +567,7 @@ bool_fun
   ;
 
 integer
-  : var
-    { 
-      $$ = [[
-        'VAR', 
-        {
-          target:$var, 
-          loc: @1,
-          couldBeFunction: false,          
-          expectedType: 'INT'
-        }
-      ]]; 
-    }
-  | int_literal
+  : int_literal
     { $$ = [['LOAD', $int_literal]]; }
   | INC '(' int_term ')'
     { $$ = $int_term.concat([['INC', 1]]); }
