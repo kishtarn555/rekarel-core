@@ -2,7 +2,7 @@ import { RawProgram } from './opcodes.js';
 
 import { javaParser as importedJava } from '../kareljava.js';
 import { pascalParser as importedPascal } from '../karelpascal.js';
-import { generateOpcodesFromIR, IRObject } from './IRProcessor.js';
+import { generateOpcodesFromIR, IRObject } from './InterRep/IRProcessor.js';
 
 export type Compiler = (code: string) => RawProgram
 type Parser = (code: string) => IRObject

@@ -66,61 +66,86 @@
 %{
 
 const COMPILER= "RKJ 1.0.0";
-const LANG = "ReKarel Java"
+const LANG = "ReKarel Java";
+const VarsAsFuncs = false;
+const reqsPrototypes = false;
+//Tag counter
+let tagCnt = 1;
+
+
+function UniqueTag(tag) {
+  return `${tag}.${tagCnt++}`;
+}
+function resetCompiler(tag) {
+  tagCnt = 1;
+}
 
 %}
+
+
+%left OR
+%left AND
+%right NOT
 
 %%
 
 program
   : CLASS PROG BEGIN def_list PROG '(' ')' block END EOF
-    { 
+    %{ 
+      resetCompiler();
       return {
         compiler: COMPILER,
         language: LANG,
+        variablesCanBeFunctions: VarsAsFuncs,
+        requieresFunctionPrototypes: reqsPrototypes,
         packages: [],
         functions: $def_list,
         program: $block.concat([['LINE', yylineno], ['HALT']]),
         yy:yy,
-        requieresFunctionPrototypes: false
       } 
-    }
+    %}
   | CLASS PROG BEGIN PROG '(' ')' block END EOF
-    { 
+    %{  
+      resetCompiler();
       return {
         compiler: COMPILER,
         language: LANG,
+        requieresFunctionPrototypes: reqsPrototypes,
+        variablesCanBeFunctions: VarsAsFuncs,
         packages: [],
         functions: [],
         program: $block.concat([['LINE', yylineno], ['HALT']]),
         yy:yy,
-        requieresFunctionPrototypes: false
       }
-    }
+    %}
   |  import_list CLASS PROG BEGIN def_list PROG '(' ')' block END EOF
-    { 
+    %{  
+      resetCompiler();
       return {
         compiler: COMPILER,
         language: LANG,
+        requieresFunctionPrototypes: reqsPrototypes,
+        variablesCanBeFunctions: VarsAsFuncs,
         packages: $import_list,
         functions: $def_list,
         program: $block.concat([['LINE', yylineno], ['HALT']]),
         yy:yy,
-        requieresFunctionPrototypes: false
       }
-    }
+    %}
   | import_list CLASS PROG BEGIN PROG '(' ')' block END EOF
-    { 
+    %{  
+      resetCompiler();
       return {
         compiler: COMPILER,
         language: LANG,
         packages: $import_list,
+        requieresFunctionPrototypes: reqsPrototypes,
+        variablesCanBeFunctions: VarsAsFuncs,
         functions: [],
         program: $block.concat([['LINE', yylineno], ['HALT']]),
         yy:yy,
-        requieresFunctionPrototypes: false
       }
-    }
+    %}
   ;
 
 block
@@ -293,52 +318,148 @@ call
   ;
 
 cond
-  : IF line '(' term ')' expr %prec XIF
-    { $$ = $line.concat($term).concat([['JZ', $expr.length]]).concat($expr); }
-  | IF line '(' term ')' expr ELSE expr
-    { $$ = $line.concat($term).concat([['JZ', 1 + $6.length]]).concat($6).concat([['JMP', $8.length]]).concat($8); }
+  : IF line '(' bool_term ')' expr %prec XIF
+    %{ 
+      const skipTag = UniqueTag('iskip');
+      $$ = [
+        ...$line, 
+        ...$bool_term, 
+        ['TJZ', skipTag],
+        ...$expr,
+        ['TAG', skipTag ],
+      ];
+    %}
+  | IF line '(' bool_term ')' expr ELSE expr
+    %{ 
+      const toElse = UniqueTag('ielse');
+      const skipElse = UniqueTag('iskipelse');
+      $$ = [
+        ...$line, 
+        ...$bool_term, 
+        ['TJZ', toElse ], 
+        ...$6, 
+        ['TJMP',  skipElse], 
+        ['TAG', toElse  ],
+        ...$8,        
+        ['TAG', skipElse ],
+      ]; 
+    %}
   ;
 
 loop
-  : WHILE line '(' term ')' expr
-    { $$ = $line.concat($term).concat([['JZ', 1 + $expr.length]]).concat($expr).concat([['JMP', -1 -($term.length + $expr.length + 2)]]); }
+  : WHILE line  '(' bool_term ')' expr
+    %{ 
+      const repeatTag = UniqueTag('lrepeat');
+      const endTag = UniqueTag('lend');
+      $$ = [
+        ['TAG',  repeatTag ],
+        ...$line, 
+        ...$bool_term, 
+        ['TJZ',  endTag], 
+        ...$expr, 
+        ['TJMP', repeatTag],
+        ['TAG', endTag],
+      ];
+    %}
   ;
 
 repeat
   : REPEAT line '(' integer ')' expr
-    { $$ = $line.concat($integer).concat([['DUP'], ['LOAD', 0], ['EQ'], ['NOT'], ['JZ', $expr.length + 2]]).concat($expr).concat([['DEC', 1], ['JMP', -1 -($expr.length + 6)], ['POP']]); }
+    %{ 
+      const repeatEnd = UniqueTag('rend');
+      const repeatLoop = UniqueTag('rloop');
+      $$ = [ 
+        ...$line,
+        ...$integer,
+        ['TAG', repeatLoop],
+        ['DUP'],
+        ['LOAD', 0], 
+        ['EQ'], 
+        ['NOT'], 
+        ['TJZ', repeatEnd],
+        ...$expr,
+        ['DEC', 1], 
+        ['TJMP', repeatLoop], 
+        ['TAG', repeatEnd],
+        ['POP'], 
+      ]; 
+    %}
   ;
+
+
+
 
 term
-  : term OR and_term
-    { $$ = $term.concat($and_term).concat([['OR']]); }
-  | and_term
-    { $$ = $and_term; }
-  ;
-
-and_term
-  : and_term AND not_term
-    { $$ = $and_term.concat($not_term).concat([['AND']]); }
-  | not_term
-    { $$ = $not_term; }
-  ;
-
-not_term
-  : NOT clause
-    { $$ = $clause.concat([['NOT']]); }
+  : term OR term 
+    { $$ = {
+        left: $1, 
+        right: $3, 
+        operation: "OR", 
+        dataType:"BOOL" 
+      }; }
+  | term AND term 
+    { 
+      $$ = {
+        left: $1, 
+        right: $3, 
+        operation: "AND", 
+        dataType:"BOOL"
+      };
+    }
+  | NOT term 
+    { 
+      $$ = {
+        term: $2,       
+        operation: "NOT",
+        dataType:"BOOL" 
+      };
+      }
+  | '(' term ')'
+    { $$ = $term; }
   | clause
-    { $$ = $clause; }
+    { $$ = $1; }
   ;
+
+bool_term
+  : term 
+    { 
+      $$ = [[
+        'TERM', 
+        {
+          term:$term, 
+          operation: 'PASS',
+          dataType: 'BOOL'
+        }    
+      ]];
+    }
+  ;
+
 
 clause
   : IFZ '(' integer ')'
-    { $$ = $integer.concat([['NOT']]); }
+    { 
+      $$ = {
+        operation: "ATOM",
+        instructions: $integer.concat([['NOT']]),
+        dataType: "BOOL"
+      };
+    }
   | bool_fun
-    { $$ = $bool_fun; }
+    { 
+      $$ = {
+        operation: "ATOM",
+        instructions: $bool_fun,
+        dataType: "BOOL"
+      };
+    }
   | bool_fun '(' ')'
-    { $$ = $bool_fun; }
-  | '(' term ')'
-    { $$ = $term; }
+    { 
+      $$ = {
+        operation: "ATOM",
+        instructions: $bool_fun,
+        dataType: "BOOL"
+      };
+    }
   ;
 
 bool_fun
