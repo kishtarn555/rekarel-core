@@ -264,11 +264,30 @@ expr
 
 return
   : RET '(' ')'
-    { $$ = [['LINE', yylineno], ['RET', 'VOID', @1]]; }
+    { $$ = [
+      ['LINE', yylineno],
+      ['RET', {
+        term: { operation: "ATOM", instructions:[["LOAD", 0]], dataType:"VOID" },
+        loc: @1
+      }]
+    ]; }
   | RET 
-    { $$ = [['LINE', yylineno], ['RET', 'VOID', @1]]; }
-  | RET  integer 
-    { $$ = [['LINE', yylineno], ...$integer, ['SRET'], [ 'RET', 'INT', @1]]; }
+    { $$ = [
+      ['LINE', yylineno],
+      ['RET', {
+        term: { operation: "ATOM", instructions:[["LOAD", 0]], dataType:"VOID" },
+        loc: @1
+      }]
+    ]; }
+  | RET  term 
+    
+    { $$ = [
+      ['LINE', yylineno],
+      ['RET', {
+        term: $term,
+        loc: @1
+      }]
+    ]; }
   ;
 
 call
