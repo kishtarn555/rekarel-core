@@ -218,7 +218,7 @@ def
         returnType: $prototype_type
       }]; 
     }
-  | prototype_type line var '(' var ')'
+  | prototype_type line var '(' paramList ')'
     { 
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
@@ -227,7 +227,7 @@ def
       $$ = [{
         name: $var.toLowerCase(), 
         code: null, 
-        params: [$5],  
+        params: $paramList,  
         loc: @$,
         returnType: $prototype_type
       }]; 
@@ -247,7 +247,7 @@ def
         returnType: $funct_type
       }]; 
     }
-  | funct_type line var '(' var ')' AS expr
+  | funct_type line var '(' paramList ')' AS expr
     %{
       
       @$.first_line = @1.first_line;
@@ -258,11 +258,28 @@ def
     	$$ = [{
         name: $3.toLowerCase(),
         code: $line.concat($expr).concat([['RET', '__DEFAULT', @1]]), //FIXME: This should be in the end of the expression
-        params: [$5],
+        params: $paramList,
         loc: @$,        
         returnType: $funct_type
       }];
     %}
+  ;
+
+paramList 
+  : param ',' paramList
+   { $$=$param.concat(paramList); }
+  | param
+    { $$ = $param; }
+  ;
+
+param
+  : var
+    { 
+      $$= [{
+        name: $var,
+        loc: @1
+      }];
+    }
   ;
 
 funct_type
@@ -351,10 +368,7 @@ call
           'CALL', 
           {
             target:$var.toLowerCase(), 
-            argCount:1, 
-            params: [
-              { operation:"ATOM",  dataType:"INT", instructions: [["LOAD", 0]] }
-            ],
+            params: [],
             nameLoc: @1, 
             argLoc: @1
           }
@@ -373,8 +387,7 @@ parameteredCall
         [
           'CALL', 
           {
-            target: $var.toLowerCase(), 
-            argCount: 2,
+            target: $var.toLowerCase(),
             params: [
               { operation:"ATOM",  dataType:"INT", instructions: $int_term }
             ],
