@@ -322,9 +322,7 @@ call
         'CALL', 
         {
           target: $var,
-          params: [
-            { operation:"ATOM",  dataType:"INT", instructions: [] }
-          ],
+          params: [],
           nameLoc: @1, 
           argLoc: loc,
         }
