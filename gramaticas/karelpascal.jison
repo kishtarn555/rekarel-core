@@ -267,7 +267,7 @@ def
 
 paramList 
   : param ',' paramList
-   { $$=$param.concat(paramList); }
+   { $$=$param.concat($paramList); }
   | param
     { $$ = $param; }
   ;
