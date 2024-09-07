@@ -174,7 +174,7 @@ export class Runtime {
     let rot;
     let di = [0, 1, 0, -1];
     let dj = [-1, 0, 1, 0];
-    let param, newSP, op1, op2, fname;
+    let paramCount, newSP, op1, op2, fname;
     try {
       if (this.debug) {
         this.eventController.fireEvent('debug', this, {
@@ -402,14 +402,14 @@ export class Runtime {
         case OpCodeID.CALL: {
           this.state.ic++;
           // sp, pc, param
-          param = this.state.stack[this.state.sp--];
+          paramCount = this.state.stack[this.state.sp--];
           newSP = this.state.sp;
           fname = this.functionNames[this.program[3 * this.state.pc + 2]];
 
           this.state.stack[++this.state.sp] = this.state.fp;
           this.state.stack[++this.state.sp] = newSP;
           this.state.stack[++this.state.sp] = this.state.pc;
-          this.state.stack[++this.state.sp] = param;
+          this.state.stack[++this.state.sp] = paramCount;
 
           this.state.fp = newSP + 1;
           this.state.pc = this.program[3 * this.state.pc + 1];
@@ -422,7 +422,7 @@ export class Runtime {
           } else if (!this.disableStackEvents) {
             this.eventController.fireEvent('call', this, {
               function: fname,
-              param: param,
+              param: paramCount,
               line: this.state.line,
               target: this,
             });
@@ -464,7 +464,7 @@ export class Runtime {
         case OpCodeID.PARAM: {
           this.state.stack[++this.state.sp] =
             this.state.stack[
-            this.state.fp + 3 + this.program[3 * this.state.pc + 1]
+            this.state.fp - 1 - this.program[3 * this.state.pc + 1]
             ];
           break;
         }
