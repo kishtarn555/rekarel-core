@@ -250,12 +250,15 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
             }
             const targetFunc = definitions.getFunction(iData.target);
             if (targetFunc.arguments.length != iData.params.length) {
-                data.yy.parser.parseError("Function parameter mismatch: " + iData.target, {
-                    text: iData.target,
-                    line: iData.argLoc.first_line - 1,
-                    loc: iData.argLoc,
-                    parameters: iData.argLoc, //Fixme: add Parameter IR location
-                });
+                data.yy.parser.parseError(
+                    `Function parameter mismatch on function ${iData.target}, expected ${targetFunc.arguments.length}, got ${iData.params.length}`, 
+                    {
+                        text: iData.target,
+                        line: iData.argLoc.first_line - 1,
+                        loc: iData.argLoc,
+                        parameters: iData.argLoc, //Fixme: add Parameter IR location
+                    }
+                );
             }
             if (iData.expectedType != null && iData.expectedType !== targetFunc.returnType) {
                 data.yy.parser.parseError(`Expected a function of type ${iData.expectedType}, but ${iData.target} is ${targetFunc.returnType}`, {

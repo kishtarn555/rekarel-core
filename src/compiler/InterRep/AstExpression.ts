@@ -112,6 +112,7 @@ function resolveCall(data: IRCall, definitions: DefinitionTable, parameters: IRP
     for (const parameter of data.params) {
         resolveTerm(parameter, definitions, parameters, expectedReturn, target, tags, yy);
     }
+    target.push(["LOAD", data.params.length]);
     target.push(["CALL", data]);
     target.push(
         ["LINE", data.nameLoc.first_line - 1]
