@@ -2,7 +2,7 @@ import { RawProgram } from "../opcodes";
 import { CompilerPackage, UnitePackages } from "../packages/package";
 import { JavaPackages, PascalPackages } from "../packages/rekarel.all";
 import { YY, YYLoc } from "./IRParserTypes";
-import { IRFunction, IRInstruction, IRTagRecord } from "./IRInstruction";
+import { IRFunction, IRInstruction, IRParam, IRTagRecord } from "./IRInstruction";
 import { DefinitionTable, FunctionData } from "./IRVarTable";
 import { resolveListWithASTs } from "./AstExpression";
 
@@ -38,7 +38,7 @@ function validateAndGetFunctionDefinitions(data: IRObject, definitionTable: Defi
     for (const func of data.functions) {
         //Check that the parameters do not overload a global
         for (const parameter of func.params) {
-            if (definitionTable.hasVar(parameter)) {
+            if (definitionTable.hasVar(parameter.name)) {
                 yy.parser.parseError("Cannot name a parameter as a global variable", {
                     text: parameter,
                     line: func.loc.first_line - 1
@@ -184,7 +184,7 @@ function loadPackages(data: IRObject, definitions: DefinitionTable) {
  * @param expectedReturn The return type of the current scope
  * @returns The IR with the complex IR resolved into simple IR
  */
-function resolveComplexIR(IRInstructions: IRInstruction[], yy: YY, definitions: DefinitionTable, parameters: string[], expectedReturn:string): IRInstruction[] {
+function resolveComplexIR(IRInstructions: IRInstruction[], yy: YY, definitions: DefinitionTable, parameters: IRParam[], expectedReturn:string): IRInstruction[] {
     let result: IRInstruction[] = [];
     const tags: IRTagRecord = {};
     //Resolve AST and populate tags
@@ -249,7 +249,7 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
                 return null;
             }
             const targetFunc = definitions.getFunction(iData.target);
-            if (targetFunc.arguments.length != iData.argCount - 1) {
+            if (targetFunc.arguments.length != iData.params.length) {
                 data.yy.parser.parseError("Function parameter mismatch: " + iData.target, {
                     text: iData.target,
                     line: iData.argLoc.first_line - 1,
