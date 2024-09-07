@@ -200,7 +200,7 @@ def
         returnType: $funct_type
       }];
     }
-  | funct_type line var '(' var ')' block
+  | funct_type line var '(' paramList ')' block
     %{
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
@@ -211,11 +211,28 @@ def
     	$$ = [{
         name: $var, 
         code: result, 
-        params: params,
+        params: $paramList,
         loc: @$, 
         returnType: $funct_type
       }];
     %}
+  ;
+
+paramList 
+  : param paramList
+   { $$=$param.concat(paramList); }
+  | param
+    { $$ = $param; }
+  ;
+
+param
+  : var
+    { 
+      $$= [{
+        name: $var,
+        loc: @1
+      }];
+    }
   ;
 
 funct_type
@@ -304,10 +321,9 @@ call
       $$ = [[
         'CALL', 
         {
-          target: $var, 
-          argCount: 1, 
+          target: $var,
           params: [
-            { operation:"ATOM",  dataType:"INT", instructions: [["LOAD", 0]] }
+            { operation:"ATOM",  dataType:"INT", instructions: [] }
           ],
           nameLoc: @1, 
           argLoc: loc,
@@ -324,7 +340,6 @@ call
         'CALL', 
         {
           target: $var, 
-          argCount: 2, 
           params: [$term],
           nameLoc: @1, 
           argLoc: loc,
