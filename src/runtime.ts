@@ -403,7 +403,7 @@ export class Runtime {
           this.state.ic++;
           // sp, pc, param
           paramCount = this.state.stack[this.state.sp--];
-          newSP = this.state.sp;
+          newSP = this.state.sp - paramCount;
           fname = this.functionNames[this.program[3 * this.state.pc + 2]];
 
           this.state.stack[++this.state.sp] = this.state.fp;
@@ -411,7 +411,7 @@ export class Runtime {
           this.state.stack[++this.state.sp] = this.state.pc;
           this.state.stack[++this.state.sp] = paramCount;
 
-          this.state.fp = newSP + 1;
+          this.state.fp = newSP + 1 + paramCount;
           this.state.pc = this.program[3 * this.state.pc + 1];
           this.state.jumped = true;
           this.state.stackSize++;
