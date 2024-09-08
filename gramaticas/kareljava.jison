@@ -328,7 +328,7 @@ call
         }
       ]]; 
     %}
-  | var '(' term ')'
+  | var '(' int_termList ')'
     { 
       @$.first_column = @1.first_column;
       @$.first_line = @1.first_line;
@@ -338,7 +338,7 @@ call
         'CALL', 
         {
           target: $var, 
-          params: [$term],
+          params: $int_termList,
           nameLoc: @1, 
           argLoc: loc,
           line: yylineno,
@@ -346,6 +346,30 @@ call
       ]];  
     }
   ;
+
+int_termList
+  : term ',' int_termList
+    { 
+      $$ = $int_termList.concat([
+        {
+          term:$term, 
+          operation: 'PASS',
+          dataType: 'INT'
+        } 
+      ])
+    }
+  | term 
+    { 
+      $$ = [
+        {
+          term:$term, 
+          operation: 'PASS',
+          dataType: 'INT'
+        } 
+      ]; 
+    }
+  ;
+
 cond
 
   : IF line '(' bool_term ')' expr %prec XIF
