@@ -44,7 +44,7 @@ export type IRFunction = {
  */
 export type IRTerm = 
     {
-        operation: "AND" | "OR" | "EQ",
+        operation: "AND" | "OR" | "EQ" | "LT" | "LTE",
         left: IRTerm,
         right: IRTerm,
         dataType: "BOOL"
@@ -106,7 +106,9 @@ export type IRInstruction =
     [instruction: "RET", "__DEFAULT", loc:YYLoc] |
     [instruction: "PARAM", index: number] |
     [instruction: "SRET"] |
-    [instruction: "LRET"] |
+    [instruction: "LRET"] | 
+    [instruction: "LT"]  |
+    [instruction: "LTE"] |
     //These ones are a IR only instructions, they must be resolved to a correct opcode
     [instruction: "VAR", data:IRVar] |
     [instruction: "TERM", data:IRTerm] | //Represents a term like a || b || !(x)
