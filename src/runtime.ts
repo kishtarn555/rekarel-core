@@ -491,6 +491,20 @@ export class Runtime {
           break;
         }
 
+        case OpCodeID.LT: {
+          op2 = this.state.stack[this.state.sp--];
+          op1 = this.state.stack[this.state.sp--];
+          this.state.stack[++this.state.sp] = op1 < op2 ? 1 : 0;
+          break;
+        }
+
+        case OpCodeID.LTE: {          
+          op2 = this.state.stack[this.state.sp--];
+          op1 = this.state.stack[this.state.sp--];
+          this.state.stack[++this.state.sp] = op1 <= op2 ? 1 : 0;
+          break;
+        }
+
         default: {
           this.state.running = false;
           if (this.debug) {
