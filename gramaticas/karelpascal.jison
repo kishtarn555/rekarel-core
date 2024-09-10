@@ -79,9 +79,9 @@
 "."                                         { return '.'; }
 ","                                         { return ','; }
 "*"                                         { return '*'; }
-"=="                                         { return '=='; }
+"=="                                        { return '=='; }
+"<="                                        { return '<='; }
 "<"                                         { return '<'; }
-"<="                                         { return '<='; }
 [0-9]+                                      { return 'NUM'; }
 [A-Za-zÀ-ÖØ-öø-ÿ_][A-Za-zÀ-ÖØ-öø-ÿ0-9_-]*   { return 'VAR'; }
 <<EOF>>                                     { return 'EOF'; }
