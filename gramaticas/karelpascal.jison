@@ -381,20 +381,41 @@ call
   ;
 
 parameteredCall 
-  : var '(' int_term ')'
+  : var '(' int_termList ')'
     { 
       $$ = [
         [
           'CALL', 
           {
             target: $var.toLowerCase(),
-            params: [
-              { operation:"ATOM",  dataType:"INT", instructions: $int_term }
-            ],
+            params: $int_termList,
             nameLoc: @1, 
             argLoc: @3,
           }
         ]
+      ]; 
+    }
+  ;
+
+int_termList
+  : term ',' int_termList
+    { 
+      $$ = $int_termList.concat([
+        {
+          term:$term, 
+          operation: 'PASS',
+          dataType: 'INT'
+        } 
+      ])
+    }
+  | term 
+    { 
+      $$ = [
+        {
+          term:$term, 
+          operation: 'PASS',
+          dataType: 'INT'
+        } 
       ]; 
     }
   ;
