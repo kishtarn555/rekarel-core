@@ -56,6 +56,9 @@
 "."                             { return '.'; }
 "*"                             { return '*'; }
 ","                             { return ','; }
+"=="                            { return '=='; }
+"<="                            { return '<='; }
+"<"                             { return '<'; }
 [0-9]+                          { return 'NUM'; }
 [a-zA-Z][a-zA-Z0-9_]*           { return 'VAR'; }
 <<EOF>>                         { return 'EOF'; }
@@ -86,6 +89,8 @@ function resetCompiler(tag) {
 
 %left OR
 %left AND
+%nonassoc '=='
+%nonassoc '<' '<='
 %right NOT
 
 %%
@@ -458,6 +463,33 @@ term
         left: $1, 
         right: $3, 
         operation: "AND", 
+        dataType:"BOOL"
+      };
+    }
+  | term '==' term 
+    { 
+      $$ = {
+        left: $1, 
+        right: $3, 
+        operation: "EQ", 
+        dataType:"BOOL"
+      };
+    }
+  | term '<' term 
+    { 
+      $$ = {
+        left: $1, 
+        right: $3, 
+        operation: "LT", 
+        dataType:"BOOL"
+      };
+    }
+  | term '<=' term 
+    { 
+      $$ = {
+        left: $1, 
+        right: $3, 
+        operation: "LTE", 
         dataType:"BOOL"
       };
     }

@@ -40,6 +40,38 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, parameters: IRP
         target.push([tree.operation]);
         return tree.dataType;
     }
+    
+    if (tree.operation === "EQ") {
+        const leftType = resolveTerm(tree.left, definitions, parameters, expectedReturn, target, tags, yy);
+        const rightType = resolveTerm(tree.right, definitions, parameters, expectedReturn, target, tags, yy);
+        if (leftType !== rightType) {
+            yy.parser.parseError(`An equality comparison cannot be performed between type ${leftType} and ${rightType}`, {
+                //FIXME: Add data (?)
+            });
+        }
+        target.push([tree.operation]);
+        return tree.dataType;
+    }
+
+    
+
+    if (tree.operation === "LT" || tree.operation === "LTE") {
+        const leftType = resolveTerm(tree.left, definitions, parameters, expectedReturn, target, tags, yy);
+        const rightType = resolveTerm(tree.right, definitions, parameters, expectedReturn, target, tags, yy);
+        if (leftType !== "INT") {
+            yy.parser.parseError(`${tree.operation} operator uses integer terms only, left is of type: ${leftType}`, {
+                //FIXME: Add data (?)
+            });
+        }
+        if (rightType !== "INT") {
+            yy.parser.parseError(`${tree.operation} operator uses integer terms only, right is of type: ${rightType}`, {
+                //FIXME: Add data (?)
+            });
+        }
+        target.push([tree.operation]);
+        return tree.dataType;
+    }
+
     if (tree.operation === "NOT") {
         const termType = resolveTerm(tree.term, definitions, parameters, expectedReturn, target, tags, yy);
         if (termType !== "BOOL") {
