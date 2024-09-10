@@ -200,7 +200,7 @@ def
         returnType: $funct_type
       }];
     }
-  | funct_type line var '(' var ')' block
+  | funct_type line var '(' paramList ')' block
     %{
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
@@ -211,11 +211,28 @@ def
     	$$ = [{
         name: $var, 
         code: result, 
-        params: params,
+        params: $paramList,
         loc: @$, 
         returnType: $funct_type
       }];
     %}
+  ;
+
+paramList 
+  : param ',' paramList
+   { $$=$param.concat($paramList); }
+  | param
+    { $$ = $param; }
+  ;
+
+param
+  : var
+    { 
+      $$= [{
+        name: $var,
+        loc: @1
+      }];
+    }
   ;
 
 funct_type
@@ -304,17 +321,14 @@ call
       $$ = [[
         'CALL', 
         {
-          target: $var, 
-          argCount: 1, 
-          params: [
-            { operation:"ATOM",  dataType:"INT", instructions: [["LOAD", 0]] }
-          ],
+          target: $var,
+          params: [],
           nameLoc: @1, 
           argLoc: loc,
         }
       ]]; 
     %}
-  | var '(' term ')'
+  | var '(' int_termList ')'
     { 
       @$.first_column = @1.first_column;
       @$.first_line = @1.first_line;
@@ -324,8 +338,7 @@ call
         'CALL', 
         {
           target: $var, 
-          argCount: 2, 
-          params: [$term],
+          params: $int_termList,
           nameLoc: @1, 
           argLoc: loc,
           line: yylineno,
@@ -333,6 +346,30 @@ call
       ]];  
     }
   ;
+
+int_termList
+  : term ',' int_termList
+    { 
+      $$ = $int_termList.concat([
+        {
+          term:$term, 
+          operation: 'PASS',
+          dataType: 'INT'
+        } 
+      ])
+    }
+  | term 
+    { 
+      $$ = [
+        {
+          term:$term, 
+          operation: 'PASS',
+          dataType: 'INT'
+        } 
+      ]; 
+    }
+  ;
+
 cond
 
   : IF line '(' bool_term ')' expr %prec XIF

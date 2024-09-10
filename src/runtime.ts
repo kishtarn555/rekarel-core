@@ -34,6 +34,7 @@ type RuntimeState = {
   ret: number
   stack: Int32Array
   stackSize: number
+  stackMemory: number
 
   moveCount: number
   turnLeftCount: number
@@ -115,6 +116,7 @@ export class Runtime {
       ret:0,
       stack: new Int32Array(new ArrayBuffer((0xffff * 16 + 40) * 4)),
       stackSize: 0,
+      stackMemory: 0,
 
       // Instruction counts
       moveCount: 0,
@@ -174,7 +176,7 @@ export class Runtime {
     let rot;
     let di = [0, 1, 0, -1];
     let dj = [-1, 0, 1, 0];
-    let param, newSP, op1, op2, fname;
+    let paramCount, newSP, op1, op2, fname;
     try {
       if (this.debug) {
         this.eventController.fireEvent('debug', this, {
@@ -402,27 +404,35 @@ export class Runtime {
         case OpCodeID.CALL: {
           this.state.ic++;
           // sp, pc, param
-          param = this.state.stack[this.state.sp--];
-          newSP = this.state.sp;
+          paramCount = this.state.stack[this.state.sp--];
+          newSP = this.state.sp - paramCount;
           fname = this.functionNames[this.program[3 * this.state.pc + 2]];
 
           this.state.stack[++this.state.sp] = this.state.fp;
           this.state.stack[++this.state.sp] = newSP;
           this.state.stack[++this.state.sp] = this.state.pc;
-          this.state.stack[++this.state.sp] = param;
+          this.state.stack[++this.state.sp] = paramCount;
 
-          this.state.fp = newSP + 1;
+          this.state.fp = newSP + 1 + paramCount;
           this.state.pc = this.program[3 * this.state.pc + 1];
           this.state.jumped = true;
           this.state.stackSize++;
+          this.state.stackMemory += Math.max(1, paramCount);
 
           if (this.state.stackSize >= this.world.maxStackSize) {
             this.state.running = false;
             this.state.error = ErrorType.STACK;
+          } else if (this.state.stackMemory >= this.world.maxStackMemory) {
+            this.state.running = false;
+            this.state.error = ErrorType.STACKMEMORY;
+          } else if (paramCount > this.world.maxCallSize) {
+            
+            this.state.running = false;
+            this.state.error = ErrorType.CALLSIZE;
           } else if (!this.disableStackEvents) {
             this.eventController.fireEvent('call', this, {
               function: fname,
-              param: param,
+              param: paramCount,
               line: this.state.line,
               target: this,
             });
@@ -435,10 +445,12 @@ export class Runtime {
             this.state.running = false;
             break;
           }
+          paramCount = this.state.stack[this.state.fp + 3];
           this.state.pc = this.state.stack[this.state.fp + 2];
           this.state.sp = this.state.stack[this.state.fp + 1];
           this.state.fp = this.state.stack[this.state.fp];
           this.state.stackSize--;
+          this.state.stackMemory -= Math.max(1, paramCount);;
           if (!this.disableStackEvents) {
             let param = this.state.stack[this.state.fp + 3];
 
@@ -464,7 +476,7 @@ export class Runtime {
         case OpCodeID.PARAM: {
           this.state.stack[++this.state.sp] =
             this.state.stack[
-            this.state.fp + 3 + this.program[3 * this.state.pc + 1]
+            this.state.fp - 1 - this.program[3 * this.state.pc + 1]
             ];
           break;
         }

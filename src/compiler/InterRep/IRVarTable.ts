@@ -1,8 +1,8 @@
-import { IRFunction, IRInstruction, IRVar } from "./IRInstruction"
+import { IRFunction, IRInstruction, IRParam, IRVar } from "./IRInstruction"
 
 export type FunctionData = { 
     location: number, 
-    arguments: string[],
+    arguments: IRParam[],
     returnType: string
 };
 

@@ -6,7 +6,6 @@ import { YYLoc } from "./IRParserTypes";
  */
 export type IRCall = {
     target: string,
-    argCount: number,
     nameLoc: YYLoc,
     argLoc: YYLoc,
     params: IRTerm[],
@@ -23,13 +22,19 @@ export type IRVar= {
     expectedType: string
 };
 
+
+export type IRParam = {
+    name: string,
+    loc: YYLoc,
+}
+
 /**
  * IR Function representation
  */
 export type IRFunction = {
     name: string,
     code: null | IRInstruction[],
-    params: string[],
+    params: IRParam[],
     loc: YYLoc,
     returnType: string
 }
