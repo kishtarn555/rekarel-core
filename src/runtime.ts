@@ -34,6 +34,7 @@ type RuntimeState = {
   ret: number
   stack: Int32Array
   stackSize: number
+  stackMemory: number
 
   moveCount: number
   turnLeftCount: number
@@ -115,6 +116,7 @@ export class Runtime {
       ret:0,
       stack: new Int32Array(new ArrayBuffer((0xffff * 16 + 40) * 4)),
       stackSize: 0,
+      stackMemory: 0,
 
       // Instruction counts
       moveCount: 0,
@@ -415,10 +417,14 @@ export class Runtime {
           this.state.pc = this.program[3 * this.state.pc + 1];
           this.state.jumped = true;
           this.state.stackSize++;
+          this.state.stackMemory += Math.max(1, paramCount);
 
           if (this.state.stackSize >= this.world.maxStackSize) {
             this.state.running = false;
             this.state.error = ErrorType.STACK;
+          } else if (this.state.stackMemory >= this.world.maxStackMemory) {
+            this.state.running = false;
+            this.state.error = ErrorType.STACKMEMORY;
           } else if (!this.disableStackEvents) {
             this.eventController.fireEvent('call', this, {
               function: fname,
@@ -435,10 +441,12 @@ export class Runtime {
             this.state.running = false;
             break;
           }
+          paramCount = this.state.stack[this.state.fp + 3];
           this.state.pc = this.state.stack[this.state.fp + 2];
           this.state.sp = this.state.stack[this.state.fp + 1];
           this.state.fp = this.state.stack[this.state.fp];
           this.state.stackSize--;
+          this.state.stackMemory -= Math.max(1, paramCount);;
           if (!this.disableStackEvents) {
             let param = this.state.stack[this.state.fp + 3];
 
