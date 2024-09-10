@@ -13,6 +13,12 @@ If you're using a fresh clone, then you'll need to run the following commands
 ## Build the parsers from Jison to JS
 
 ```
+npm run jison_all
+```
+
+If you modify a .jison file, you need to run either the previous command, or the specific one from the following list:
+
+```
 npm run jison_java
 ```
 
@@ -27,8 +33,6 @@ npm run jison_java2pascal
 ```
 npm run jison_pascal2java
 ```
-
-These commands need to be re-run if you modifiy the .jison files.
 
 ## Builds dist folder, compiling and bundling TS files
 
