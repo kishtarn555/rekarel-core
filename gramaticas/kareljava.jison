@@ -475,6 +475,24 @@ term
         dataType:"BOOL"
       };
     }
+  | term '<' term 
+    { 
+      $$ = {
+        left: $1, 
+        right: $3, 
+        operation: "LT", 
+        dataType:"BOOL"
+      };
+    }
+  | term '<=' term 
+    { 
+      $$ = {
+        left: $1, 
+        right: $3, 
+        operation: "LTE", 
+        dataType:"BOOL"
+      };
+    }
   | NOT term 
     { 
       $$ = {
