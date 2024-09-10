@@ -44,7 +44,7 @@ export type IRFunction = {
  */
 export type IRTerm = 
     {
-        operation: "AND" | "OR",
+        operation: "AND" | "OR" | "EQ",
         left: IRTerm,
         right: IRTerm,
         dataType: "BOOL"
