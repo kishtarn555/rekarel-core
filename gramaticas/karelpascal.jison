@@ -79,6 +79,9 @@
 "."                                         { return '.'; }
 ","                                         { return ','; }
 "*"                                         { return '*'; }
+"=="                                         { return '=='; }
+"<"                                         { return '<'; }
+"<="                                         { return '<='; }
 [0-9]+                                      { return 'NUM'; }
 [A-Za-zÀ-ÖØ-öø-ÿ_][A-Za-zÀ-ÖØ-öø-ÿ0-9_-]*   { return 'VAR'; }
 <<EOF>>                                     { return 'EOF'; }
@@ -109,6 +112,8 @@ function resetCompiler(tag) {
 
 %left OR
 %left AND
+%nonassoc '=='
+%nonassoc '<' '<='
 %right NOT
 
 
@@ -503,6 +508,15 @@ term
         left: $1, 
         right: $3, 
         operation: "AND", 
+        dataType:"BOOL"
+      };
+    }
+  | term '==' term 
+    { 
+      $$ = {
+        left: $1, 
+        right: $3, 
+        operation: "EQ", 
         dataType:"BOOL"
       };
     }
