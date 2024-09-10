@@ -425,6 +425,10 @@ export class Runtime {
           } else if (this.state.stackMemory >= this.world.maxStackMemory) {
             this.state.running = false;
             this.state.error = ErrorType.STACKMEMORY;
+          } else if (paramCount > this.world.maxCallSize) {
+            
+            this.state.running = false;
+            this.state.error = ErrorType.CALLSIZE;
           } else if (!this.disableStackEvents) {
             this.eventController.fireEvent('call', this, {
               function: fname,
