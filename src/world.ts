@@ -49,6 +49,7 @@ export class World {
     maxKarelBeepers: number
     maxBeepers: number
     maxStackSize: number
+    maxStackMemory: number
     worldName: string
     programName: string
     preValidators: any[] //FIXME: I Don't know what this are
@@ -178,6 +179,7 @@ export class World {
         this.maxKarelBeepers = -1;
         this.maxBeepers = -1;
         this.maxStackSize = 65000;
+        this.maxStackMemory = 65000;
         this.worldName = 'mundo_0';
         this.programName = 'p1';
         this.preValidators = [];
@@ -450,8 +452,10 @@ export class World {
                         condiciones.getAttribute('instruccionesMaximasAEjecutar'),
                         10,
                     ) || 10000000;
-                self.maxStackSize =
-                    parseInt(condiciones.getAttribute('longitudStack'), 10) || 65000;
+                    self.maxStackSize =
+                        parseInt(condiciones.getAttribute('longitudStack'), 10) || 65000;
+                    self.maxStackMemory =
+                        parseInt(condiciones.getAttribute('memoriaStack'), 10) || 65000;
             },
 
             comando: function (comando) {
@@ -666,6 +670,7 @@ export class World {
                 '#attributes': {
                     instruccionesMaximasAEjecutar: this.maxInstructions,
                     longitudStack: this.maxStackSize,
+                    memoriaStack: this.maxStackMemory,
                 },
             },
             mundos: {
