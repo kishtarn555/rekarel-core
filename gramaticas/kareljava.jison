@@ -428,21 +428,16 @@ repeat
     %{ 
       const repeatEnd = UniqueTag('rend');
       const repeatLoop = UniqueTag('rloop');
-      $$ = [ 
-        ...$line,
-        ...$int_term,
-        ['TAG', repeatLoop],
-        ['DUP'],
-        ['LOAD', 0], 
-        ['EQ'], 
-        ['NOT'], 
-        ['TJZ', repeatEnd],
-        ...$expr,
-        ['DEC', 1], 
-        ['TJMP', repeatLoop], 
-        ['TAG', repeatEnd],
-        ['POP'], 
-      ]; 
+      $$ = [[
+        "REPEAT",
+        {
+          line:       $line[0],
+          loopCount:  $int_term[0],
+          repeatTag:  repeatLoop,
+          endTag:     repeatEnd,
+          instructions: $expr
+        }
+      ]]; 
     %}
   ;
 
