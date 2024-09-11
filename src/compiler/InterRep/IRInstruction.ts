@@ -137,4 +137,7 @@ export type IRComplexInstruction =
  * This is a complete type of all IR instructions, simple and complex
  */
 export type IRInstruction = IRSimpleInstruction | IRComplexInstruction;
+/**
+ * This is a restricted set of IR that is used up to step 3.
+ */
 export type IRSemiSimpleInstruction = IRSimpleInstruction | IRJumps;
