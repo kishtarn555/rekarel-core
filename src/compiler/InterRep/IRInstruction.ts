@@ -86,6 +86,18 @@ export type IRRepeat = {
 }
 
 
+/**
+ * AST of a while loop
+ */
+export type IRWhile = {
+    condition:IRInstructionTerm,
+    repeatTag: string,
+    endTag: string,
+    line: IRSimpleInstruction,
+    instructions: IRInstruction[]
+}
+
+
 export type IRJumps =     
     [instruction: "TJMP", data:string] |  //Jumps to a opcode by tag
     [instruction: "TJZ", data:string]  //Jumps to a opcode by tag if stack has zero
@@ -107,6 +119,7 @@ export type IRComplexInstruction =
     IRInstructionTerm |
     [instruction: "TAG", data:string] | //Represents a tag
     [instruction: "REPEAT", data:IRRepeat] |
+    [instruction: "WHILE", data:IRWhile] |
     IRJumps
 ;
 

@@ -1,4 +1,4 @@
-import type { IRTerm, IRInstruction, IRTagRecord, IRVar, IRCall, IRRet, IRParam, IRSemiSimpleInstruction, IRRepeat } from "./IRInstruction";
+import type { IRTerm, IRInstruction, IRTagRecord, IRVar, IRCall, IRRet, IRParam, IRSemiSimpleInstruction, IRRepeat, IRWhile } from "./IRInstruction";
 import { YY } from "./IRParserTypes";
 import { DefinitionTable } from "./IRVarTable";
 
@@ -226,6 +226,78 @@ function resolveRepeat(data: IRRepeat, definitions: DefinitionTable, parameters:
 }
 
 /**
+ * Resolves a while
+ * @param data 
+ * @param definitions 
+ * @param parameters 
+ * @param expectedReturn 
+ * @param target 
+ * @param tags 
+ * @param yy 
+ */
+function resolveWhile(data: IRWhile, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
+    // Add repeat tag
+    resolveListWithASTs(
+        [
+            ['TAG', data.repeatTag],
+        ],
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );
+    // Add line marker
+    target.push(data.line);   
+    // Add condition check
+    resolveTerm(
+        data.condition[1],
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );    
+    // Add skip logic
+    resolveListWithASTs(
+        [
+            ['TJZ',  data.endTag]
+        ],
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );
+    // Add loop body
+    resolveListWithASTs(
+        data.instructions,
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );
+    // Add loop end logic
+    resolveListWithASTs(
+        [            
+            ['TJMP', data.repeatTag],
+            ['TAG', data.endTag],
+        ],
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );
+
+}
+/**
  * @throws Iterates through an IR list and resolve any AST it finds
  * @param tree The ast expression to solve
  * @param definitions Definition table
@@ -268,6 +340,11 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
         if (instruction[0] === "REPEAT"  ) {
             
             resolveRepeat(instruction[1], definitions, parameters, expectedReturn, target, tags, yy);
+            continue;
+        }      
+        if (instruction[0] === "WHILE"  ) {
+            
+            resolveWhile(instruction[1], definitions, parameters, expectedReturn, target, tags, yy);
             continue;
         }
 
