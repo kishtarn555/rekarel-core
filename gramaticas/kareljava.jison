@@ -411,15 +411,16 @@ loop
     %{ 
       const repeatTag = UniqueTag('lrepeat');
       const endTag = UniqueTag('lend');
-      $$ = [
-        ['TAG',  repeatTag ],
-        ...$line, 
-        ...$bool_term, 
-        ['TJZ',  endTag], 
-        ...$expr, 
-        ['TJMP', repeatTag],
-        ['TAG', endTag],
-      ];
+      $$ = [[
+        'WHILE',  
+        {
+          condition:   $bool_term[0],
+          line:         $line[0],
+          repeatTag:    repeatTag,
+          endTag:       endTag,
+          instructions: $expr
+        }
+      ]];
     %}
   ;
 
