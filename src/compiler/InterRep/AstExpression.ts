@@ -1,4 +1,4 @@
-import type { IRTerm, IRInstruction, IRTagRecord, IRVar, IRCall, IRRet, IRParam, IRSemiSimpleInstruction } from "./IRInstruction";
+import type { IRTerm, IRInstruction, IRTagRecord, IRVar, IRCall, IRRet, IRParam, IRSemiSimpleInstruction, IRRepeat } from "./IRInstruction";
 import { YY } from "./IRParserTypes";
 import { DefinitionTable } from "./IRVarTable";
 
@@ -166,6 +166,65 @@ function resolveReturn(data: IRRet, definitions: DefinitionTable, parameters: IR
 
 }
 
+
+function resolveRepeat(data: IRRepeat, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
+    // Add line marker
+    target.push(data.line);    
+    // Add load counter
+    resolveTerm(
+        data.loopCount[1],
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );    
+    // Add counter logic
+    resolveListWithASTs(
+        [
+            ['TAG', data.repeatTag],
+            ['DUP'],
+            ['LOAD', 0], 
+            ['EQ'], 
+            ['NOT'], 
+            ['TJZ', data.endTag]
+        ],
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );
+    // Add loop body
+    resolveListWithASTs(
+        data.instructions,
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );
+    // Add loop end logic
+    resolveListWithASTs(
+        [            
+            ['DEC', 1], 
+            ['TJMP', data.repeatTag], 
+            ['TAG', data.endTag],
+            ['POP'], 
+        ],
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );
+
+}
+
 /**
  * @throws Iterates through an IR list and resolve any AST it finds
  * @param tree The ast expression to solve
@@ -204,6 +263,11 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
                 continue;
             }
             resolveReturn(instruction[1], definitions, parameters, expectedReturn, target, tags, yy);
+            continue;
+        }        
+        if (instruction[0] === "REPEAT"  ) {
+            
+            resolveRepeat(instruction[1], definitions, parameters, expectedReturn, target, tags, yy);
             continue;
         }
 
