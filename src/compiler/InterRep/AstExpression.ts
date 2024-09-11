@@ -1,4 +1,4 @@
-import type { IRTerm, IRInstruction, IRTagRecord, IRVar, IRCall, IRRet, IRParam } from "./IRInstruction";
+import type { IRTerm, IRInstruction, IRTagRecord, IRVar, IRCall, IRRet, IRParam, IRSemiSimpleInstruction } from "./IRInstruction";
 import { YY } from "./IRParserTypes";
 import { DefinitionTable } from "./IRVarTable";
 
@@ -11,7 +11,7 @@ import { DefinitionTable } from "./IRVarTable";
  * @param expectedReturn The type of the return in the current scope
  * @returns Returns the equivalent AST into IRInstructions without AST
  */
-function resolveTerm(tree: IRTerm, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRInstruction[], tags: IRTagRecord, yy: YY): string {
+function resolveTerm(tree: IRTerm, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY): string {
     if (tree.operation === "ATOM") {
         resolveListWithASTs(tree.instructions, definitions, parameters, expectedReturn, target, tags, yy);
         if (tree.dataType.startsWith("$")) {
@@ -96,7 +96,7 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, parameters: IRP
 }
 
 
-function resolveVar(data: IRVar, definitions: DefinitionTable, parameters: IRParam[], target: IRInstruction[], yy: YY) {
+function resolveVar(data: IRVar, definitions: DefinitionTable, parameters: IRParam[], target: IRSemiSimpleInstruction[], yy: YY) {
     const parameterIdx = parameters.findIndex(e => data.target === e.name);
     if (parameterIdx !== -1) {
         target.push(["PARAM", parameterIdx]);
@@ -137,7 +137,7 @@ function resolveVar(data: IRVar, definitions: DefinitionTable, parameters: IRPar
 }
 
 
-function resolveCall(data: IRCall, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRInstruction[], tags: IRTagRecord, yy: YY) {
+function resolveCall(data: IRCall, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
     target.push(
         ["LINE", data.nameLoc.first_line - 1]
     );
@@ -152,7 +152,7 @@ function resolveCall(data: IRCall, definitions: DefinitionTable, parameters: IRP
 
 
 }
-function resolveReturn(data: IRRet, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRInstruction[], tags: IRTagRecord, yy: YY) {
+function resolveReturn(data: IRRet, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
     const retType = resolveTerm(data.term, definitions, parameters,expectedReturn,  target, tags, yy);
     if (expectedReturn !== retType) {
         yy.parser.parseError(`Cannot return a type: ${retType}, in a function of type: ${expectedReturn}`, {
@@ -173,7 +173,7 @@ function resolveReturn(data: IRRet, definitions: DefinitionTable, parameters: IR
  * @param yy Requiered to emmit compilation error
  * @returns Returns the equivalent AST into IRInstructions without AST
  */
-export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRInstruction[], tags: IRTagRecord, yy: YY) {
+export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
     for (const instruction of IRInstructions) {
         // Fixme: All vars should be in terms
         if (instruction[0] === "VAR") {

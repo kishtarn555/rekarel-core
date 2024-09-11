@@ -2,7 +2,7 @@ import { RawProgram } from "../opcodes";
 import { CompilerPackage, UnitePackages } from "../packages/package";
 import { JavaPackages, PascalPackages } from "../packages/rekarel.all";
 import { YY, YYLoc } from "./IRParserTypes";
-import { IRFunction, IRInstruction, IRParam, IRTagRecord } from "./IRInstruction";
+import { IRFunction, IRInstruction, IRParam, IRSemiSimpleInstruction, IRSimpleInstruction, IRTagRecord } from "./IRInstruction";
 import { DefinitionTable, FunctionData } from "./IRVarTable";
 import { resolveListWithASTs } from "./AstExpression";
 
@@ -184,13 +184,13 @@ function loadPackages(data: IRObject, definitions: DefinitionTable) {
  * @param expectedReturn The return type of the current scope
  * @returns The IR with the complex IR resolved into simple IR
  */
-function resolveComplexIR(IRInstructions: IRInstruction[], yy: YY, definitions: DefinitionTable, parameters: IRParam[], expectedReturn:string): IRInstruction[] {
-    let result: IRInstruction[] = [];
+function resolveComplexIR(IRInstructions: IRInstruction[], yy: YY, definitions: DefinitionTable, parameters: IRParam[], expectedReturn:string): IRSimpleInstruction[] {
+    let result: IRSemiSimpleInstruction[] = [];
     const tags: IRTagRecord = {};
     //Resolve AST and populate tags
     resolveListWithASTs(IRInstructions, definitions, parameters, expectedReturn, result, tags, yy);
     // Resolve TJMP to JMP
-    result = result.map((instruction, idx): IRInstruction => {
+    return result.map((instruction, idx): IRSimpleInstruction => {
         if (instruction[0] === "TJMP") {
             const delta = tags[instruction[1]] - idx - 1;
             return ["JMP", delta];
@@ -201,7 +201,6 @@ function resolveComplexIR(IRInstructions: IRInstruction[], yy: YY, definitions: 
         }
         return instruction
     });
-    return result;
 }
 
 export function generateOpcodesFromIR(data: IRObject): RawProgram {
@@ -227,17 +226,6 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
     //Step 4: Generate opcode. Resolve CALL into correct opcode
     const program: RawProgram = []
     for (const instruction of IRProgram) {
-        if (
-            instruction[0] === "VAR" ||
-            instruction[0] === "TJMP" ||
-            instruction[0] === "TAG" ||
-            instruction[0] === "TERM" ||
-            instruction[0] === "TJZ"
-
-        ) {
-            throw new Error(instruction + "should have been removed in previous steps!");
-        }
-
         if (instruction[0] === "CALL") {
             const iData = instruction[1];
             if (!definitions.hasFunction(iData.target)) {

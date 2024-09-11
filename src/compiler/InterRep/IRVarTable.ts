@@ -1,4 +1,4 @@
-import { IRFunction, IRInstruction, IRParam, IRVar } from "./IRInstruction"
+import { IRFunction, IRInstruction, IRParam, IRSemiSimpleInstruction, IRVar } from "./IRInstruction"
 
 export type FunctionData = { 
     location: number, 
@@ -7,7 +7,7 @@ export type FunctionData = {
 };
 
 export type VarData = {
-    instructions: IRInstruction[]
+    instructions: IRSemiSimpleInstruction[]
     dataType: string
 }
 

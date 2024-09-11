@@ -1,10 +1,9 @@
-import type { IRInstruction } from "../InterRep/IRInstruction";
-import { OpCode } from "../opcodes"
+import type { IRSemiSimpleInstruction } from "../InterRep/IRInstruction";
 
 /**
  * This packages work directly with the compiler
  */
-export type replaceMap = Map<string, IRInstruction[]>
+export type replaceMap = Map<string, IRSemiSimpleInstruction[]>
 
 export interface CompilerPackage {
     numberVariables:replaceMap
