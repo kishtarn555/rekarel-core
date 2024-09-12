@@ -130,7 +130,9 @@ export type IRComplexInstruction =
     [instruction: "REPEAT", data:IRRepeat] |
     [instruction: "WHILE", data:IRWhile] |
     [instruction: "IF", data:IRConditional] |
-    IRJumps
+    IRJumps |
+    [instruction: "CONTINUE", loc: YYLoc] | 
+    [instruction: "BREAK", loc: YYLoc]
 ;
 
 /**

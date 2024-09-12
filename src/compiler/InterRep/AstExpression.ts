@@ -422,6 +422,29 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
             resolveConditional(instruction[1], definitions, scope, target, tags, yy);
             continue;
         }
+              
+        if (instruction[0] === "CONTINUE"  ) {
+            if (scope.continueTarget == null) {
+                yy.parser.parseError("Cannot use continue in this scope", {
+                    loc: instruction[1],
+                    line: instruction[1].first_line - 1
+                })
+            }
+            target.push(["TJMP", scope.continueTarget]);
+            continue;
+        }
+              
+        if (instruction[0] === "BREAK"  ) {
+            if (scope.breakTarget == null) {
+                yy.parser.parseError("Cannot use break in this scope", {
+                    loc: instruction[1],
+                    line: instruction[1].first_line - 1
+                })
+            }
+            target.push(["TJMP", scope.breakTarget]);
+            
+            continue;
+        }
 
         
 
