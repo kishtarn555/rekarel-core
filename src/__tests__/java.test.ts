@@ -21,6 +21,8 @@ const compilationError:[string,string | RegExp][] = [
     ["returnIntToVoid.kj", "Cannot return a type: INT, in a function of type: VOID"],
     ["voidAsInt.kj", "Expected a term of type INT, but got VOID"],
     ["emptyReturn.kj", "Explicit return is required in function pasos"],
+    ["halfTrueReturn.kj", "Explicit return is required in function pasos"],
+    ["halfFalseReturn.kj", "Explicit return is required in function pasos"],
 ]
 
 
