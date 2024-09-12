@@ -19,6 +19,8 @@
 "move" 		                { return 'FORWARD'; }
 "pickbeeper"	                { return 'PICKBUZZER'; }
 "putbeeper"                     { return 'LEAVEBUZZER'; }
+"continue"                      { return 'CONTINUE'; }
+"break"                         { return 'BREAK'; }
 "while"                         { return 'WHILE'; }
 "iterate"                       { return 'REPEAT'; }
 "pred" 		                { return 'DEC'; }
@@ -269,6 +271,10 @@ expr
     { $$ = [['LINE', yylineno], ['BAGBUZZERS'], ['EZ', 'BAGUNDERFLOW'], ['LEAVEBUZZER']]; }
   | HALT '(' ')' ';'
     { $$ = [['LINE', yylineno], ['HALT']]; }
+  | CONTINUE ';'
+    { $$ = [['LINE', yylineno], ['CONTINUE', @1]]; }
+  | BREAK ';'
+    { $$ = [['LINE', yylineno], ['BREAK', @1]]; }
   | return ';'
     { $$ = $return; }
   | call ';'
