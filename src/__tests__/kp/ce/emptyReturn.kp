@@ -1,0 +1,10 @@
+iniciar-programa
+	define-instruccion-entera pasos como
+	inicio
+		avanza;
+	fin;
+
+	inicia-ejecucion
+		pasos;
+	termina-ejecucion
+finalizar-programa

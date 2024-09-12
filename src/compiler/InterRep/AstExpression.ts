@@ -3,6 +3,14 @@ import { YY } from "./IRParserTypes";
 import { DefinitionTable } from "./IRVarTable";
 import { Scope } from "./Scope";
 
+
+/**
+ * Represents the info after traversing an AST
+ */
+type ASTInfo = {
+    explicitReturn: boolean
+}
+
 /**
  * @throws If the AST is not type correct
  * @param tree The ast expression to solve
@@ -297,7 +305,8 @@ function resolveWhile(data: IRWhile, definitions: DefinitionTable, scope:Scope, 
 
 }
 
-function resolveConditional(data: IRConditional, definitions: DefinitionTable, scope:Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
+function resolveConditional(data: IRConditional, definitions: DefinitionTable, scope:Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY): ASTInfo {
+    let trueReturns = false, falseReturns = false;
     // Add line marker
     target.push(data.line);
 
@@ -317,14 +326,14 @@ function resolveConditional(data: IRConditional, definitions: DefinitionTable, s
         tags,
         yy
     );
-    resolveListWithASTs(
+    trueReturns = resolveListWithASTs(
         data.trueCase,
         definitions,
         scope,
         target,
         tags,
         yy
-    );
+    ).explicitReturn;
     if (data.skipFalseTag) {
         resolveListWithASTs(
             [["TJMP", data.skipFalseTag]],
@@ -344,14 +353,14 @@ function resolveConditional(data: IRConditional, definitions: DefinitionTable, s
         yy
     );
     if (data.skipFalseTag && data.falseCase) {
-        resolveListWithASTs(
+        falseReturns = resolveListWithASTs(
             data.falseCase,
             definitions,
             scope,
             target,
             tags,
             yy
-        );        
+        ).explicitReturn;        
         resolveListWithASTs(
             [["TAG", data.skipFalseTag]],
             definitions,
@@ -360,6 +369,10 @@ function resolveConditional(data: IRConditional, definitions: DefinitionTable, s
             tags,
             yy
         );        
+    }
+
+    return {
+        explicitReturn: trueReturns && falseReturns
     }
     
 }
@@ -373,7 +386,10 @@ function resolveConditional(data: IRConditional, definitions: DefinitionTable, s
  * @param yy Requiered to emmit compilation error
  * @returns Returns the equivalent AST into IRInstructions without AST
  */
-export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions: DefinitionTable, scope: Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
+export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions: DefinitionTable, scope: Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY): ASTInfo {
+    const info: ASTInfo = {
+        explicitReturn: false
+    };
     for (const instruction of IRInstructions) {
         // Fixme: All vars should be in terms
         if (instruction[0] === "VAR") {
@@ -404,6 +420,7 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
                 continue;
             }
             resolveReturn(instruction[1], definitions, scope, target, tags, yy);
+            info.explicitReturn = true;
             continue;
         }        
         if (instruction[0] === "REPEAT"  ) {
@@ -419,7 +436,10 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
               
         if (instruction[0] === "IF"  ) {
             
-            resolveConditional(instruction[1], definitions, scope, target, tags, yy);
+            const ifInfo = resolveConditional(instruction[1], definitions, scope, target, tags, yy);
+            if (ifInfo.explicitReturn) {
+                info.explicitReturn = true;
+            }
             continue;
         }
               
@@ -450,4 +470,5 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
 
         target.push(instruction);
     }
+    return info;
 }

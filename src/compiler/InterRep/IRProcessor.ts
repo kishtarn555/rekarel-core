@@ -185,11 +185,21 @@ function loadPackages(data: IRObject, definitions: DefinitionTable) {
  * @param expectedReturn The return type of the current scope
  * @returns The IR with the complex IR resolved into simple IR
  */
-function resolveComplexIR(IRInstructions: IRInstruction[], yy: YY, definitions: DefinitionTable, scope: Scope): IRSimpleInstruction[] {
+function resolveComplexIR(IRInstructions: IRInstruction[], yy: YY, definitions: DefinitionTable, scope: Scope, func?: IRFunction): IRSimpleInstruction[] {
     let result: IRSemiSimpleInstruction[] = [];
     const tags: IRTagRecord = {};
     //Resolve AST and populate tags
-    resolveListWithASTs(IRInstructions, definitions, scope, result, tags, yy);
+    let info = resolveListWithASTs(IRInstructions, definitions, scope, result, tags, yy);
+
+    // Check for explicit returns
+    if (scope.expectedReturn !== "VOID" && !info.explicitReturn) {
+        yy.parser.parseError(`Explicit return is required in function ${func!.name}`, {
+            loc: func.loc,
+            line: func.loc.first_line - 1
+        } );
+
+    }
+
     // Resolve TJMP to JMP
     return result.map((instruction, idx): IRSimpleInstruction => {
         if (instruction[0] === "TJMP") {
@@ -225,7 +235,7 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
             parameters: func.params,
             expectedReturn: func.returnType
         });
-        const code = resolveComplexIR(func.code, data.yy, definitions, functionScope);
+        const code = resolveComplexIR(func.code, data.yy, definitions, functionScope, func);
         IRProgram = IRProgram.concat(code);
     }
     //Step 4: Generate opcode. Resolve CALL into correct opcode
