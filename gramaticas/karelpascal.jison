@@ -35,6 +35,8 @@
 "avanza"                                    { return 'FORWARD'; }
 "coge-zumbador"                             { return 'PICKBUZZER'; }
 "deja-zumbador"                             { return 'LEAVEBUZZER'; }
+"continua"                                  { return 'CONTINUE'; }
+"rompe"                                     { return 'BREAK'; }
 "inicio"                                    { return 'BEGIN'; }
 "fin"                                       { return 'END'; }
 "entonces"                                  { return 'THEN'; }
@@ -330,6 +332,10 @@ expr
     { $$ = [['LINE', yylineno], ['BAGBUZZERS'], ['EZ', 'BAGUNDERFLOW'], ['LEAVEBUZZER']]; }
   | HALT
     { $$ = [['LINE', yylineno], ['HALT']]; }
+  | CONTINUE
+    { $$ = [['LINE', yylineno], ['CONTINUE', @1]]; }
+  | BREAK
+    { $$ = [['LINE', yylineno], ['BREAK', @1]]; }
   | return
     { $$ = $return; }
   | call
