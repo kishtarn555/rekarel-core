@@ -195,11 +195,15 @@ function resolveRepeat(data: IRRepeat, definitions: DefinitionTable, scope:Scope
         tags,
         yy
     );
+    const loopScope = scope.withContinueBreakTarget(
+        data.repeatTag,
+        data.endTag
+    );
     // Add loop body
     resolveListWithASTs(
         data.instructions,
         definitions,
-        scope,
+        loopScope,
         target,
         tags,
         yy
@@ -265,11 +269,15 @@ function resolveWhile(data: IRWhile, definitions: DefinitionTable, scope:Scope, 
         tags,
         yy
     );
+    const whileScope = scope.withContinueBreakTarget(
+        data.repeatTag,
+        data.endTag
+    )
     // Add loop body
     resolveListWithASTs(
         data.instructions,
         definitions,
-        scope,
+        whileScope,
         target,
         tags,
         yy
