@@ -429,28 +429,31 @@ cond
   : IF line bool_term THEN expr %prec XIF
     %{ 
       const skipTag = UniqueTag('iskip');
-      $$ = [
-        ...$line,
-        ...$bool_term,        
-        ['TJZ', skipTag],
-        ...$expr,
-        ['TAG', skipTag ],
-      ];
+      $$ = [[
+        "IF",
+        {
+          condition: $bool_term[0],
+          line: $line[0],
+          skipTrueTag: skipTag,
+          trueCase: $expr
+        }
+      ]];
     %}
   | IF line bool_term THEN expr ELSE expr
      %{ 
       const toElse = UniqueTag('ielse');
       const skipElse = UniqueTag('iskipelse');
-      $$ = [
-        ...$line, 
-        ...$bool_term, 
-        ['TJZ', toElse ], 
-        ...$5, 
-        ['TJMP',  skipElse], 
-        ['TAG', toElse  ],
-        ...$7,        
-        ['TAG', skipElse ],
-      ]; 
+      $$ = [[
+        "IF",
+        {
+          condition: $bool_term[0],
+          line: $line[0],
+          skipTrueTag: toElse,
+          skipFalseTag: skipElse,
+          trueCase: $5,
+          falseCase: $7
+        }
+      ]];
     %}
   ;
 
@@ -459,15 +462,16 @@ loop
     %{ 
       const repeatTag = UniqueTag('lrepeat');
       const endTag = UniqueTag('lend');
-      $$ = [
-        ['TAG',  repeatTag ],
-        ...$line,
-        ...$bool_term,
-        ['TJZ',  endTag],
-        ...$expr,
-        ['TJMP', repeatTag],
-        ['TAG', endTag],
-      ];
+      $$ = [[
+        'WHILE',  
+        {
+          condition:   $bool_term[0],
+          line:         $line[0],
+          repeatTag:    repeatTag,
+          endTag:       endTag,
+          instructions: $expr
+        }
+      ]];
     %}
   ;
 
@@ -476,21 +480,16 @@ repeat
     %{ 
       const repeatEnd = UniqueTag('rend');
       const repeatLoop = UniqueTag('rloop');
-      $$ = [ 
-        ...$line,
-        ...$int_term,
-        ['TAG', repeatLoop],
-        ['DUP'],
-        ['LOAD', 0], 
-        ['EQ'], 
-        ['NOT'], 
-        ['TJZ', repeatEnd],
-        ...$expr,
-        ['DEC', 1], 
-        ['TJMP', repeatLoop], 
-        ['TAG', repeatEnd],
-        ['POP'], 
-      ]; 
+      $$ = [[
+        "REPEAT",
+        {
+          line:       $line[0],
+          loopCount:  $int_term[0],
+          repeatTag:  repeatLoop,
+          endTag:     repeatEnd,
+          instructions: $expr
+        }
+      ]]; 
     %}
   ;
 
