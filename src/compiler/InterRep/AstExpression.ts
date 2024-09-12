@@ -1,22 +1,22 @@
 import type { IRTerm, IRInstruction, IRTagRecord, IRVar, IRCall, IRRet, IRParam, IRSemiSimpleInstruction, IRRepeat, IRWhile, IRConditional } from "./IRInstruction";
 import { YY } from "./IRParserTypes";
 import { DefinitionTable } from "./IRVarTable";
-
+import { Scope } from "./Scope";
 
 /**
  * @throws If the AST is not type correct
  * @param tree The ast expression to solve
  * @param table Definition table
  * @param yy Requiered to emmit compilation error
- * @param expectedReturn The type of the return in the current scope
+ * @param scope.expectedReturn The type of the return in the current scope
  * @returns Returns the equivalent AST into IRInstructions without AST
  */
-function resolveTerm(tree: IRTerm, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY): string {
+function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY): string {
     if (tree.operation === "ATOM") {
-        resolveListWithASTs(tree.instructions, definitions, parameters, expectedReturn, target, tags, yy);
+        resolveListWithASTs(tree.instructions, definitions, scope, target, tags, yy);
         if (tree.dataType.startsWith("$")) {
             const termType = tree.dataType.substring(1);
-            if (parameters.some(e =>  e.name === termType)) {
+            if (scope.parameters.some(e =>  e.name === termType)) {
                 return "INT";
             }
             return definitions.getType(tree.dataType.substring(1));
@@ -25,8 +25,8 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, parameters: IRP
     }
 
     if (tree.operation === "AND" || tree.operation === "OR") {
-        const leftType = resolveTerm(tree.left, definitions, parameters, expectedReturn, target, tags, yy);
-        const rightType = resolveTerm(tree.right, definitions, parameters, expectedReturn, target, tags, yy);
+        const leftType = resolveTerm(tree.left, definitions, scope, target, tags, yy);
+        const rightType = resolveTerm(tree.right, definitions, scope, target, tags, yy);
         if (leftType !== "BOOL") {
             yy.parser.parseError(`${tree.operation} operator uses booleans terms only, left is of type: ${leftType}`, {
                 //FIXME: Add data (?)
@@ -42,8 +42,8 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, parameters: IRP
     }
     
     if (tree.operation === "EQ") {
-        const leftType = resolveTerm(tree.left, definitions, parameters, expectedReturn, target, tags, yy);
-        const rightType = resolveTerm(tree.right, definitions, parameters, expectedReturn, target, tags, yy);
+        const leftType = resolveTerm(tree.left, definitions, scope, target, tags, yy);
+        const rightType = resolveTerm(tree.right, definitions, scope, target, tags, yy);
         if (leftType !== rightType) {
             yy.parser.parseError(`An equality comparison cannot be performed between type ${leftType} and ${rightType}`, {
                 //FIXME: Add data (?)
@@ -56,8 +56,8 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, parameters: IRP
     
 
     if (tree.operation === "LT" || tree.operation === "LTE") {
-        const leftType = resolveTerm(tree.left, definitions, parameters, expectedReturn, target, tags, yy);
-        const rightType = resolveTerm(tree.right, definitions, parameters, expectedReturn, target, tags, yy);
+        const leftType = resolveTerm(tree.left, definitions, scope, target, tags, yy);
+        const rightType = resolveTerm(tree.right, definitions, scope, target, tags, yy);
         if (leftType !== "INT") {
             yy.parser.parseError(`${tree.operation} operator uses integer terms only, left is of type: ${leftType}`, {
                 //FIXME: Add data (?)
@@ -73,7 +73,7 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, parameters: IRP
     }
 
     if (tree.operation === "NOT") {
-        const termType = resolveTerm(tree.term, definitions, parameters, expectedReturn, target, tags, yy);
+        const termType = resolveTerm(tree.term, definitions, scope, target, tags, yy);
         if (termType !== "BOOL") {
             yy.parser.parseError(`${tree.operation} operator uses a boolean terms only, but tried to negate a term of type: ${termType}`, {
                 //FIXME: Add data (?)
@@ -83,7 +83,7 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, parameters: IRP
         return tree.dataType;
     }
     if (tree.operation === "PASS") {
-        const termType = resolveTerm(tree.term, definitions, parameters, expectedReturn, target, tags, yy);
+        const termType = resolveTerm(tree.term, definitions, scope, target, tags, yy);
         if (termType !== tree.dataType) {
             yy.parser.parseError(`Expected a term of type ${tree.dataType}, but got ${termType}`, {
                 //FIXME: Add data (?)
@@ -96,8 +96,8 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, parameters: IRP
 }
 
 
-function resolveVar(data: IRVar, definitions: DefinitionTable, parameters: IRParam[], target: IRSemiSimpleInstruction[], yy: YY) {
-    const parameterIdx = parameters.findIndex(e => data.target === e.name);
+function resolveVar(data: IRVar, definitions: DefinitionTable, scope:Scope, target: IRSemiSimpleInstruction[], yy: YY) {
+    const parameterIdx = scope.parameters.findIndex(e => data.target === e.name);
     if (parameterIdx !== -1) {
         target.push(["PARAM", parameterIdx]);
         return;
@@ -137,12 +137,12 @@ function resolveVar(data: IRVar, definitions: DefinitionTable, parameters: IRPar
 }
 
 
-function resolveCall(data: IRCall, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
+function resolveCall(data: IRCall, definitions: DefinitionTable, scope:Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
     target.push(
         ["LINE", data.nameLoc.first_line - 1]
     );
     for (const parameter of data.params) {
-        resolveTerm(parameter, definitions, parameters, expectedReturn, target, tags, yy);
+        resolveTerm(parameter, definitions, scope, target, tags, yy);
     }
     target.push(["LOAD", data.params.length]);
     target.push(["CALL", data]);
@@ -152,10 +152,10 @@ function resolveCall(data: IRCall, definitions: DefinitionTable, parameters: IRP
 
 
 }
-function resolveReturn(data: IRRet, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
-    const retType = resolveTerm(data.term, definitions, parameters,expectedReturn,  target, tags, yy);
-    if (expectedReturn !== retType) {
-        yy.parser.parseError(`Cannot return a type: ${retType}, in a function of type: ${expectedReturn}`, {
+function resolveReturn(data: IRRet, definitions: DefinitionTable, scope:Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
+    const retType = resolveTerm(data.term, definitions, scope,  target, tags, yy);
+    if (scope.expectedReturn !== retType) {
+        yy.parser.parseError(`Cannot return a type: ${retType}, in a function of type: ${scope.expectedReturn}`, {
             line: data.loc.first_line - 1,
             loc: data.loc
         });
@@ -167,15 +167,14 @@ function resolveReturn(data: IRRet, definitions: DefinitionTable, parameters: IR
 }
 
 
-function resolveRepeat(data: IRRepeat, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
+function resolveRepeat(data: IRRepeat, definitions: DefinitionTable, scope:Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
     // Add line marker
     target.push(data.line);    
     // Add load counter
     resolveTerm(
         data.loopCount[1],
         definitions,
-        parameters,
-        expectedReturn,
+        scope,
         target,
         tags,
         yy
@@ -191,8 +190,7 @@ function resolveRepeat(data: IRRepeat, definitions: DefinitionTable, parameters:
             ['TJZ', data.endTag]
         ],
         definitions,
-        parameters,
-        expectedReturn,
+        scope,
         target,
         tags,
         yy
@@ -201,8 +199,7 @@ function resolveRepeat(data: IRRepeat, definitions: DefinitionTable, parameters:
     resolveListWithASTs(
         data.instructions,
         definitions,
-        parameters,
-        expectedReturn,
+        scope,
         target,
         tags,
         yy
@@ -216,8 +213,7 @@ function resolveRepeat(data: IRRepeat, definitions: DefinitionTable, parameters:
             ['POP'], 
         ],
         definitions,
-        parameters,
-        expectedReturn,
+        scope,
         target,
         tags,
         yy
@@ -229,21 +225,20 @@ function resolveRepeat(data: IRRepeat, definitions: DefinitionTable, parameters:
  * Resolves a while
  * @param data 
  * @param definitions 
- * @param parameters 
- * @param expectedReturn 
+ * @param scope.parameters 
+ * @param scope.expectedReturn 
  * @param target 
  * @param tags 
  * @param yy 
  */
-function resolveWhile(data: IRWhile, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
+function resolveWhile(data: IRWhile, definitions: DefinitionTable, scope:Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
     // Add repeat tag
     resolveListWithASTs(
         [
             ['TAG', data.repeatTag],
         ],
         definitions,
-        parameters,
-        expectedReturn,
+        scope,
         target,
         tags,
         yy
@@ -254,8 +249,7 @@ function resolveWhile(data: IRWhile, definitions: DefinitionTable, parameters: I
     resolveTerm(
         data.condition[1],
         definitions,
-        parameters,
-        expectedReturn,
+        scope,
         target,
         tags,
         yy
@@ -266,8 +260,7 @@ function resolveWhile(data: IRWhile, definitions: DefinitionTable, parameters: I
             ['TJZ',  data.endTag]
         ],
         definitions,
-        parameters,
-        expectedReturn,
+        scope,
         target,
         tags,
         yy
@@ -276,8 +269,7 @@ function resolveWhile(data: IRWhile, definitions: DefinitionTable, parameters: I
     resolveListWithASTs(
         data.instructions,
         definitions,
-        parameters,
-        expectedReturn,
+        scope,
         target,
         tags,
         yy
@@ -289,8 +281,7 @@ function resolveWhile(data: IRWhile, definitions: DefinitionTable, parameters: I
             ['TAG', data.endTag],
         ],
         definitions,
-        parameters,
-        expectedReturn,
+        scope,
         target,
         tags,
         yy
@@ -298,15 +289,14 @@ function resolveWhile(data: IRWhile, definitions: DefinitionTable, parameters: I
 
 }
 
-function resolveConditional(data: IRConditional, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
+function resolveConditional(data: IRConditional, definitions: DefinitionTable, scope:Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
     // Add line marker
     target.push(data.line);
 
     resolveTerm(
         data.condition[1], 
         definitions, 
-        parameters, 
-        expectedReturn, 
+        scope,
         target, 
         tags, 
         yy
@@ -314,8 +304,7 @@ function resolveConditional(data: IRConditional, definitions: DefinitionTable, p
     resolveListWithASTs(
         [["TJZ", data.skipTrueTag]],
         definitions,
-        parameters,
-        expectedReturn,
+        scope,
         target,
         tags,
         yy
@@ -323,8 +312,7 @@ function resolveConditional(data: IRConditional, definitions: DefinitionTable, p
     resolveListWithASTs(
         data.trueCase,
         definitions,
-        parameters,
-        expectedReturn,
+        scope,
         target,
         tags,
         yy
@@ -333,8 +321,7 @@ function resolveConditional(data: IRConditional, definitions: DefinitionTable, p
         resolveListWithASTs(
             [["TJMP", data.skipFalseTag]],
             definitions,
-            parameters,
-            expectedReturn,
+            scope,
             target,
             tags,
             yy
@@ -343,8 +330,7 @@ function resolveConditional(data: IRConditional, definitions: DefinitionTable, p
     resolveListWithASTs(
         [["TAG", data.skipTrueTag]],
         definitions,
-        parameters,
-        expectedReturn,
+        scope,
         target,
         tags,
         yy
@@ -353,8 +339,7 @@ function resolveConditional(data: IRConditional, definitions: DefinitionTable, p
         resolveListWithASTs(
             data.falseCase,
             definitions,
-            parameters,
-            expectedReturn,
+            scope,
             target,
             tags,
             yy
@@ -362,8 +347,7 @@ function resolveConditional(data: IRConditional, definitions: DefinitionTable, p
         resolveListWithASTs(
             [["TAG", data.skipFalseTag]],
             definitions,
-            parameters,
-            expectedReturn,
+            scope,
             target,
             tags,
             yy
@@ -381,16 +365,16 @@ function resolveConditional(data: IRConditional, definitions: DefinitionTable, p
  * @param yy Requiered to emmit compilation error
  * @returns Returns the equivalent AST into IRInstructions without AST
  */
-export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
+export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions: DefinitionTable, scope: Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
     for (const instruction of IRInstructions) {
         // Fixme: All vars should be in terms
         if (instruction[0] === "VAR") {
-            resolveVar(instruction[1], definitions, parameters, target, yy);
+            resolveVar(instruction[1], definitions, scope, target, yy);
             continue;
         }
 
         if (instruction[0] === "TERM") {
-            resolveTerm(instruction[1], definitions, parameters, expectedReturn, target, tags, yy);
+            resolveTerm(instruction[1], definitions, scope, target, tags, yy);
             continue;
         }
 
@@ -400,7 +384,7 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
         }
 
         if (instruction[0] === "CALL") {
-            resolveCall(instruction[1], definitions, parameters, expectedReturn, target, tags, yy);
+            resolveCall(instruction[1], definitions, scope, target, tags, yy);
             continue;
         }
         if (instruction[0] === "RET"  ) {
@@ -411,23 +395,23 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
                 target.push(instruction);
                 continue;
             }
-            resolveReturn(instruction[1], definitions, parameters, expectedReturn, target, tags, yy);
+            resolveReturn(instruction[1], definitions, scope, target, tags, yy);
             continue;
         }        
         if (instruction[0] === "REPEAT"  ) {
             
-            resolveRepeat(instruction[1], definitions, parameters, expectedReturn, target, tags, yy);
+            resolveRepeat(instruction[1], definitions, scope, target, tags, yy);
             continue;
         }      
         if (instruction[0] === "WHILE"  ) {
             
-            resolveWhile(instruction[1], definitions, parameters, expectedReturn, target, tags, yy);
+            resolveWhile(instruction[1], definitions, scope, target, tags, yy);
             continue;
         }
               
         if (instruction[0] === "IF"  ) {
             
-            resolveConditional(instruction[1], definitions, parameters, expectedReturn, target, tags, yy);
+            resolveConditional(instruction[1], definitions, scope, target, tags, yy);
             continue;
         }
 

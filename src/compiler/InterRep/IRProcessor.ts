@@ -5,6 +5,7 @@ import { YY, YYLoc } from "./IRParserTypes";
 import { IRFunction, IRInstruction, IRParam, IRSemiSimpleInstruction, IRSimpleInstruction, IRTagRecord } from "./IRInstruction";
 import { DefinitionTable, FunctionData } from "./IRVarTable";
 import { resolveListWithASTs } from "./AstExpression";
+import { MAIN_SCOPE, Scope } from "./Scope";
 
 
 
@@ -184,11 +185,11 @@ function loadPackages(data: IRObject, definitions: DefinitionTable) {
  * @param expectedReturn The return type of the current scope
  * @returns The IR with the complex IR resolved into simple IR
  */
-function resolveComplexIR(IRInstructions: IRInstruction[], yy: YY, definitions: DefinitionTable, parameters: IRParam[], expectedReturn:string): IRSimpleInstruction[] {
+function resolveComplexIR(IRInstructions: IRInstruction[], yy: YY, definitions: DefinitionTable, scope: Scope): IRSimpleInstruction[] {
     let result: IRSemiSimpleInstruction[] = [];
     const tags: IRTagRecord = {};
     //Resolve AST and populate tags
-    resolveListWithASTs(IRInstructions, definitions, parameters, expectedReturn, result, tags, yy);
+    resolveListWithASTs(IRInstructions, definitions, scope, result, tags, yy);
     // Resolve TJMP to JMP
     return result.map((instruction, idx): IRSimpleInstruction => {
         if (instruction[0] === "TJMP") {
@@ -211,7 +212,7 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
         throw new Error("This should not be reachable, it should have thrown before");
 
     // Step 2 - Resolve all AST/tags, such as terms.
-    let IRProgram = resolveComplexIR(data.program, data.yy, definitions,  [], "VOID");
+    let IRProgram = resolveComplexIR(data.program, data.yy, definitions, MAIN_SCOPE);
 
     // Step 3 - Resolve all AST/tags from functions and Generate a single IR array.
     for (const func of data.functions) {
@@ -219,8 +220,12 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
             //Skip prototypes
             continue;
         }
-        definitions.setFunctionLoc(func.name, IRProgram.length)
-        const code = resolveComplexIR(func.code, data.yy, definitions, func.params, func.returnType);
+        definitions.setFunctionLoc(func.name, IRProgram.length);
+        const functionScope = new Scope({
+            parameters: func.params,
+            expectedReturn: func.returnType
+        });
+        const code = resolveComplexIR(func.code, data.yy, definitions, functionScope);
         IRProgram = IRProgram.concat(code);
     }
     //Step 4: Generate opcode. Resolve CALL into correct opcode
