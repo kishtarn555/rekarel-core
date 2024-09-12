@@ -1,4 +1,4 @@
-import type { IRTerm, IRInstruction, IRTagRecord, IRVar, IRCall, IRRet, IRParam } from "./IRInstruction";
+import type { IRTerm, IRInstruction, IRTagRecord, IRVar, IRCall, IRRet, IRParam, IRSemiSimpleInstruction, IRRepeat, IRWhile, IRConditional } from "./IRInstruction";
 import { YY } from "./IRParserTypes";
 import { DefinitionTable } from "./IRVarTable";
 
@@ -11,7 +11,7 @@ import { DefinitionTable } from "./IRVarTable";
  * @param expectedReturn The type of the return in the current scope
  * @returns Returns the equivalent AST into IRInstructions without AST
  */
-function resolveTerm(tree: IRTerm, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRInstruction[], tags: IRTagRecord, yy: YY): string {
+function resolveTerm(tree: IRTerm, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY): string {
     if (tree.operation === "ATOM") {
         resolveListWithASTs(tree.instructions, definitions, parameters, expectedReturn, target, tags, yy);
         if (tree.dataType.startsWith("$")) {
@@ -96,7 +96,7 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, parameters: IRP
 }
 
 
-function resolveVar(data: IRVar, definitions: DefinitionTable, parameters: IRParam[], target: IRInstruction[], yy: YY) {
+function resolveVar(data: IRVar, definitions: DefinitionTable, parameters: IRParam[], target: IRSemiSimpleInstruction[], yy: YY) {
     const parameterIdx = parameters.findIndex(e => data.target === e.name);
     if (parameterIdx !== -1) {
         target.push(["PARAM", parameterIdx]);
@@ -137,7 +137,7 @@ function resolveVar(data: IRVar, definitions: DefinitionTable, parameters: IRPar
 }
 
 
-function resolveCall(data: IRCall, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRInstruction[], tags: IRTagRecord, yy: YY) {
+function resolveCall(data: IRCall, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
     target.push(
         ["LINE", data.nameLoc.first_line - 1]
     );
@@ -152,7 +152,7 @@ function resolveCall(data: IRCall, definitions: DefinitionTable, parameters: IRP
 
 
 }
-function resolveReturn(data: IRRet, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRInstruction[], tags: IRTagRecord, yy: YY) {
+function resolveReturn(data: IRRet, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
     const retType = resolveTerm(data.term, definitions, parameters,expectedReturn,  target, tags, yy);
     if (expectedReturn !== retType) {
         yy.parser.parseError(`Cannot return a type: ${retType}, in a function of type: ${expectedReturn}`, {
@@ -166,6 +166,214 @@ function resolveReturn(data: IRRet, definitions: DefinitionTable, parameters: IR
 
 }
 
+
+function resolveRepeat(data: IRRepeat, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
+    // Add line marker
+    target.push(data.line);    
+    // Add load counter
+    resolveTerm(
+        data.loopCount[1],
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );    
+    // Add counter logic
+    resolveListWithASTs(
+        [
+            ['TAG', data.repeatTag],
+            ['DUP'],
+            ['LOAD', 0], 
+            ['EQ'], 
+            ['NOT'], 
+            ['TJZ', data.endTag]
+        ],
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );
+    // Add loop body
+    resolveListWithASTs(
+        data.instructions,
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );
+    // Add loop end logic
+    resolveListWithASTs(
+        [            
+            ['DEC', 1], 
+            ['TJMP', data.repeatTag], 
+            ['TAG', data.endTag],
+            ['POP'], 
+        ],
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );
+
+}
+
+/**
+ * Resolves a while
+ * @param data 
+ * @param definitions 
+ * @param parameters 
+ * @param expectedReturn 
+ * @param target 
+ * @param tags 
+ * @param yy 
+ */
+function resolveWhile(data: IRWhile, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
+    // Add repeat tag
+    resolveListWithASTs(
+        [
+            ['TAG', data.repeatTag],
+        ],
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );
+    // Add line marker
+    target.push(data.line);   
+    // Add condition check
+    resolveTerm(
+        data.condition[1],
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );    
+    // Add skip logic
+    resolveListWithASTs(
+        [
+            ['TJZ',  data.endTag]
+        ],
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );
+    // Add loop body
+    resolveListWithASTs(
+        data.instructions,
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );
+    // Add loop end logic
+    resolveListWithASTs(
+        [            
+            ['TJMP', data.repeatTag],
+            ['TAG', data.endTag],
+        ],
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );
+
+}
+
+function resolveConditional(data: IRConditional, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
+    // Add line marker
+    target.push(data.line);
+
+    resolveTerm(
+        data.condition[1], 
+        definitions, 
+        parameters, 
+        expectedReturn, 
+        target, 
+        tags, 
+        yy
+    );
+    resolveListWithASTs(
+        [["TJZ", data.skipTrueTag]],
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );
+    resolveListWithASTs(
+        data.trueCase,
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );
+    if (data.skipFalseTag) {
+        resolveListWithASTs(
+            [["TJMP", data.skipFalseTag]],
+            definitions,
+            parameters,
+            expectedReturn,
+            target,
+            tags,
+            yy
+        );
+    }
+    resolveListWithASTs(
+        [["TAG", data.skipTrueTag]],
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );
+    if (data.skipFalseTag && data.falseCase) {
+        resolveListWithASTs(
+            data.falseCase,
+            definitions,
+            parameters,
+            expectedReturn,
+            target,
+            tags,
+            yy
+        );        
+        resolveListWithASTs(
+            [["TAG", data.skipFalseTag]],
+            definitions,
+            parameters,
+            expectedReturn,
+            target,
+            tags,
+            yy
+        );        
+    }
+    
+}
+
+
+
 /**
  * @throws Iterates through an IR list and resolve any AST it finds
  * @param tree The ast expression to solve
@@ -173,7 +381,7 @@ function resolveReturn(data: IRRet, definitions: DefinitionTable, parameters: IR
  * @param yy Requiered to emmit compilation error
  * @returns Returns the equivalent AST into IRInstructions without AST
  */
-export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRInstruction[], tags: IRTagRecord, yy: YY) {
+export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
     for (const instruction of IRInstructions) {
         // Fixme: All vars should be in terms
         if (instruction[0] === "VAR") {
@@ -205,7 +413,25 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
             }
             resolveReturn(instruction[1], definitions, parameters, expectedReturn, target, tags, yy);
             continue;
+        }        
+        if (instruction[0] === "REPEAT"  ) {
+            
+            resolveRepeat(instruction[1], definitions, parameters, expectedReturn, target, tags, yy);
+            continue;
+        }      
+        if (instruction[0] === "WHILE"  ) {
+            
+            resolveWhile(instruction[1], definitions, parameters, expectedReturn, target, tags, yy);
+            continue;
         }
+              
+        if (instruction[0] === "IF"  ) {
+            
+            resolveConditional(instruction[1], definitions, parameters, expectedReturn, target, tags, yy);
+            continue;
+        }
+
+        
 
         target.push(instruction);
     }
