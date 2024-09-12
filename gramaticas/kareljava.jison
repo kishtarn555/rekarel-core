@@ -381,28 +381,31 @@ cond
   : IF line '(' bool_term ')' expr %prec XIF
     %{ 
       const skipTag = UniqueTag('iskip');
-      $$ = [
-        ...$line, 
-        ...$bool_term, 
-        ['TJZ', skipTag],
-        ...$expr,
-        ['TAG', skipTag ],
-      ];
+      $$ = [[
+        "IF",
+        {
+          condition: $bool_term[0],
+          line: $line[0],
+          skipTrueTag: skipTag,
+          trueCase: $expr
+        }
+      ]];
     %}
   | IF line '(' bool_term ')' expr ELSE expr
     %{ 
       const toElse = UniqueTag('ielse');
       const skipElse = UniqueTag('iskipelse');
-      $$ = [
-        ...$line, 
-        ...$bool_term, 
-        ['TJZ', toElse ], 
-        ...$6, 
-        ['TJMP',  skipElse], 
-        ['TAG', toElse  ],
-        ...$8,        
-        ['TAG', skipElse ],
-      ]; 
+      $$ = [[
+        "IF",
+        {
+          condition: $bool_term[0],
+          line: $line[0],
+          skipTrueTag: toElse,
+          skipFalseTag: skipElse,
+          trueCase: $6,
+          falseCase: $8
+        }
+      ]];
     %}
   ;
 
