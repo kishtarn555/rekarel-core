@@ -16,8 +16,8 @@ export class Scope implements ScopeData {
     constructor(data: ScopeData) {
         this.parameters = data.parameters;
         this.expectedReturn = data.expectedReturn;
-        this.continueTarget = this.continueTarget;
-        this.breakTarget = this.breakTarget;
+        this.continueTarget = data.continueTarget;
+        this.breakTarget = data.breakTarget;
     }
 
     withContinueTarget(continueTarget: string) {
