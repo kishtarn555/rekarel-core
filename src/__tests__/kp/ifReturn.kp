@@ -1,0 +1,19 @@
+iniciar-programa
+	define-instruccion-entera pasos como
+	inicio
+        si frente-libre entonces
+        inicio
+		    avanza;
+            regresa 5;
+        fin
+        sino
+        inicio
+            regresa 0;
+        fin;
+
+	fin;
+
+	inicia-ejecucion
+		pasos;
+	termina-ejecucion
+finalizar-programa

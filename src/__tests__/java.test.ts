@@ -11,7 +11,8 @@ const sourceFiles = [
     "globals.not.kj",
     "testInc.kj",
     "testDec.kj",
-    "intfunc.kj"
+    "intfunc.kj",
+    "ifReturn.kj"
 ]
 
 
@@ -19,6 +20,7 @@ const compilationError:[string,string | RegExp][] = [
     ["returnVoidToInt.kj", "Cannot return a type: VOID, in a function of type: INT"],
     ["returnIntToVoid.kj", "Cannot return a type: INT, in a function of type: VOID"],
     ["voidAsInt.kj", "Expected a term of type INT, but got VOID"],
+    ["emptyReturn.kj", "Explicit return is required in function pasos"],
 ]
 
 

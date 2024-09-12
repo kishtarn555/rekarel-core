@@ -14,6 +14,7 @@ const sourceFiles = [
     "globals.not.kp",
     "testInc.kp", 
     "testDec.kp",
+    "ifReturn.kp"
 ]
 
 
@@ -21,11 +22,12 @@ const compilationError:[string,string | RegExp][] = [
     ["returnVoidToInt.kp", "Cannot return a type: VOID, in a function of type: INT"],
     ["returnIntToVoid.kp", "Cannot return a type: INT, in a function of type: VOID"],
     ["voidAsInt.kp", "Expected a term of type INT, but got VOID"],
+    ["emptyReturn.kp", "Explicit return is required in function pasos"],
 ]
 
 
 
-describe("Pascal compilation tests ", () => {
+describe("Pascal compilation tests ", () => { 
     test("Test simple turnoff", () => {
         const source = fs.readFileSync(__dirname + "/kp/turnoff.kp").toString();
         const result = compile(source);
@@ -81,6 +83,18 @@ describe("Test Pascal compilation errors" ,  ()=> {
         });
     }
 });
+
+
+describe("Test Pascal compilations", ()=> {
+    for (const file of sourceFiles) {
+        test(`Test compilation of ${file}`, ()=> {            
+            const source = fs.readFileSync(__dirname +"/kp/"+file).toString();
+            const result = compile (source);
+            expect(Array.isArray(result)).toBe(true);            
+            
+        });
+    }
+})
 
 describe("Pascal globals test ", () => {
     test("Test floor variable", () => {
