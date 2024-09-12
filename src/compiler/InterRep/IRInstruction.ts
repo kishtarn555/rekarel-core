@@ -98,6 +98,15 @@ export type IRWhile = {
 }
 
 
+export type IRConditional = {
+    condition: IRInstructionTerm,
+    line: IRSimpleInstruction,
+    skipTrueTag: string,
+    skipFalseTag?: string,
+    trueCase: IRInstruction[],
+    falseCase?: IRInstruction[],
+};
+
 export type IRJumps =     
     [instruction: "TJMP", data:string] |  //Jumps to a opcode by tag
     [instruction: "TJZ", data:string]  //Jumps to a opcode by tag if stack has zero
@@ -120,6 +129,7 @@ export type IRComplexInstruction =
     [instruction: "TAG", data:string] | //Represents a tag
     [instruction: "REPEAT", data:IRRepeat] |
     [instruction: "WHILE", data:IRWhile] |
+    [instruction: "IF", data:IRConditional] |
     IRJumps
 ;
 

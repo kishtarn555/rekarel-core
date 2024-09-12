@@ -1,4 +1,4 @@
-import type { IRTerm, IRInstruction, IRTagRecord, IRVar, IRCall, IRRet, IRParam, IRSemiSimpleInstruction, IRRepeat, IRWhile } from "./IRInstruction";
+import type { IRTerm, IRInstruction, IRTagRecord, IRVar, IRCall, IRRet, IRParam, IRSemiSimpleInstruction, IRRepeat, IRWhile, IRConditional } from "./IRInstruction";
 import { YY } from "./IRParserTypes";
 import { DefinitionTable } from "./IRVarTable";
 
@@ -297,6 +297,83 @@ function resolveWhile(data: IRWhile, definitions: DefinitionTable, parameters: I
     );
 
 }
+
+function resolveConditional(data: IRConditional, definitions: DefinitionTable, parameters: IRParam[], expectedReturn: string, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
+    // Add line marker
+    target.push(data.line);
+
+    resolveTerm(
+        data.condition[1], 
+        definitions, 
+        parameters, 
+        expectedReturn, 
+        target, 
+        tags, 
+        yy
+    );
+    resolveListWithASTs(
+        [["TJZ", data.skipTrueTag]],
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );
+    resolveListWithASTs(
+        data.trueCase,
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );
+    if (data.skipFalseTag) {
+        resolveListWithASTs(
+            [["TJMP", data.skipFalseTag]],
+            definitions,
+            parameters,
+            expectedReturn,
+            target,
+            tags,
+            yy
+        );
+    }
+    resolveListWithASTs(
+        [["TAG", data.skipTrueTag]],
+        definitions,
+        parameters,
+        expectedReturn,
+        target,
+        tags,
+        yy
+    );
+    if (data.skipFalseTag && data.falseCase) {
+        resolveListWithASTs(
+            data.falseCase,
+            definitions,
+            parameters,
+            expectedReturn,
+            target,
+            tags,
+            yy
+        );        
+        resolveListWithASTs(
+            [["TAG", data.skipFalseTag]],
+            definitions,
+            parameters,
+            expectedReturn,
+            target,
+            tags,
+            yy
+        );        
+    }
+    
+}
+
+
+
 /**
  * @throws Iterates through an IR list and resolve any AST it finds
  * @param tree The ast expression to solve
@@ -347,6 +424,14 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
             resolveWhile(instruction[1], definitions, parameters, expectedReturn, target, tags, yy);
             continue;
         }
+              
+        if (instruction[0] === "IF"  ) {
+            
+            resolveConditional(instruction[1], definitions, parameters, expectedReturn, target, tags, yy);
+            continue;
+        }
+
+        
 
         target.push(instruction);
     }
