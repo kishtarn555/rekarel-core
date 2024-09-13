@@ -33,7 +33,7 @@ describe("Pascal compilation tests ", () => {
     test("Test simple turnoff", () => {
         const source = fs.readFileSync(__dirname + "/kp/turnoff.kp").toString();
         const result = compile(source);
-        expect(result).toEqual([['LINE', 3], ['HALT'], ['LINE', 5], ['HALT']])
+        expect(result).toEqual([['LINE', 3, 2], ['HALT'], ['LINE', 5, 0], ['HALT']])
 
     });
 

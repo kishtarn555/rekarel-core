@@ -176,7 +176,7 @@ function resolveVar(data: IRVar, definitions: DefinitionTable, scope:Scope, targ
 
 function resolveCall(data: IRCall, definitions: DefinitionTable, scope:Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
     target.push(
-        ["LINE", data.nameLoc.first_line - 1]
+        ["LINE", data.nameLoc.first_line - 1, data.nameLoc.first_column]
     );
     for (const parameter of data.params) {
         resolveTerm(parameter, definitions, scope, target, tags, yy);
@@ -184,7 +184,7 @@ function resolveCall(data: IRCall, definitions: DefinitionTable, scope:Scope, ta
     target.push(["LOAD", data.params.length]);
     target.push(["CALL", data]);
     target.push(
-        ["LINE", data.nameLoc.first_line - 1]
+        ["LINE", data.nameLoc.first_line - 1, data.nameLoc.first_column]
     );
 
 
