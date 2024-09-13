@@ -30,6 +30,7 @@ type RuntimeState = {
   sp: number
   fp: number
   line: number
+  column: number
   ic: number
   ret: number
   stack: Int32Array
@@ -85,6 +86,10 @@ export class Runtime {
       if (currentOpcode.length > 1) {
         this.program[3 * i + 1] = currentOpcode[1] as number;
       }
+      
+      if (currentOpcode[0] == "LINE") {
+        this.program[3 * i + 2] = currentOpcode[2];
+      }
       if (currentOpcode[0] == 'CALL') {
         if (!function_map.hasOwnProperty(currentOpcode[2])) {
           function_map[currentOpcode[2]] = function_idx;
@@ -112,6 +117,7 @@ export class Runtime {
       sp: -1,
       fp: -1,
       line: -1,
+      column: -1,
       ic: 0,
       ret:0,
       stack: new Int32Array(new ArrayBuffer((0xffff * 16 + 40) * 4)),
@@ -198,6 +204,7 @@ export class Runtime {
 
         case OpCodeID.LINE: {
           this.state.line = this.program[3 * this.state.pc + 1];
+          this.state.column = this.program[3 * this.state.pc + 2];
           break;
         }
 
