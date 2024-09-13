@@ -415,7 +415,9 @@ int_termList
         {
           term:$term, 
           operation: 'PASS',
-          dataType: 'INT'
+          dataType: 'INT',
+          loc: @term,
+          totalLoc: @term
         } 
       ])
     }
@@ -425,7 +427,9 @@ int_termList
         {
           term:$term, 
           operation: 'PASS',
-          dataType: 'INT'
+          dataType: 'INT',
+          loc: @term,
+          totalLoc: @term
         } 
       ]; 
     }
@@ -505,7 +509,9 @@ term
         left: $1, 
         right: $3, 
         operation: "OR", 
-        dataType:"BOOL" 
+        dataType:"BOOL",
+        loc: @2,
+        totalLoc: @$ 
       }; }
   | term AND term 
     { 
@@ -513,7 +519,9 @@ term
         left: $1, 
         right: $3, 
         operation: "AND", 
-        dataType:"BOOL"
+        dataType:"BOOL",
+        loc: @2,
+        totalLoc: @$
       };
     }
   | term '==' term 
@@ -522,7 +530,9 @@ term
         left: $1, 
         right: $3, 
         operation: "EQ", 
-        dataType:"BOOL"
+        dataType:"BOOL",
+        loc: @2,
+        totalLoc: @$
       };
     }
   | term '<' term 
@@ -531,7 +541,9 @@ term
         left: $1, 
         right: $3, 
         operation: "LT", 
-        dataType:"BOOL"
+        dataType:"BOOL",
+        loc: @2,
+        totalLoc: @$
       };
     }
   | term '<=' term 
@@ -540,7 +552,9 @@ term
         left: $1, 
         right: $3, 
         operation: "LTE", 
-        dataType:"BOOL"
+        dataType:"BOOL",
+        loc: @2,
+        totalLoc: @$
       };
     }
   | NOT term 
@@ -548,7 +562,9 @@ term
       $$ = {
         term: $2,       
         operation: "NOT",
-        dataType:"BOOL" 
+        dataType:"BOOL" ,
+        loc: @1,
+        totalLoc: @$
       };
       }
   | '(' term ')'
@@ -565,7 +581,9 @@ bool_term
         {
           term:$term, 
           operation: 'PASS',
-          dataType: 'BOOL'
+          dataType: 'BOOL',
+          loc: @term,
+          totalLoc: @term
         }    
       ]];
     }
@@ -580,7 +598,9 @@ int_term
         {
           term:$term, 
           operation: 'PASS',
-          dataType: 'INT'
+          dataType: 'INT',
+          loc: @term,
+          totalLoc: @term
         }    
       ]];
     }
@@ -592,7 +612,9 @@ clause
        $$ = {
         operation: "ATOM",
         instructions: $int_term.concat([['NOT']]),
-        dataType: "BOOL"
+        dataType: "BOOL",
+        loc: @1,
+        totalLoc: @$
       };
     }
   | bool_fun
@@ -600,7 +622,9 @@ clause
       $$ = {
         operation: "ATOM",
         instructions: $bool_fun,
-        dataType: "BOOL"
+        dataType: "BOOL",
+        loc: @1,
+        totalLoc: @1
       }; 
     }
   | integer 
@@ -608,7 +632,9 @@ clause
       $$ = {
         operation: "ATOM",
         instructions: $integer,
-        dataType: "INT"
+        dataType: "INT",
+        loc: @1,
+        totalLoc: @1
       }; 
       
     }
@@ -626,7 +652,9 @@ clause
         $$ = {
           operation: "ATOM",
           instructions: ir,
-          dataType: "$"+$var.toLowerCase()
+          dataType: "$"+$var.toLowerCase(),
+          loc: @1,
+          totalLoc: @1
         }; 
       %}
   | parameteredCall 
@@ -636,7 +664,9 @@ clause
       $$ = {
         operation: "ATOM",
         instructions: [...callIR, ['LRET']],
-        dataType: "$"+callData.target
+        dataType: "$"+callData.target,
+        loc: @1,
+        totalLoc: @1
       }
     %}
   ;
