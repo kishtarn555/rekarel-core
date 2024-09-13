@@ -109,6 +109,14 @@ function resetCompiler(tag) {
   tagCnt = 1;
 }
 
+function locToIR(loc) {
+  return [
+    "LINE",
+    loc.first_line - 1,
+    loc.first_column
+  ]
+}
+
 %}
 
 
@@ -133,7 +141,7 @@ program
         variablesCanBeFunctions: VarsAsFuncs,
         packages: $import_list,
         functions: $def_list,
-        program: $expr_list.concat([['LINE', yylineno], ['HALT']]),
+        program: $expr_list.concat([['LINE', yylineno, 0], ['HALT']]),
         yy:yy,
       }; 
     %}
@@ -147,7 +155,7 @@ program
         variablesCanBeFunctions: VarsAsFuncs,
         packages: $import_list,
         functions: [],
-        program: $expr_list.concat([['LINE', yylineno], ['HALT']]),
+        program: $expr_list.concat([['LINE', yylineno, 0], ['HALT']]),
         yy:yy,
       }; 
     %}
@@ -161,7 +169,7 @@ program
         variablesCanBeFunctions: VarsAsFuncs,
         packages: [],
         functions: $def_list,
-        program: $expr_list.concat([['LINE', yylineno], ['HALT']]),
+        program: $expr_list.concat([['LINE', yylineno, 0], ['HALT']]),
         yy:yy,
       }; 
     %}
@@ -175,7 +183,7 @@ program
         variablesCanBeFunctions: VarsAsFuncs,
         packages: [],
         functions: [],
-        program: $expr_list.concat([['LINE', yylineno], ['HALT']]),
+        program: $expr_list.concat([['LINE', yylineno, 0], ['HALT']]),
         yy:yy,
       }; 
     %}
@@ -212,12 +220,12 @@ def_list
   ;
 
 def
-  : prototype_type line var
+  : prototype_type var
     { 
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
-      @$.last_line = @3.last_line;
-      @$.last_column = @3.last_column;
+      @$.last_line = @2.last_line;
+      @$.last_column = @2.last_column;
       $$ = [{
         name: $var.toLowerCase(), 
         code: null, 
@@ -226,12 +234,12 @@ def
         returnType: $prototype_type
       }]; 
     }
-  | prototype_type line var '(' paramList ')'
+  | prototype_type var '(' paramList ')'
     { 
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
-      @$.last_line = @6.last_line;
-      @$.last_column = @6.last_column;
+      @$.last_line = @5.last_line;
+      @$.last_column = @5.last_column;
       $$ = [{
         name: $var.toLowerCase(), 
         code: null, 
@@ -240,32 +248,40 @@ def
         returnType: $prototype_type
       }]; 
       }
-  | funct_type line var  AS expr
+  | funct_type var  AS expr
     { 
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
-      @$.last_line = @3.last_line;
-      @$.last_column = @3.last_column;
+      @$.last_line = @2.last_line;
+      @$.last_column = @2.last_column;
 
       $$ = [{
         name: $var.toLowerCase(),  
-        code: $line.concat($expr).concat([['RET', '__DEFAULT', @1]]), //FIXME: This should be in the end of the expression
+        code: [
+          locToIR(@2),
+          ...$expr,
+          ['RET', '__DEFAULT', @1]
+        ],
         params: [], 
         loc: @$,
         returnType: $funct_type
       }]; 
     }
-  | funct_type line var '(' paramList ')' AS expr
+  | funct_type var '(' paramList ')' AS expr
     %{
       
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
-      @$.last_line = @3.last_line;
-      @$.last_column = @3.last_column;
+      @$.last_line = @2.last_line;
+      @$.last_column = @2.last_column;
 
     	$$ = [{
-        name: $3.toLowerCase(),
-        code: $line.concat($expr).concat([['RET', '__DEFAULT', @1]]), //FIXME: This should be in the end of the expression
+        name: $2.toLowerCase(),
+        code: [
+          locToIR(@2),
+          ...$expr,
+          ['RET', '__DEFAULT', @1]
+        ],
         params: $paramList,
         loc: @$,        
         returnType: $funct_type
@@ -324,19 +340,19 @@ genexpr
 
 expr
   : FORWARD
-    { $$ = [['LINE', yylineno], ['WORLDWALLS'], ['ORIENTATION'], ['MASK'], ['AND'], ['NOT'], ['EZ', 'WALL'], ['FORWARD']]; }
+    { $$ = [locToIR(@1), ['WORLDWALLS'], ['ORIENTATION'], ['MASK'], ['AND'], ['NOT'], ['EZ', 'WALL'], ['FORWARD']]; }
   | LEFT
-    { $$ = [['LINE', yylineno], ['LEFT']]; }
+    { $$ = [locToIR(@1), ['LEFT']]; }
   | PICKBUZZER
-    { $$ = [['LINE', yylineno], ['WORLDBUZZERS'], ['EZ', 'WORLDUNDERFLOW'], ['PICKBUZZER']]; }
+    { $$ = [locToIR(@1), ['WORLDBUZZERS'], ['EZ', 'WORLDUNDERFLOW'], ['PICKBUZZER']]; }
   | LEAVEBUZZER
-    { $$ = [['LINE', yylineno], ['BAGBUZZERS'], ['EZ', 'BAGUNDERFLOW'], ['LEAVEBUZZER']]; }
+    { $$ = [locToIR(@1), ['BAGBUZZERS'], ['EZ', 'BAGUNDERFLOW'], ['LEAVEBUZZER']]; }
   | HALT
-    { $$ = [['LINE', yylineno], ['HALT']]; }
+    { $$ = [locToIR(@1), ['HALT']]; }
   | CONTINUE
-    { $$ = [['LINE', yylineno], ['CONTINUE', @1]]; }
+    { $$ = [locToIR(@1), ['CONTINUE', @1]]; }
   | BREAK
-    { $$ = [['LINE', yylineno], ['BREAK', @1]]; }
+    { $$ = [locToIR(@1), ['BREAK', @1]]; }
   | return
     { $$ = $return; }
   | call
@@ -355,7 +371,7 @@ return
   : RET 
     
     { $$ = [
-      ['LINE', yylineno],
+      locToIR(@1),
       ['RET', {
         term: { operation: "ATOM", instructions:[["LOAD", 0]], dataType:"VOID" },
         loc: @1
@@ -364,7 +380,7 @@ return
   | RET term
     
     { $$ = [
-      ['LINE', yylineno],
+      locToIR(@1),
       ['RET', {
         term: $term,
         loc: @1
@@ -437,20 +453,20 @@ int_termList
   ;
 
 cond
-  : IF line bool_term THEN expr %prec XIF
+  : IF bool_term THEN expr %prec XIF
     %{ 
       const skipTag = UniqueTag('iskip');
       $$ = [[
         "IF",
         {
           condition: $bool_term[0],
-          line: $line[0],
+          line: locToIR(@1),
           skipTrueTag: skipTag,
           trueCase: $expr
         }
       ]];
     %}
-  | IF line bool_term THEN expr ELSE expr
+  | IF bool_term THEN expr ELSE expr
      %{ 
       const toElse = UniqueTag('ielse');
       const skipElse = UniqueTag('iskipelse');
@@ -458,18 +474,18 @@ cond
         "IF",
         {
           condition: $bool_term[0],
-          line: $line[0],
+          line: locToIR(@1),
           skipTrueTag: toElse,
           skipFalseTag: skipElse,
-          trueCase: $5,
-          falseCase: $7
+          trueCase: $4,
+          falseCase: $6
         }
       ]];
     %}
   ;
 
 loop
-  : WHILE line bool_term DO expr
+  : WHILE bool_term DO expr
     %{ 
       const repeatTag = UniqueTag('lrepeat');
       const endTag = UniqueTag('lend');
@@ -477,7 +493,7 @@ loop
         'WHILE',  
         {
           condition:   $bool_term[0],
-          line:         $line[0],
+          line:         locToIR(@1),
           repeatTag:    repeatTag,
           endTag:       endTag,
           instructions: $expr
@@ -487,14 +503,14 @@ loop
   ;
 
 repeat
-  : REPEAT line int_term TIMES expr
+  : REPEAT int_term TIMES expr
     %{ 
       const repeatEnd = UniqueTag('rend');
       const repeatLoop = UniqueTag('rloop');
       $$ = [[
         "REPEAT",
         {
-          line:       $line[0],
+          line:       locToIR(@1),
           loopCount:  $int_term[0],
           repeatTag:  repeatLoop,
           endTag:     repeatEnd,
@@ -732,9 +748,4 @@ int_literal
 var
   : VAR
     { $$ = yytext; }
-  ;
-
-line
-  :
-    { $$ = [['LINE', yylineno]]; }
   ;

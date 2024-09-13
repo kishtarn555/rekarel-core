@@ -31,7 +31,7 @@ describe("Java compilation tests ", ()=> {
     test("Test simple turnoff", ()=> {
         const turnoffJava = fs.readFileSync(__dirname +"/kj/turnoff.kj").toString();
         const result = compile (turnoffJava);
-        expect(result).toEqual([ [ 'LINE', 3 ], [ 'HALT' ], [ 'LINE', 5 ], [ 'HALT' ] ])
+        expect(result).toEqual([ [ 'LINE', 3, 2], [ 'HALT' ], [ 'LINE', 5, 0 ], [ 'HALT' ] ])
         
     });
     test("Test that codes compile correctly", ()=> {

@@ -148,7 +148,7 @@ export type IRComplexInstruction =
  */
 export type IRSimpleInstruction =
     [instruction: "HALT"] |
-    [instruction: "LINE", lineNumber: number] |
+    [instruction: "LINE", lineNumber: number, columnNumber: number] |
     [instruction: "LEFT"] |
     [instruction: "WORLDWALLS"] |
     [instruction: "ORIENTATION"] |

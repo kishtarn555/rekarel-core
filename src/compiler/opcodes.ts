@@ -61,7 +61,7 @@ export type ErrorLiteral = keyof typeof ErrorType;
 
 export type OpCode =
   [instruction: "HALT"] |
-  [instruction: "LINE", lineNumber: number] |
+  [instruction: "LINE", lineNumber: number, columnNumber: number] |
   [instruction: "LEFT"] |
   [instruction: "WORLDWALLS"] |
   [instruction: "ORIENTATION"] |
