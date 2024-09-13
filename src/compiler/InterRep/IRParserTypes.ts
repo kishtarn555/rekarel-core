@@ -1,3 +1,4 @@
+import { CompilationError } from "./compileErrors"
 
 // TODO: complete the parser
 export interface Parser {
@@ -6,7 +7,7 @@ export interface Parser {
      * @param str errorMessage
      * @param hash errorData
      */
-    parseError(str: string, hash: any)
+    parseError(str: string, hash: CompilationError.ErrorStatus)
 }
 
 export interface YY {

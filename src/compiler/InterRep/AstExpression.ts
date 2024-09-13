@@ -1,3 +1,4 @@
+import { CompilationError } from "./compileErrors";
 import type { IRTerm, IRInstruction, IRTagRecord, IRVar, IRCall, IRRet, IRParam, IRSemiSimpleInstruction, IRRepeat, IRWhile, IRConditional } from "./IRInstruction";
 import { YY } from "./IRParserTypes";
 import { DefinitionTable } from "./IRVarTable";
@@ -37,14 +38,20 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
         const rightType = resolveTerm(tree.right, definitions, scope, target, tags, yy);
         if (leftType !== "BOOL") {
             yy.parser.parseError(`${tree.operation} operator uses booleans terms only, left is of type: ${leftType}`, {
+                error: CompilationError.Errors.TYPE_ERROR,
                 loc: tree.loc,
-                line: tree.loc.first_line - 1
+                line: tree.loc.first_line - 1,
+                expectedType: "BOOL",
+                actualType: leftType
             });
         }
         if (rightType !== "BOOL") {
             yy.parser.parseError(`${tree.operation} operator uses booleans terms only, right is of type: ${rightType}`, {
+                error: CompilationError.Errors.TYPE_ERROR,
                 loc: tree.loc,
-                line: tree.loc.first_line - 1
+                line: tree.loc.first_line - 1,
+                expectedType: "BOOL",
+                actualType: rightType
             });
         }
         target.push([tree.operation]);
@@ -56,8 +63,11 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
         const rightType = resolveTerm(tree.right, definitions, scope, target, tags, yy);
         if (leftType !== rightType) {
             yy.parser.parseError(`An equality comparison cannot be performed between type ${leftType} and ${rightType}`, {
+                error: CompilationError.Errors.COMPARISON_TYPE,
                 loc: tree.loc,
-                line: tree.loc.first_line - 1
+                line: tree.loc.first_line - 1,
+                leftType: leftType,
+                rightType: rightType
             });
         }
         target.push([tree.operation]);
@@ -71,14 +81,20 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
         const rightType = resolveTerm(tree.right, definitions, scope, target, tags, yy);
         if (leftType !== "INT") {
             yy.parser.parseError(`${tree.operation} operator uses integer terms only, left is of type: ${leftType}`, {
+                error: CompilationError.Errors.TYPE_ERROR,
                 loc: tree.loc,
-                line: tree.loc.first_line - 1
+                line: tree.loc.first_line - 1,
+                expectedType: "INT",
+                actualType: leftType
             });
         }
         if (rightType !== "INT") {
             yy.parser.parseError(`${tree.operation} operator uses integer terms only, right is of type: ${rightType}`, {
+                error: CompilationError.Errors.TYPE_ERROR,
                 loc: tree.loc,
-                line: tree.loc.first_line - 1
+                line: tree.loc.first_line - 1,
+                expectedType: "INT",
+                actualType: rightType
             });
         }
         target.push([tree.operation]);
@@ -89,8 +105,11 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
         const termType = resolveTerm(tree.term, definitions, scope, target, tags, yy);
         if (termType !== "BOOL") {
             yy.parser.parseError(`${tree.operation} operator uses a boolean terms only, but tried to negate a term of type: ${termType}`, {
+                error: CompilationError.Errors.TYPE_ERROR,
                 loc: tree.loc,
-                line: tree.loc.first_line - 1
+                line: tree.loc.first_line - 1,
+                expectedType: "BOOL",
+                actualType: termType
             });
         }
         target.push([tree.operation]);
@@ -100,8 +119,11 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
         const termType = resolveTerm(tree.term, definitions, scope, target, tags, yy);
         if (termType !== tree.dataType) {
             yy.parser.parseError(`Expected a term of type ${tree.dataType}, but got ${termType}`, {
+                error: CompilationError.Errors.TYPE_ERROR,
                 loc: tree.loc,
-                line: tree.loc.first_line - 1
+                line: tree.loc.first_line - 1,
+                expectedType: tree.dataType,
+                actualType: termType
             });
         }
         return tree.dataType;
@@ -144,7 +166,8 @@ function resolveVar(data: IRVar, definitions: DefinitionTable, scope:Scope, targ
     }
 
     yy.parser.parseError("Unknown variable or parameter: " + data.target, {
-        text: data.target,
+        error: CompilationError.Errors.UNKNOWN_VARIABLE,
+        variable: data.target,
         line: data.loc.first_line - 1,
         loc: data.loc
     });
@@ -170,8 +193,11 @@ function resolveReturn(data: IRRet, definitions: DefinitionTable, scope:Scope, t
     const retType = resolveTerm(data.term, definitions, scope,  target, tags, yy);
     if (scope.expectedReturn !== retType) {
         yy.parser.parseError(`Cannot return a type: ${retType}, in a function of type: ${scope.expectedReturn}`, {
+            error: CompilationError.Errors.RETURN_TYPE,
             line: data.loc.first_line - 1,
-            loc: data.loc
+            loc: data.loc,
+            expectedType: scope.expectedReturn,
+            actualType: retType
         });
     }
     target.push(["SRET"]);
@@ -452,6 +478,7 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
         if (instruction[0] === "CONTINUE"  ) {
             if (scope.continueTarget == null) {
                 yy.parser.parseError("Cannot use continue in this scope", {
+                    error: CompilationError.Errors.ILLEGAL_CONTINUE,
                     loc: instruction[1],
                     line: instruction[1].first_line - 1
                 })
@@ -463,6 +490,7 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
         if (instruction[0] === "BREAK"  ) {
             if (scope.breakTarget == null) {
                 yy.parser.parseError("Cannot use break in this scope", {
+                    error: CompilationError.Errors.ILLEGAL_BREAK,
                     loc: instruction[1],
                     line: instruction[1].first_line - 1
                 })

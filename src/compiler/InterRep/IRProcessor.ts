@@ -6,6 +6,7 @@ import { IRFunction, IRInstruction, IRParam, IRSemiSimpleInstruction, IRSimpleIn
 import { DefinitionTable, FunctionData } from "./IRVarTable";
 import { resolveListWithASTs } from "./AstExpression";
 import { MAIN_SCOPE, Scope } from "./Scope";
+import { CompilationError } from "./compileErrors";
 
 
 
@@ -41,8 +42,10 @@ function validateAndGetFunctionDefinitions(data: IRObject, definitionTable: Defi
         for (const parameter of func.params) {
             if (definitionTable.hasVar(parameter.name)) {
                 yy.parser.parseError("Cannot name a parameter as a global variable", {
-                    text: parameter,
-                    line: func.loc.first_line - 1
+                    error: CompilationError.Errors.PARAMETER_ILLEGAL_NAME,
+                    parameterName: parameter.name,
+                    line: parameter.loc.first_line - 1,
+                    loc: parameter.loc
                 })
                 return false;
             }
@@ -51,7 +54,8 @@ function validateAndGetFunctionDefinitions(data: IRObject, definitionTable: Defi
         // Check that the function does not shadow a variable
         if (definitionTable.hasVar(func.name)) {
             yy.parser.parseError("Cannot name a function as a global variable", {
-                text: func.name,
+                error: CompilationError.Errors.FUNCTION_ILLEGAL_NAME,
+                functionName: func.name,
                 line: func.loc.first_line - 1,
                 loc: func.loc
             })
@@ -62,7 +66,8 @@ function validateAndGetFunctionDefinitions(data: IRObject, definitionTable: Defi
         if (func.code == null) {
             if (prototypes.has(func.name)) {
                 yy.parser.parseError("Prototype redefinition: " + func.name, {
-                    text: func.name,
+                    error: CompilationError.Errors.PROTOTYPE_REDEFINITION,
+                    prototypeName: func.name,
                     line: func.loc.first_line - 1,
                     loc: func.loc,
                 });
@@ -78,7 +83,8 @@ function validateAndGetFunctionDefinitions(data: IRObject, definitionTable: Defi
         const proto = prototypes.get(func.name);
         if (proto.defined) {
             yy.parser.parseError("Function redefinition: " + func.name, {
-                text: func.name,
+                error: CompilationError.Errors.FUNCTION_REDEFINITION,
+                functionName: func.name,
                 line: func.loc.first_line - 1,
                 loc: func.loc,
             });
@@ -87,9 +93,12 @@ function validateAndGetFunctionDefinitions(data: IRObject, definitionTable: Defi
 
         if (proto.argCount !== func.params.length) {
             yy.parser.parseError("Prototype parameter mismatch: " + func.name, {
-                text: func.name,
+                error: CompilationError.Errors.PROTOTYPE_PARAMETERS_MISS_MATCH,
                 line: func.loc.first_line - 1,
                 loc: func.loc,
+                functionName: func.name,
+                functionParamCount: func.params.length,
+                prototypeParamCount: proto.argCount
             });
             return false;
         }
@@ -107,7 +116,8 @@ function validateAndGetFunctionDefinitions(data: IRObject, definitionTable: Defi
 
 
                     yy.parser.parseError("Undefined function: " + data.target, {
-                        text: data.target,
+                        error: CompilationError.Errors.UNDEFINED_FUNCTION,
+                        functionName: data.target,
                         line: data.nameLoc.first_line - 1,
                         loc: data.nameLoc
                     });
@@ -136,18 +146,22 @@ function loadPackages(data: IRObject, definitions: DefinitionTable) {
 
         if (packageName !== "rekarel") {
             yy.parser.parseError("Package not recognized: " + pack[0], {
+                error: CompilationError.Errors.UNKNOWN_PACKAGE,
                 package: packageName,
                 module: moduleName,
                 full: pack[0],
-                loc: pack[1]
+                loc: pack[1],
+                line: pack[1].first_line - 1,
             });
         }
         if (!compPackages[pack[0]]) {
             yy.parser.parseError("Module not found: " + pack[0], {
+                error: CompilationError.Errors.UNKNOWN_MODULE,
                 package: packageName,
                 module: moduleName,
                 full: pack[0],
-                loc: pack[1]
+                loc: pack[1],
+                line: pack[1].first_line - 1,
             });
         }
         const packObject: CompilerPackage = compPackages[pack[0]];
@@ -194,8 +208,11 @@ function resolveComplexIR(IRInstructions: IRInstruction[], yy: YY, definitions: 
     // Check for explicit returns
     if (scope.expectedReturn !== "VOID" && !info.explicitReturn) {
         yy.parser.parseError(`Explicit return is required in function ${func!.name}`, {
+            error: CompilationError.Errors.NO_EXPLICIT_RETURN,
             loc: func.loc,
-            line: func.loc.first_line - 1
+            line: func.loc.first_line - 1,
+            functionName: func!.name,
+            returnType: scope.expectedReturn,
         } );
 
     }
@@ -245,7 +262,8 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
             const iData = instruction[1];
             if (!definitions.hasFunction(iData.target)) {
                 data.yy.parser.parseError("Undefined function: " + iData.target, {
-                    text: iData.target,
+                    error: CompilationError.Errors.UNDEFINED_FUNCTION,
+                    functionName: iData.target,
                     line: iData.nameLoc.first_line - 1,
                     loc: iData.nameLoc
                 });
@@ -257,11 +275,12 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
                 data.yy.parser.parseError(
                     `Too many parameters in call to function ${iData.target}, expected ${targetFunc.arguments.length}, got ${iData.params.length}`, 
                     {
-                        text: iData.target,
+                        error: CompilationError.Errors.TOO_MANY_PARAMS_IN_CALL,
                         line: extraParam.totalLoc.first_line - 1,
                         loc: extraParam.totalLoc,
-                        expectedCount: iData.params.length,
-                        gotCount: targetFunc.arguments.length
+                        functionName: iData.target,
+                        expectedParams: iData.params.length,
+                        actualParams: targetFunc.arguments.length
                     }
                 );
             }
@@ -269,21 +288,23 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
                 data.yy.parser.parseError(
                     `Too few parameters in call to function ${iData.target}, expected ${targetFunc.arguments.length}, got ${iData.params.length}`, 
                     {
-                        text: iData.target,
+                        error: CompilationError.Errors.TOO_FEW_PARAMS_IN_CALL,
                         line: iData.nameLoc.first_line - 1,
                         loc: iData.nameLoc,
-                        expectedCount: iData.params.length,
-                        gotCount: targetFunc.arguments.length
+                        funcName: iData.target,
+                        expectedParams: iData.params.length,
+                        actualParams: targetFunc.arguments.length
                     }
                 );
             }
             if (iData.expectedType != null && iData.expectedType !== targetFunc.returnType) {
                 data.yy.parser.parseError(`Expected a function of type ${iData.expectedType}, but ${iData.target} is ${targetFunc.returnType}`, {
-                    text: iData.target,
+                    error: CompilationError.Errors.CALL_TYPE,
                     line: iData.nameLoc.first_line - 1,
                     loc: iData.nameLoc,
-                    expectedType: iData.expectedType,
-                    actualType: targetFunc.returnType
+                    funcName: iData.target,
+                    expectedCallType: iData.expectedType,
+                    functionType: targetFunc.returnType
                 });
             }
 
