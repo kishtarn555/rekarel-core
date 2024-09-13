@@ -252,21 +252,35 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
                 return null;
             }
             const targetFunc = definitions.getFunction(iData.target);
-            if (targetFunc.arguments.length != iData.params.length) {
+            if (targetFunc.arguments.length < iData.params.length) {
+                const extraParam = iData.params[iData.params.length - targetFunc.arguments.length - 1];
                 data.yy.parser.parseError(
-                    `Function parameter mismatch on function ${iData.target}, expected ${targetFunc.arguments.length}, got ${iData.params.length}`, 
+                    `Too many parameters in call to function ${iData.target}, expected ${targetFunc.arguments.length}, got ${iData.params.length}`, 
                     {
                         text: iData.target,
-                        line: iData.argLoc.first_line - 1,
-                        loc: iData.argLoc,
-                        parameters: iData.argLoc, //Fixme: add Parameter IR location
+                        line: extraParam.totalLoc.first_line - 1,
+                        loc: extraParam.totalLoc,
+                        expectedCount: iData.params.length,
+                        gotCount: targetFunc.arguments.length
+                    }
+                );
+            }
+            if (targetFunc.arguments.length > iData.params.length) {
+                data.yy.parser.parseError(
+                    `Too few parameters in call to function ${iData.target}, expected ${targetFunc.arguments.length}, got ${iData.params.length}`, 
+                    {
+                        text: iData.target,
+                        line: iData.nameLoc.first_line - 1,
+                        loc: iData.nameLoc,
+                        expectedCount: iData.params.length,
+                        gotCount: targetFunc.arguments.length
                     }
                 );
             }
             if (iData.expectedType != null && iData.expectedType !== targetFunc.returnType) {
                 data.yy.parser.parseError(`Expected a function of type ${iData.expectedType}, but ${iData.target} is ${targetFunc.returnType}`, {
                     text: iData.target,
-                    line: iData.argLoc.first_line - 1,
+                    line: iData.nameLoc.first_line - 1,
                     loc: iData.nameLoc,
                     expectedType: iData.expectedType,
                     actualType: targetFunc.returnType

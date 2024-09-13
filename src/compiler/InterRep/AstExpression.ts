@@ -126,7 +126,6 @@ function resolveVar(data: IRVar, definitions: DefinitionTable, scope:Scope, targ
             "CALL",
             {
                 target: data.target,
-                argLoc: data.loc,
                 nameLoc: data.loc,
                 expectedType: data.expectedType,
                 params: [],

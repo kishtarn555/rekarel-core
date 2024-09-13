@@ -7,7 +7,6 @@ import { YYLoc } from "./IRParserTypes";
 export type IRCall = {
     target: string,
     nameLoc: YYLoc,
-    argLoc: YYLoc,
     params: IRTerm[],
     expectedType?: string
 };
