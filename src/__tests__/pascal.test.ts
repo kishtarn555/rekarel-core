@@ -14,7 +14,8 @@ const sourceFiles = [
     "globals.not.kp",
     "testInc.kp", 
     "testDec.kp",
-    "ifReturn.kp"
+    "ifReturn.kp",
+    "protoTypeTest.kp"
 ]
 
 
@@ -25,6 +26,7 @@ const compilationError:[string,string | RegExp][] = [
     ["emptyReturn.kp", "Explicit return is required in function pasos"],
     ["halfTrueReturn.kp", "Explicit return is required in function pasos"],
     ["halfFalseReturn.kp", "Explicit return is required in function pasos"],
+    ["prototypeType.kp", "Prototype type mismatch: pasos"],
 ]
 
 
