@@ -18,6 +18,7 @@ export namespace CompilationError {
         TOO_MANY_PARAMS_IN_CALL,
         TYPE_ERROR,
         UNDEFINED_FUNCTION,
+        UNDEFINED_FUNCTION_OR_VARIABLE,
         UNKNOWN_MODULE,
         UNKNOWN_PACKAGE,    
         UNKNOWN_VARIABLE,
@@ -143,6 +144,13 @@ export namespace CompilationError {
     
     type UndefinedFunctionErrorStatus = {
         error: Errors.UNDEFINED_FUNCTION,
+        loc: YYLoc,
+        line: number,
+        functionName: string
+    }
+    
+    type UndefinedFunctionOrVariableErrorStatus = {
+        error: Errors.UNDEFINED_FUNCTION_OR_VARIABLE,
         loc: YYLoc,
         line: number,
         functionName: string

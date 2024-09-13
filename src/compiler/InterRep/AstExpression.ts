@@ -28,6 +28,7 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
             if (scope.parameters.some(e =>  e.name === termType)) {
                 return "INT";
             }
+
             return definitions.getType(tree.dataType.substring(1));
         }
         return tree.dataType;
@@ -151,6 +152,14 @@ function resolveVar(data: IRVar, definitions: DefinitionTable, scope:Scope, targ
     if (data.couldBeFunction) {
         //Resolve as an parameterless call
         target.push(["LOAD", 0]); //FIXME: Don't forget to remove me after you change how variables work!
+        if (!definitions.hasFunction(data.target)) {           
+            yy.parser.parseError("Undefined function or variable: " + data.target, {
+                error: CompilationError.Errors.UNDEFINED_FUNCTION,
+                functionName: data.target,
+                line: data.loc.first_line - 1,
+                loc: data.loc
+            }); 
+        }
         target.push([
             "CALL",
             {
@@ -182,6 +191,17 @@ function resolveCall(data: IRCall, definitions: DefinitionTable, scope:Scope, ta
         resolveTerm(parameter, definitions, scope, target, tags, yy);
     }
     target.push(["LOAD", data.params.length]);
+    
+    if (!definitions.hasFunction(data.target)) {
+        yy.parser.parseError("Undefined function: " + data.target, {
+            error: CompilationError.Errors.UNDEFINED_FUNCTION,
+            functionName: data.target,
+            line: data.nameLoc.first_line - 1,
+            loc: data.nameLoc
+        });
+        return null;
+    }
+
     target.push(["CALL", data]);
     target.push(
         ["LINE", data.nameLoc.first_line - 1, data.nameLoc.first_column]
