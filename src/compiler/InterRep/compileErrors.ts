@@ -11,6 +11,7 @@ export namespace CompilationError {
         NO_EXPLICIT_RETURN,
         PARAMETER_ILLEGAL_NAME,
         PROTOTYPE_PARAMETERS_MISS_MATCH,
+        PROTOTYPE_TYPE_MISS_MATCH,
         PROTOTYPE_REDEFINITION,
         RETURN_TYPE,
         TOO_FEW_PARAMS_IN_CALL,
@@ -96,6 +97,15 @@ export namespace CompilationError {
         prototypeName: string
     }
     
+    type PrototypeTypeMissMatchRedefinitionErrorStatus = {
+        error: Errors.PROTOTYPE_TYPE_MISS_MATCH,
+        loc: YYLoc,
+        line: number,
+        functionName: string
+        functionType: string,
+        prototypeType: string
+    }
+    
     type ReturnTypeErrorStatus = {
         error: Errors.RETURN_TYPE,
         loc: YYLoc,
@@ -175,6 +185,7 @@ export namespace CompilationError {
         | NoExplicitReturnErrorStatus
         | PrototypeRedefinitionErrorStatus
         | PrototypeParametersMissMatchRedefinitionErrorStatus
+        | PrototypeTypeMissMatchRedefinitionErrorStatus
         | ReturnTypeErrorStatus
         | TooManyParamsInCallErrorStatus
         | TooFewParamsInCallErrorStatus

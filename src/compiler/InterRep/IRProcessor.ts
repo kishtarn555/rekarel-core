@@ -26,7 +26,11 @@ export interface IRObject {
 }
 
 
-type PrototypeData = { argCount: number, defined: boolean };
+type PrototypeData = { 
+    argCount: number, 
+    defined: boolean, 
+    returnType:string 
+};
 
 /**
  * Checks that functions calls are valid, not defined multiple times and prototypes match
@@ -73,12 +77,26 @@ function validateAndGetFunctionDefinitions(data: IRObject, definitionTable: Defi
                 });
                 return false;
             }
-            prototypes.set(func.name, { argCount: func.params.length, defined: false });
+            prototypes.set(
+                func.name, 
+                { 
+                    argCount: func.params.length, 
+                    defined: false,
+                    returnType: func.returnType
+                }
+            );
             continue;
         }
 
         if (!prototypes.has(func.name)) {
-            prototypes.set(func.name, { argCount: func.params.length, defined: false });
+            prototypes.set(
+                func.name, 
+                { 
+                    argCount: func.params.length,
+                    defined: false,
+                    returnType: func.returnType
+                }
+            );
         }
         const proto = prototypes.get(func.name);
         if (proto.defined) {
@@ -103,7 +121,26 @@ function validateAndGetFunctionDefinitions(data: IRObject, definitionTable: Defi
             return false;
         }
 
-        prototypes.set(func.name, { argCount: func.params.length, defined: true });
+        if (proto.returnType !== func.returnType) {
+            yy.parser.parseError("Prototype type mismatch: " + func.name, {
+                error: CompilationError.Errors.PROTOTYPE_TYPE_MISS_MATCH,
+                line: func.loc.first_line - 1,
+                loc: func.loc,
+                functionName: func.name,
+                functionType: func.returnType,
+                prototypeType: proto.returnType
+            });
+            return false;
+        }
+
+        prototypes.set(
+            func.name, 
+            {
+                argCount: func.params.length,
+                defined: true,
+                returnType: func.returnType
+            }
+        );
         definitionTable.registerFunction(func);
 
 
