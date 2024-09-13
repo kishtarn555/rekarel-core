@@ -16,6 +16,7 @@
 "finalizar-programa"                        { return 'ENDPROG'; }
 "define-nueva-instruccion"                  { return 'DEF'; }
 "define-nueva-instrucción"                  { return 'DEF'; }
+"define"                                    { return 'DEF'; }
 "usa"			                                  { return 'IMPORT'; }
 "define-prototipo-instruccion"              { return 'PROTO'; }
 "define-prototipo-instrucción"              { return 'PROTO'; }
