@@ -37,12 +37,14 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
         const rightType = resolveTerm(tree.right, definitions, scope, target, tags, yy);
         if (leftType !== "BOOL") {
             yy.parser.parseError(`${tree.operation} operator uses booleans terms only, left is of type: ${leftType}`, {
-                //FIXME: Add data (?)
+                loc: tree.loc,
+                line: tree.loc.first_line - 1
             });
         }
         if (rightType !== "BOOL") {
             yy.parser.parseError(`${tree.operation} operator uses booleans terms only, right is of type: ${rightType}`, {
-                //FIXME: Add data (?)
+                loc: tree.loc,
+                line: tree.loc.first_line - 1
             });
         }
         target.push([tree.operation]);
@@ -54,7 +56,8 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
         const rightType = resolveTerm(tree.right, definitions, scope, target, tags, yy);
         if (leftType !== rightType) {
             yy.parser.parseError(`An equality comparison cannot be performed between type ${leftType} and ${rightType}`, {
-                //FIXME: Add data (?)
+                loc: tree.loc,
+                line: tree.loc.first_line - 1
             });
         }
         target.push([tree.operation]);
@@ -68,12 +71,14 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
         const rightType = resolveTerm(tree.right, definitions, scope, target, tags, yy);
         if (leftType !== "INT") {
             yy.parser.parseError(`${tree.operation} operator uses integer terms only, left is of type: ${leftType}`, {
-                //FIXME: Add data (?)
+                loc: tree.loc,
+                line: tree.loc.first_line - 1
             });
         }
         if (rightType !== "INT") {
             yy.parser.parseError(`${tree.operation} operator uses integer terms only, right is of type: ${rightType}`, {
-                //FIXME: Add data (?)
+                loc: tree.loc,
+                line: tree.loc.first_line - 1
             });
         }
         target.push([tree.operation]);
@@ -84,7 +89,8 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
         const termType = resolveTerm(tree.term, definitions, scope, target, tags, yy);
         if (termType !== "BOOL") {
             yy.parser.parseError(`${tree.operation} operator uses a boolean terms only, but tried to negate a term of type: ${termType}`, {
-                //FIXME: Add data (?)
+                loc: tree.loc,
+                line: tree.loc.first_line - 1
             });
         }
         target.push([tree.operation]);
@@ -94,7 +100,8 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
         const termType = resolveTerm(tree.term, definitions, scope, target, tags, yy);
         if (termType !== tree.dataType) {
             yy.parser.parseError(`Expected a term of type ${tree.dataType}, but got ${termType}`, {
-                //FIXME: Add data (?)
+                loc: tree.loc,
+                line: tree.loc.first_line - 1
             });
         }
         return tree.dataType;
