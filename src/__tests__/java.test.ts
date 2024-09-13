@@ -23,6 +23,7 @@ const compilationError:[string,string | RegExp][] = [
     ["emptyReturn.kj", "Explicit return is required in function pasos"],
     ["halfTrueReturn.kj", "Explicit return is required in function pasos"],
     ["halfFalseReturn.kj", "Explicit return is required in function pasos"],
+    ["undefinedCallInTerm.kj", "Undefined function: prueba"],
 ]
 
 
