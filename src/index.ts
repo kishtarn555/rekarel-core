@@ -2,6 +2,7 @@ import { javaCompiler, pascalCompiler, detectLanguage, compile } from "./compile
 import { World, DumpTypes } from "./world";
 import { Runtime } from "./runtime";
 import { java2PascalTranspiler, pascal2JavaTranspiler } from "./transpiler";
+import { CompilationError } from "./compiler/InterRep/compileErrors";
 
 export {
   compile,
@@ -12,5 +13,6 @@ export {
   pascal2JavaTranspiler,
   Runtime,
   World,
-  DumpTypes
+  DumpTypes,
+  CompilationError
 };
