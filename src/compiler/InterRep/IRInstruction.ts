@@ -47,22 +47,30 @@ export type IRTerm =
         operation: "AND" | "OR" | "EQ" | "LT" | "LTE",
         left: IRTerm,
         right: IRTerm,
-        dataType: "BOOL"
+        dataType: "BOOL",
+        loc: YYLoc,
+        totalLoc: YYLoc,
     } 
     | {
         operation: "NOT",
         term: IRTerm,
-        dataType: "BOOL"
+        dataType: "BOOL",
+        loc: YYLoc,
+        totalLoc: YYLoc,
     } 
     | {
         operation: "ATOM",
         instructions: IRInstruction[],
-        dataType: string
+        dataType: string,
+        loc: YYLoc,
+        totalLoc: YYLoc,
     }
     | {
         operation: "PASS",
         term: IRTerm,
-        dataType: string
+        dataType: string,
+        loc: YYLoc,
+        totalLoc: YYLoc,
     }
 ;
 
