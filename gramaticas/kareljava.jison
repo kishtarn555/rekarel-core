@@ -86,6 +86,15 @@ function resetCompiler(tag) {
   tagCnt = 1;
 }
 
+function mergeLocs(first, second) {
+  return {
+    first_line: first.first_line,
+    first_column: first.first_column,
+    last_line: second.last_line,
+    last_column: second.last_column,
+  }
+}
+
 %}
 
 
@@ -366,7 +375,9 @@ int_termList
         {
           term:$term, 
           operation: 'PASS',
-          dataType: 'INT'
+          dataType: 'INT',
+          loc: $term.loc,
+          totalLoc: $term.totalLoc,
         } 
       ])
     }
@@ -376,7 +387,9 @@ int_termList
         {
           term:$term, 
           operation: 'PASS',
-          dataType: 'INT'
+          dataType: 'INT',
+          loc: $term.loc,
+          totalLoc: $term.totalLoc,
         } 
       ]; 
     }
@@ -456,56 +469,74 @@ repeat
 
 term
   : term OR term 
-    { $$ = {
+    %{ 
+      @$ = mergeLocs(@1, @3);
+      $$ = {
         left: $1, 
         right: $3, 
         operation: "OR", 
-        dataType:"BOOL" 
-      }; }
+        dataType:"BOOL",
+        loc: @2,
+        totalLoc: @$
+      }; 
+    %}
   | term AND term 
-    { 
+    %{      
+      @$ = mergeLocs(@1, @3);
       $$ = {
         left: $1, 
         right: $3, 
         operation: "AND", 
-        dataType:"BOOL"
+        dataType:"BOOL",
+        loc: @2,
+        totalLoc: @$
       };
-    }
+    %}
   | term '==' term 
-    { 
+    %{ 
+      @$ = mergeLocs(@1, @3);
       $$ = {
         left: $1, 
         right: $3, 
         operation: "EQ", 
         dataType:"BOOL"
       };
-    }
+    %}
   | term '<' term 
-    { 
+    %{
+      @$ = mergeLocs(@1, @3);
       $$ = {
         left: $1, 
         right: $3, 
         operation: "LT", 
-        dataType:"BOOL"
+        dataType:"BOOL",
+        loc: @2,
+        totalLoc: @$
       };
-    }
+    %}
   | term '<=' term 
-    { 
+    %{
+      @$ = mergeLocs(@1, @3);
       $$ = {
         left: $1, 
         right: $3, 
         operation: "LTE", 
-        dataType:"BOOL"
+        dataType:"BOOL",
+        loc: @2,
+        totalLoc: @$
       };
-    }
+    %}
   | NOT term 
-    { 
+    %{ 
+      @$ = mergeLocs(@1, @2);
       $$ = {
         term: $2,       
         operation: "NOT",
-        dataType:"BOOL" 
+        dataType:"BOOL",
+        loc: @1,
+        totalLoc: @$
       };
-      }
+    %}
   | '(' term ')'
     { $$ = $term; }
   | clause
@@ -520,7 +551,9 @@ bool_term
         {
           term:$term, 
           operation: 'PASS',
-          dataType: 'BOOL'
+          dataType: 'BOOL',
+          loc: $term.loc,
+          totalLoc: $term.totalLoc
         }    
       ]];
     }
@@ -534,7 +567,9 @@ int_term
         {
           term:$term, 
           operation: 'PASS',
-          dataType: 'INT'
+          dataType: 'INT',
+          loc: $term.loc,
+          totalLoc: $term.totalLoc
         }    
       ]];
     }
@@ -543,35 +578,47 @@ int_term
 
 clause
   : IFZ '(' int_term ')'
-    { 
+    %{ 
+      @$ = mergeLocs(@1, @4)
       $$ = {
         operation: "ATOM",
         instructions: $int_term.concat([['NOT']]),
-        dataType: "BOOL"
+        dataType: "BOOL",
+        loc: @1,
+        totalLoc: @$
       };
-    }
+    %}
   | bool_fun
-    { 
+    %{ 
+      @$ = @1;
       $$ = {
         operation: "ATOM",
         instructions: $bool_fun,
-        dataType: "BOOL"
+        dataType: "BOOL",
+        loc: @$,
+        totalLoc: @$
       };
-    }
+    %}
   | bool_fun '(' ')'
     { 
+      @$ = mergeLocs(@1, @3);
       $$ = {
         operation: "ATOM",
         instructions: $bool_fun,
-        dataType: "BOOL"
+        dataType: "BOOL",
+        loc: @1,
+        totalLoc: @$
       };
     }
   | integer
     {
+      @$ = @1;
       $$ = {
         operation: "ATOM",
         instructions: $integer,
-        dataType: "INT"
+        dataType: "INT",
+        loc: @1,
+        totalLoc: @1
       };
     }
   | call 
@@ -581,7 +628,9 @@ clause
       $$ = {
         operation: "ATOM",
         instructions: [...callIR, ['LRET']],
-        dataType: "$"+callData.target
+        dataType: "$"+callData.target,
+        loc: @1,
+        totalLoc: @1
       }
     %}
   | var
@@ -594,10 +643,13 @@ clause
           couldBeFunction: false,
         }
       ]];        
+      @$=@1;
       $$ = {
         operation: "ATOM",
         instructions: ir,
-        dataType: "$"+$var
+        dataType: "$"+$var,
+        loc: @1,
+        totalLoc: @1
       }; 
     %}
   ;
