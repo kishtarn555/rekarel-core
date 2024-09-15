@@ -380,7 +380,7 @@ bool_fun
 
 integer
   : var
-    { $$ = [['PARAM', $var.toLowerCase()]]; }
+    { $$ = [['PARAM', $var.toLowerCase(), @1]]; }
   | NUM
     { $$ = [['LOAD', parseInt(yytext)]]; }
   | INC '(' integer ')'

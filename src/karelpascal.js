@@ -263,7 +263,7 @@ case 56:
  this.$ = [['ORIENTATION'], ['LOAD', 3], ['EQ'], ['NOT']]; 
 break;
 case 57:
- this.$ = [['PARAM', $$[$0].toLowerCase()]]; 
+ this.$ = [['PARAM', $$[$0].toLowerCase(), _$[$0]]]; 
 break;
 case 58:
  this.$ = [['LOAD', parseInt(yytext)]]; 
