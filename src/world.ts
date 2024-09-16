@@ -678,6 +678,7 @@ export class World {
                     memoriaStack: this.maxStackMemory,
                     llamadaMaxima: this.maxCallSize,
                 },
+                comando: []
             },
             mundos: {
                 mundo: {
@@ -721,6 +722,39 @@ export class World {
                     });
                 }
             }
+        }
+
+        if (this.maxMove !== -1) {
+            result.condiciones.comando.push({
+                '#attributes': {
+                    nombre: "AVANZA",
+                    maximoNumeroDeEjecuciones: this.maxMove
+                }
+            });
+        }
+        if (this.maxTurnLeft !== -1) {
+            result.condiciones.comando.push({
+                '#attributes': {
+                    nombre: "GIRA_IZQUIERDA",
+                    maximoNumeroDeEjecuciones: this.maxTurnLeft
+                }
+            });
+        }
+        if (this.maxLeaveBuzzer !== -1) {
+            result.condiciones.comando.push({
+                '#attributes': {
+                    nombre: "DEJA_ZUMBADOR",
+                    maximoNumeroDeEjecuciones: this.maxLeaveBuzzer
+                }
+            });
+        }
+        if (this.maxPickBuzzer !== -1) {
+            result.condiciones.comando.push({
+                '#attributes': {
+                    nombre: "COGE_ZUMBADOR",
+                    maximoNumeroDeEjecuciones: this.maxPickBuzzer
+                }
+            });
         }
 
         for (let i = 1; i <= this.h; i++) {
