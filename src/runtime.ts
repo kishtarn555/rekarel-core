@@ -474,7 +474,8 @@ export class Runtime {
               target: this,
               param: param,
               function: fname,
-              line: line
+              line: line,
+              returnValue: this.state.ret
             });
           }
           break;
