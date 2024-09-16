@@ -2,7 +2,7 @@ import { compile, World } from "../index";
 import { runAll } from "./world.test";
 import { DOMParser} from '@xmldom/xmldom';
 
-const problemList = ["pegadito"];
+const problemList = ["pegadito", "3 y 5", "baches"];
 import fs from "fs"
 import path from "path"
 import { RawProgram } from "../compiler/opcodes";
@@ -15,8 +15,8 @@ function RunWorld(doc: Document, opcode:RawProgram) {
 }
 
 function validateOutput(real:string, expected:string) {
-    expect(real.split(/\s+/g))
-        .toEqual(expected.split(/\s+/g));
+    expect(real.trim().split(/[\s\n]+/g))
+        .toEqual(expected.trim().split(/[\s\n]+/g));
 }
 
 describe("Test all problems", () => {
