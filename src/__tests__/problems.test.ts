@@ -6,6 +6,7 @@ const problemList = [
     "3 y 5", 
     "baches",
     "caminoMasCorto",
+    "despliegaInstrucciones",
     "pegadito", 
 ];
 import fs from "fs"
