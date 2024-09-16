@@ -2,7 +2,12 @@ import { compile, World } from "../index";
 import { runAll } from "./world.test";
 import { DOMParser} from '@xmldom/xmldom';
 
-const problemList = ["pegadito", "3 y 5", "baches"];
+const problemList = [
+    "3 y 5", 
+    "baches",
+    "caminoMasCorto",
+    "pegadito", 
+];
 import fs from "fs"
 import path from "path"
 import { RawProgram } from "../compiler/opcodes";
