@@ -1,0 +1,43 @@
+class program {
+	void turn(n) {
+		iterate(n) {
+			turnleft();
+		}
+	}
+	void right() {
+		turn(3);
+	}
+
+	int abs(n) {
+		if (0 <= n) 
+			return n;
+		if (n <= pred(0, 10)) {
+			return succ(abs(succ(n, 10)), 10);
+		} 
+		return succ(abs(succ(n)));
+	}
+	void school(x, y) {
+		if (nextToABeeper) {
+			pickbeeper();
+			iterate(abs(x)) putbeeper();
+			turnoff();
+		}
+		right();
+		while (frontIsBlocked) turnleft();
+		move();
+		if (facingNorth) {
+			school(x, succ(y));
+		} else if (facingSouth) {
+			school(x, pred(y));
+		} else if (facingWest) {
+			school(pred(x), y);
+		} else {
+			school(succ(x), y);
+		}
+		
+	}
+	program () {
+		school(0,0);
+		turnoff();
+	}
+}

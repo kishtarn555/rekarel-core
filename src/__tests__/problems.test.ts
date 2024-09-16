@@ -5,6 +5,7 @@ import { DOMParser} from '@xmldom/xmldom';
 const problemList = [
     "3 y 5", 
     "baches",
+    "caminitoEscuela",
     "caminoMasCorto",
     "despliegaInstrucciones",
     "pegadito", 
