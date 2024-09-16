@@ -439,7 +439,7 @@ export class Runtime {
           } else if (!this.disableStackEvents) {
             this.eventController.fireEvent('call', this, {
               function: fname,
-              param: paramCount,
+              params: this.state.stack.subarray(this.state.fp - paramCount, this.state.fp),
               line: this.state.line,
               target: this,
             });
