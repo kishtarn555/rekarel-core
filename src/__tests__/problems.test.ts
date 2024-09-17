@@ -1,6 +1,11 @@
 import { compile, World } from "../index";
 import { runAll } from "./world.test";
 import { DOMParser} from '@xmldom/xmldom';
+import fs from "fs"
+import path from "path"
+import { RawProgram } from "../compiler/opcodes";
+
+
 
 const problemList = [
     "3 y 5", 
@@ -11,9 +16,6 @@ const problemList = [
     "despliegaInstrucciones",
     "pegadito", 
 ];
-import fs from "fs"
-import path from "path"
-import { RawProgram } from "../compiler/opcodes";
 
 function RunWorld(doc: Document, opcode:RawProgram) {
     const world = new World(10,10);
