@@ -11,7 +11,8 @@
   },
   "type": "module",
   "scripts": {
-    "test": "jest",
+    "test:simple": "jest --testPathIgnorePatterns=problems",
+    "test:problems": "jest --testPathPattern=problems",
     "build": "npx rollup --config --bundleConfigAsCjs",
     "jison_all": "npm run jison_java && npm run jison_pascal && npm run jison_java2pascal && npm run jison_pascal2java",
     "jison_java": "npx jison .\\gramaticas\\kareljava.jison -m js -o .\\src\\kareljava.js  && npx gulp process-jison-java",
