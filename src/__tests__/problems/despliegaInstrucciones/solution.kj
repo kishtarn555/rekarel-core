@@ -1,0 +1,7 @@
+class program {
+  program () {
+    while (notNextToABeeper) 
+      move();
+    turnoff();
+  }
+}
