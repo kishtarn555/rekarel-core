@@ -1,10 +1,36 @@
 "use strict";
 import type { Runtime } from "./runtime"
 
+type CallEventDetails = {
+    type: "call",
+    function: string,
+    params: Int32Array,
+    line: number,
+    target: Runtime
+}
+
+type ReturnEventDetails = {
+    type: "return",
+    params: Int32Array,
+    function: string,
+    line: number,
+    returnValue: number,
+    target: Runtime,
+}
+
+type DebugDetails = {
+    type: "debug",
+    debugType: string,
+    message: string,
+    target: Runtime,
+}
+
+type KarelRuntimeEventDetails = CallEventDetails | ReturnEventDetails | ReturnEventDetails | DebugDetails
+
 class KarelRuntimeEvent extends Event {
-    runtime:Runtime
-    details:any
-    constructor(type:string, runtime:Runtime, details:any) {
+    runtime: Runtime
+    details: KarelRuntimeEventDetails
+    constructor(type:string, runtime:Runtime, details: KarelRuntimeEventDetails) {
         super(type);
         this.details = details;
         this.runtime = runtime;
