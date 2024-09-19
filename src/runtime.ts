@@ -107,7 +107,15 @@ export class Runtime {
   }
 
   start(): void {
-    this.eventController.fireEvent('start', this, { target: this, world: this.world });
+    this.eventController.fireEvent(
+      'start',
+      this,
+      { 
+        type: "start",
+        target: this, 
+        world: this.world 
+      }
+    );
   }
 
   reset() {
@@ -137,6 +145,7 @@ export class Runtime {
 
     if (this.debug) {
       this.eventController.fireEvent('debug', this, {
+        type: "debug",
         target: this,
         message: JSON.stringify(this.rawOpcodes),
         debugType: 'program',
@@ -154,7 +163,15 @@ export class Runtime {
         this.next();
       } finally {
         if (!this.state.running) {
-          this.eventController.fireEvent('stop', this, { target: this, world: this.world });
+          this.eventController.fireEvent(
+            'stop', 
+            this, 
+            { 
+              type: "stop",
+              target: this, 
+              world: this.world,
+            }
+          );
         }
       }
     }
@@ -186,6 +203,7 @@ export class Runtime {
     try {
       if (this.debug) {
         this.eventController.fireEvent('debug', this, {
+          type: "debug",
           target: this,
           message: JSON.stringify(
             this.program[3 * this.state.pc] +
@@ -438,6 +456,7 @@ export class Runtime {
             this.state.error = ErrorType.CALLSIZE;
           } else if (!this.disableStackEvents) {
             this.eventController.fireEvent('call', this, {
+              type: "call",
               function: fname,
               params: this.state.stack.subarray(this.state.fp - paramCount, this.state.fp),
               line: this.state.line,
@@ -459,7 +478,7 @@ export class Runtime {
           this.state.stackSize--;
           this.state.stackMemory -= Math.max(1, paramCount);;
           if (!this.disableStackEvents) {
-            let param = this.state.stack[this.state.fp + 3];
+            let params = this.state.stack.subarray(0,0);
 
 
             let fname = "N/A";
@@ -468,11 +487,14 @@ export class Runtime {
               let npc = this.state.stack[this.state.fp + 2]; //Get the function name from the function that called me
               fname = this.functionNames[this.program[3 * npc + 2]];
               line = this.program[3 * (npc + 1) + 1]; //Get line. A call always is LINE -> LOAD PARAM -> CALL -> LINE
+              paramCount = this.state.stack[this.state.fp + 3];
+              params = this.state.stack.subarray(this.state.fp - paramCount, this.state.fp);
             }
 
             this.eventController.fireEvent('return', this,  {
+              type: "return",
               target: this,
-              param: param,
+              params: params,
               function: fname,
               line: line,
               returnValue: this.state.ret
@@ -517,6 +539,7 @@ export class Runtime {
           this.state.running = false;
           if (this.debug) {
             this.eventController.fireEvent('debug', this, {
+              type: "debug",
               target: this,
               message: 'Missing opcode ' + this.rawOpcodes[this.state.pc][0],
               debugType: 'opcode',
@@ -550,6 +573,7 @@ export class Runtime {
           running: this.state.running,
         };
         this.eventController.fireEvent('debug', this, {
+          type: "debug",
           target: this,
           message: JSON.stringify(copy),
           debugType: 'state',
