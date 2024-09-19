@@ -25,7 +25,7 @@ type DebugDetails = {
     target: Runtime,
 }
 
-type KarelRuntimeEventDetails = CallEventDetails | ReturnEventDetails | ReturnEventDetails | DebugDetails
+export type KarelRuntimeEventDetails = CallEventDetails | ReturnEventDetails | ReturnEventDetails | DebugDetails
 
 class KarelRuntimeEvent extends Event {
     runtime: Runtime
