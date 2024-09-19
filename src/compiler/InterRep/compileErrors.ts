@@ -11,6 +11,7 @@ export namespace CompilationError {
         ILLEGAL_CONTINUE,
         NO_EXPLICIT_RETURN,
         PARAMETER_ILLEGAL_NAME,
+        PARAMETER_REDEFINITION,
         PROTOTYPE_PARAMETERS_MISS_MATCH,
         PROTOTYPE_TYPE_MISS_MATCH,
         PROTOTYPE_REDEFINITION,
@@ -96,6 +97,12 @@ export namespace CompilationError {
         parameterName: string
     }
     
+    type ParameterRedefinitionErrorStatus = {
+        error: Errors.PARAMETER_REDEFINITION,
+        loc: YYLoc,
+        line: number,
+        parameterName: string
+    }
     type PrototypeParametersMissMatchRedefinitionErrorStatus = {
         error: Errors.PROTOTYPE_PARAMETERS_MISS_MATCH,
         loc: YYLoc,
@@ -223,6 +230,7 @@ export namespace CompilationError {
         | IllegalContinueErrorStatus
         | IllegalParameterNameErrorStatus
         | NoExplicitReturnErrorStatus
+        | ParameterRedefinitionErrorStatus
         | PrototypeRedefinitionErrorStatus
         | PrototypeParametersMissMatchRedefinitionErrorStatus
         | PrototypeTypeMissMatchRedefinitionErrorStatus
