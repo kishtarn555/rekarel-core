@@ -41,7 +41,7 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
             yy.parser.parseError(`${tree.operation} operator uses booleans terms only, left is of type: ${leftType}`, {
                 error: CompilationError.Errors.BINARY_OPERATOR_TYPE_ERROR,
                 operator: tree.operation,
-                operatorLoc: tree.loc,
+                loc: tree.loc,
                 line: tree.loc.first_line - 1,
                 expectedType: "BOOL",
                 actualType: leftType,
@@ -52,7 +52,7 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
             yy.parser.parseError(`${tree.operation} operator uses booleans terms only, right is of type: ${rightType}`, {
                 error: CompilationError.Errors.BINARY_OPERATOR_TYPE_ERROR,
                 operator: tree.operation,
-                operatorLoc: tree.loc,
+                loc: tree.loc,
                 line: tree.loc.first_line - 1,
                 expectedType: "BOOL",
                 actualType: rightType,
@@ -96,7 +96,7 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
         if (leftType !== "INT") {
             yy.parser.parseError(`${tree.operation} operator uses integer terms only, left is of type: ${leftType}`, {
                 error: CompilationError.Errors.BINARY_OPERATOR_TYPE_ERROR,
-                operatorLoc: tree.loc,
+                loc: tree.loc,
                 operator: tree.operation,
                 line: tree.loc.first_line - 1,
                 direction: "LEFT",
@@ -107,7 +107,7 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
         if (rightType !== "INT") {
             yy.parser.parseError(`${tree.operation} operator uses integer terms only, right is of type: ${rightType}`, {
                 error: CompilationError.Errors.BINARY_OPERATOR_TYPE_ERROR,
-                operatorLoc: tree.loc,
+                loc: tree.loc,
                 operator: tree.operation,
                 direction: "RIGHT",
                 line: tree.loc.first_line - 1,
@@ -124,7 +124,7 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
         if (termType !== "BOOL") {
             yy.parser.parseError(`${tree.operation} operator uses a boolean terms only, but tried to negate a term of type: ${termType}`, {
                 error: CompilationError.Errors.UNARY_OPERATOR_TYPE_ERROR,
-                operatorLoc: tree.loc,
+                loc: tree.loc,
                 operator: tree.operation,
                 line: tree.loc.first_line - 1,
                 expectedType: "BOOL",

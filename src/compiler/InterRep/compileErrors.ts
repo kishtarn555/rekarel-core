@@ -29,7 +29,7 @@ export namespace CompilationError {
 
     type BinaryOperatorTypeErrorStatus = {
         error: Errors.BINARY_OPERATOR_TYPE_ERROR,
-        operatorLoc: YYLoc,
+        loc: YYLoc,
         line: number,
         operator: string,
         direction: "LEFT"|"RIGHT",
@@ -158,7 +158,7 @@ export namespace CompilationError {
 
     type UnaryOperatorTypeErrorStatus = {        
         error: Errors.UNARY_OPERATOR_TYPE_ERROR,
-        operatorLoc: YYLoc,
+        loc: YYLoc,
         line: number,
         operator: string,
         expectedType: string,
