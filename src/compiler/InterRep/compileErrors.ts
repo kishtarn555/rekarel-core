@@ -2,6 +2,7 @@ import type { YYLoc } from "./IRParserTypes"
 
 export namespace CompilationError {
     export enum Errors {
+        BINARY_OPERATOR_TYPE_ERROR,
         CALL_TYPE,
         COMPARISON_TYPE,
         FUNCTION_ILLEGAL_NAME,        
@@ -19,9 +20,21 @@ export namespace CompilationError {
         TYPE_ERROR,
         UNDEFINED_FUNCTION,
         UNDEFINED_FUNCTION_OR_VARIABLE,
+        UNARY_OPERATOR_TYPE_ERROR,
         UNKNOWN_MODULE,
         UNKNOWN_PACKAGE,    
         UNKNOWN_VARIABLE,
+        VOID_COMPARISON,
+    }
+
+    type BinaryOperatorTypeErrorStatus = {
+        error: Errors.BINARY_OPERATOR_TYPE_ERROR,
+        loc: YYLoc,
+        line: number,
+        operator: string,
+        direction: "LEFT"|"RIGHT",
+        expectedType: string,
+        actualType: string
     }
 
     type CallTypeErrorStatus = {
@@ -74,6 +87,7 @@ export namespace CompilationError {
         functionName: string,
         returnType: string
     }
+    
     
     type IllegalParameterNameErrorStatus = {
         error: Errors.PARAMETER_ILLEGAL_NAME,
@@ -141,6 +155,15 @@ export namespace CompilationError {
         expectedType: string,
         actualType: string
     }
+
+    type UnaryOperatorTypeErrorStatus = {        
+        error: Errors.UNARY_OPERATOR_TYPE_ERROR,
+        loc: YYLoc,
+        line: number,
+        operator: string,
+        expectedType: string,
+        actualType: string
+    }
     
     type UndefinedFunctionErrorStatus = {
         error: Errors.UNDEFINED_FUNCTION,
@@ -180,10 +203,19 @@ export namespace CompilationError {
         line: number,
         variable: string
     }
+    
+    type VoidComparisonErrorStatus = {
+        error: Errors.VOID_COMPARISON,
+        loc: YYLoc,
+        line: number,
+        leftType: string,
+        rightType: string
+    }
 
 
     export type ErrorStatus = 
-        CallTypeErrorStatus
+        BinaryOperatorTypeErrorStatus
+        | CallTypeErrorStatus
         | ComparisonTypeErrorStatus
         | IllegalFunctionNameErrorStatus
         | FunctionRedefinitionErrorStatus
@@ -198,10 +230,12 @@ export namespace CompilationError {
         | TooManyParamsInCallErrorStatus
         | TooFewParamsInCallErrorStatus
         | TypeErrorStatus 
+        | UnaryOperatorTypeErrorStatus
         | UndefinedFunctionErrorStatus
         | UnknownModuleErrorStatus
         | UnknownPackageErrorStatus
         | UnknownVariableErrorStatus
+        | VoidComparisonErrorStatus
     ;
     
 }
