@@ -75,6 +75,15 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
                 rightType: rightType
             });
         }
+        if (leftType === "VOID") {
+            yy.parser.parseError(`An equality comparison cannot be performed on VOID`, {
+                error: CompilationError.Errors.VOID_COMPARISON,
+                loc: tree.loc,
+                line: tree.loc.first_line - 1,
+                leftType: leftType,
+                rightType: rightType
+            });
+        }
         target.push([tree.operation]);
         return tree.dataType;
     }

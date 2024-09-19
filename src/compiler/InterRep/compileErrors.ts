@@ -24,6 +24,7 @@ export namespace CompilationError {
         UNKNOWN_MODULE,
         UNKNOWN_PACKAGE,    
         UNKNOWN_VARIABLE,
+        VOID_COMPARISON,
     }
 
     type BinaryOperatorTypeErrorStatus = {
@@ -202,6 +203,14 @@ export namespace CompilationError {
         line: number,
         variable: string
     }
+    
+    type VoidComparisonErrorStatus = {
+        error: Errors.VOID_COMPARISON,
+        loc: YYLoc,
+        line: number,
+        leftType: string,
+        rightType: string
+    }
 
 
     export type ErrorStatus = 
@@ -226,6 +235,7 @@ export namespace CompilationError {
         | UnknownModuleErrorStatus
         | UnknownPackageErrorStatus
         | UnknownVariableErrorStatus
+        | VoidComparisonErrorStatus
     ;
     
 }
