@@ -2,6 +2,7 @@ import type { YYLoc } from "./IRParserTypes"
 
 export namespace CompilationError {
     export enum Errors {
+        BINARY_OPERATOR_TYPE_ERROR,
         CALL_TYPE,
         COMPARISON_TYPE,
         FUNCTION_ILLEGAL_NAME,        
@@ -22,6 +23,16 @@ export namespace CompilationError {
         UNKNOWN_MODULE,
         UNKNOWN_PACKAGE,    
         UNKNOWN_VARIABLE,
+    }
+
+    type BinaryOperatorTypeErrorStatus = {
+        error: Errors.BINARY_OPERATOR_TYPE_ERROR,
+        operatorLoc: YYLoc,
+        line: number,
+        operator: string,
+        direction: "LEFT"|"RIGHT",
+        expectedType: string,
+        actualType: string
     }
 
     type CallTypeErrorStatus = {
@@ -74,6 +85,7 @@ export namespace CompilationError {
         functionName: string,
         returnType: string
     }
+    
     
     type IllegalParameterNameErrorStatus = {
         error: Errors.PARAMETER_ILLEGAL_NAME,
@@ -183,7 +195,8 @@ export namespace CompilationError {
 
 
     export type ErrorStatus = 
-        CallTypeErrorStatus
+        BinaryOperatorTypeErrorStatus
+        | CallTypeErrorStatus
         | ComparisonTypeErrorStatus
         | IllegalFunctionNameErrorStatus
         | FunctionRedefinitionErrorStatus
