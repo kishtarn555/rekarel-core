@@ -39,20 +39,24 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
         const rightType = resolveTerm(tree.right, definitions, scope, target, tags, yy);
         if (leftType !== "BOOL") {
             yy.parser.parseError(`${tree.operation} operator uses booleans terms only, left is of type: ${leftType}`, {
-                error: CompilationError.Errors.TYPE_ERROR,
-                loc: tree.loc,
+                error: CompilationError.Errors.BINARY_OPERATOR_TYPE_ERROR,
+                operator: tree.operation,
+                operatorLoc: tree.loc,
                 line: tree.loc.first_line - 1,
                 expectedType: "BOOL",
-                actualType: leftType
+                actualType: leftType,
+                direction: "LEFT"
             });
         }
         if (rightType !== "BOOL") {
             yy.parser.parseError(`${tree.operation} operator uses booleans terms only, right is of type: ${rightType}`, {
-                error: CompilationError.Errors.TYPE_ERROR,
-                loc: tree.loc,
+                error: CompilationError.Errors.BINARY_OPERATOR_TYPE_ERROR,
+                operator: tree.operation,
+                operatorLoc: tree.loc,
                 line: tree.loc.first_line - 1,
                 expectedType: "BOOL",
-                actualType: rightType
+                actualType: rightType,
+                direction: "RIGHT"
             });
         }
         target.push([tree.operation]);
@@ -82,17 +86,21 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
         const rightType = resolveTerm(tree.right, definitions, scope, target, tags, yy);
         if (leftType !== "INT") {
             yy.parser.parseError(`${tree.operation} operator uses integer terms only, left is of type: ${leftType}`, {
-                error: CompilationError.Errors.TYPE_ERROR,
-                loc: tree.loc,
+                error: CompilationError.Errors.BINARY_OPERATOR_TYPE_ERROR,
+                operatorLoc: tree.loc,
+                operator: tree.operation,
                 line: tree.loc.first_line - 1,
+                direction: "LEFT",
                 expectedType: "INT",
                 actualType: leftType
             });
         }
         if (rightType !== "INT") {
             yy.parser.parseError(`${tree.operation} operator uses integer terms only, right is of type: ${rightType}`, {
-                error: CompilationError.Errors.TYPE_ERROR,
-                loc: tree.loc,
+                error: CompilationError.Errors.BINARY_OPERATOR_TYPE_ERROR,
+                operatorLoc: tree.loc,
+                operator: tree.operation,
+                direction: "RIGHT",
                 line: tree.loc.first_line - 1,
                 expectedType: "INT",
                 actualType: rightType
