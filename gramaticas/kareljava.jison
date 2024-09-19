@@ -219,7 +219,7 @@ def
       $$ = [{
         name: $var, 
         code: [
-          locToIR(@3),
+          locToIR(@2),
           ...$block,
           ['RET', '__DEFAULT', @1],
         ],  
@@ -236,7 +236,7 @@ def
       @$.last_column = @3.last_column;
     	let result = [
         
-          locToIR(@3),
+          locToIR(@2),
           ...$block,
           ['RET', '__DEFAULT', @1]
       ];
