@@ -169,7 +169,7 @@ function resolveVar(data: IRVar, definitions: DefinitionTable, scope:Scope, targ
 
     if (data.couldBeFunction) {
         //Resolve as an parameterless call
-        target.push(["LOAD", 0]); //FIXME: Don't forget to remove me after you change how variables work!
+        target.push(["LOAD", 0]); // Load 0 parameters
         if (!definitions.hasFunction(data.target)) {           
             yy.parser.parseError("Undefined function or variable: " + data.target, {
                 error: CompilationError.Errors.UNDEFINED_FUNCTION,
@@ -178,6 +178,7 @@ function resolveVar(data: IRVar, definitions: DefinitionTable, scope:Scope, targ
                 loc: data.loc
             }); 
         }
+        target.push(["LINE", data.loc.first_line - 1, data.loc.first_column]);
         target.push([
             "CALL",
             {
@@ -188,6 +189,7 @@ function resolveVar(data: IRVar, definitions: DefinitionTable, scope:Scope, targ
 
             }
         ]);
+        target.push(["LINE", data.loc.first_line - 1, data.loc.first_column]);
         target.push(["LRET"]);
         return;
     }
