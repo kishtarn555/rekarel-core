@@ -20,6 +20,7 @@ export namespace CompilationError {
         TYPE_ERROR,
         UNDEFINED_FUNCTION,
         UNDEFINED_FUNCTION_OR_VARIABLE,
+        UNARY_OPERATOR_TYPE_ERROR,
         UNKNOWN_MODULE,
         UNKNOWN_PACKAGE,    
         UNKNOWN_VARIABLE,
@@ -153,6 +154,15 @@ export namespace CompilationError {
         expectedType: string,
         actualType: string
     }
+
+    type UnaryOperatorTypeErrorStatus = {        
+        error: Errors.UNARY_OPERATOR_TYPE_ERROR,
+        operatorLoc: YYLoc,
+        line: number,
+        operator: string,
+        expectedType: string,
+        actualType: string
+    }
     
     type UndefinedFunctionErrorStatus = {
         error: Errors.UNDEFINED_FUNCTION,
@@ -211,6 +221,7 @@ export namespace CompilationError {
         | TooManyParamsInCallErrorStatus
         | TooFewParamsInCallErrorStatus
         | TypeErrorStatus 
+        | UnaryOperatorTypeErrorStatus
         | UndefinedFunctionErrorStatus
         | UnknownModuleErrorStatus
         | UnknownPackageErrorStatus

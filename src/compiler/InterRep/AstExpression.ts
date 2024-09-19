@@ -114,8 +114,9 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
         const termType = resolveTerm(tree.term, definitions, scope, target, tags, yy);
         if (termType !== "BOOL") {
             yy.parser.parseError(`${tree.operation} operator uses a boolean terms only, but tried to negate a term of type: ${termType}`, {
-                error: CompilationError.Errors.TYPE_ERROR,
-                loc: tree.loc,
+                error: CompilationError.Errors.UNARY_OPERATOR_TYPE_ERROR,
+                operatorLoc: tree.loc,
+                operator: tree.operation,
                 line: tree.loc.first_line - 1,
                 expectedType: "BOOL",
                 actualType: termType
