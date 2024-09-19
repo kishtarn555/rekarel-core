@@ -164,6 +164,31 @@ function validateAndGetFunctionDefinitions(data: IRObject, definitionTable: Defi
         }
 
     }
+
+    //Validate parameters
+    for (const func of data.functions) {
+        func.params.forEach((param, idx) => {
+            if( definitionTable.hasVar(param.name) || definitionTable.hasFunction(param.name)) {
+                yy.parser.parseError(`Cannot name parameter ${param.name} as it is already used by a variable or function`, {
+                    error: CompilationError.Errors.PARAMETER_ILLEGAL_NAME,
+                    line: param.loc.first_line - 1,
+                    loc: param.loc,
+                    parameterName: param.name
+                });
+            }
+            const first = func.params.findIndex(p => p.name === param.name);
+            if (first !== idx) {
+                yy.parser.parseError(`Parameter ${param.name} was already declared in the function`, {
+                    error: CompilationError.Errors.PARAMETER_REDEFINITION,
+                    line: param.loc.first_line - 1,
+                    loc: param.loc,
+                    parameterName: param.name
+                }); 
+            }
+
+        });
+    }
+
     return true;
 }
 
