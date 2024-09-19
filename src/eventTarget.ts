@@ -1,5 +1,6 @@
 "use strict";
 import type { Runtime } from "./runtime"
+import type { World } from "./world";
 
 type CallEventDetails = {
     type: "call",
@@ -25,7 +26,24 @@ type DebugDetails = {
     target: Runtime,
 }
 
-export type KarelRuntimeEventDetails = CallEventDetails | ReturnEventDetails | ReturnEventDetails | DebugDetails
+type StopDetails = {
+    type: "stop",
+    world: World
+    target: Runtime,
+}
+
+type StartDetails = {
+    type: "start",
+    world: World
+    target: Runtime,
+}
+
+export type KarelRuntimeEventDetails = 
+    CallEventDetails
+    | DebugDetails
+    | ReturnEventDetails 
+    | StartDetails
+    | StopDetails
 
 class KarelRuntimeEvent extends Event {
     runtime: Runtime
@@ -69,7 +87,7 @@ export class KarelRuntimeEventTarget  {
         this.listeners[type] = this.listeners[type].splice(index, 1);
     }
 
-    fireEvent(type:string, runtime:Runtime, data:any ) {
+    fireEvent(type:string, runtime:Runtime, data:KarelRuntimeEventDetails ) {
         const evt = new KarelRuntimeEvent(type, runtime, data);
         this.dispatchEvent(evt);
     }
