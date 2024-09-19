@@ -514,7 +514,9 @@ term
       $$ = {
         left: $1, 
         right: $3, 
-        operation: "EQ", 
+        operation: "EQ",
+        loc: @2,
+        totalLoc: @$,
         dataType:"BOOL"
       };
     %}
