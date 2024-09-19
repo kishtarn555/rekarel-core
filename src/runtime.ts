@@ -459,7 +459,7 @@ export class Runtime {
           this.state.stackSize--;
           this.state.stackMemory -= Math.max(1, paramCount);;
           if (!this.disableStackEvents) {
-            let param = this.state.stack[this.state.fp + 3];
+            let params = this.state.stack.subarray(0,0);
 
 
             let fname = "N/A";
@@ -468,11 +468,13 @@ export class Runtime {
               let npc = this.state.stack[this.state.fp + 2]; //Get the function name from the function that called me
               fname = this.functionNames[this.program[3 * npc + 2]];
               line = this.program[3 * (npc + 1) + 1]; //Get line. A call always is LINE -> LOAD PARAM -> CALL -> LINE
+              paramCount = this.state.stack[this.state.fp + 3];
+              params = this.state.stack.subarray(this.state.fp - paramCount, this.state.fp);
             }
 
             this.eventController.fireEvent('return', this,  {
               target: this,
-              param: param,
+              params: params,
               function: fname,
               line: line,
               returnValue: this.state.ret
