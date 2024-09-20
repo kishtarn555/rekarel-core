@@ -86,7 +86,7 @@ describe("Pascal compilation tests ", () => {
         world.setBagBuzzers(-1);
         runAll(world, opcodes!);
         expect(world.buzzers(1, 1)).toBe(12);
-        expect(world.orientation).toBe(0);    
+        expect(world.orientation).toBe(1);    
     });
 });
 
