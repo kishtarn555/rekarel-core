@@ -320,19 +320,19 @@ expr
 return
   : RET '(' ')'
     { $$ = [
-      locToIR(@1),
       ['RET', {
         term: { operation: "ATOM", instructions:[["LOAD", 0]], dataType:"VOID" },
         loc: @1
-      }]
+      }],
+      locToIR(@1)
     ]; }
   | RET 
     { $$ = [
-      locToIR(@1),
       ['RET', {
         term: { operation: "ATOM", instructions:[["LOAD", 0]], dataType:"VOID" },
         loc: @1
-      }]
+      }],      
+      locToIR(@1)
     ]; }
   | RET  term 
     

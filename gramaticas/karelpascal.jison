@@ -371,20 +371,20 @@ return
   : RET 
     
     { $$ = [
-      locToIR(@1),
       ['RET', {
         term: { operation: "ATOM", instructions:[["LOAD", 0]], dataType:"VOID" },
         loc: @1
-      }]
+      }],
+      locToIR(@1)
     ]; }
   | RET term
     
     { $$ = [
-      locToIR(@1),
       ['RET', {
         term: $term,
         loc: @1
-      }]
+      }],
+      locToIR(@1)
     ]; }
   ;
 
