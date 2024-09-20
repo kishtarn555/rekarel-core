@@ -83,6 +83,17 @@ describe("Java compilation tests ", ()=> {
     });
 });
 
+test("Test continue statement", () => {
+    const source = fs.readFileSync(__dirname + "/kj/testContinue.kj").toString();
+    const opcodes = compile(source);
+    expect(opcodes).toBeDefined()
+    const world = new World(10, 10);
+    world.setBagBuzzers(-1);
+    runAll(world, opcodes!);
+    expect(world.buzzers(1, 1)).toBe(12);
+    expect(world.orientation).toBe(0);    
+});
+
 
 describe("Test Java compilation errors" ,  ()=> {
     for (const [file, expectedError] of compilationError) {

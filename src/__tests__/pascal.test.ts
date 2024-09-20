@@ -77,6 +77,17 @@ describe("Pascal compilation tests ", () => {
         expect(world.j).toBe(1);
         
     });
+
+    test("Test continue statement", () => {
+        const source = fs.readFileSync(__dirname + "/kp/testContinue.kp").toString();
+        const opcodes = compile(source);
+        expect(opcodes).toBeDefined()
+        const world = new World(10, 10);
+        world.setBagBuzzers(-1);
+        runAll(world, opcodes!);
+        expect(world.buzzers(1, 1)).toBe(12);
+        expect(world.orientation).toBe(0);    
+    });
 });
 
 
