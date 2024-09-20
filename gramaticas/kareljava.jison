@@ -467,12 +467,14 @@ repeat
     %{ 
       const repeatEnd = UniqueTag('rend');
       const repeatLoop = UniqueTag('rloop');
+      const continueLoop = UniqueTag('rcontinue');
       $$ = [[
         "REPEAT",
         {
           line:       locToIR(@1),
           loopCount:  $int_term[0],
           repeatTag:  repeatLoop,
+          continueTag: continueLoop,
           endTag:     repeatEnd,
           instructions: $expr
         }

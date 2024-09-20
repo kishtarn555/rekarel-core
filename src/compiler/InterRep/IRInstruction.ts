@@ -86,6 +86,7 @@ export type IRTagRecord = Record<string, number>;
  */
 export type IRRepeat = {
     loopCount:IRInstructionTerm,
+    continueTag: string,
     repeatTag: string,
     endTag: string,
     line: IRSimpleInstruction,

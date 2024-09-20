@@ -1,0 +1,12 @@
+class program {
+    program() {
+        iterate(16) {
+            turnleft();
+            if (facingNorth) {
+                continue;
+            }
+            putbeeper();
+       }
+        turnoff();
+    }
+}

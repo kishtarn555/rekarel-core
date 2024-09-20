@@ -276,7 +276,7 @@ function resolveRepeat(data: IRRepeat, definitions: DefinitionTable, scope:Scope
         yy
     );
     const loopScope = scope.withContinueBreakTarget(
-        data.repeatTag,
+        data.continueTag,
         data.endTag
     );
     // Add loop body
@@ -291,6 +291,7 @@ function resolveRepeat(data: IRRepeat, definitions: DefinitionTable, scope:Scope
     // Add loop end logic
     resolveListWithASTs(
         [            
+            ['TAG', data.continueTag],
             ['DEC', 1], 
             ['TJMP', data.repeatTag], 
             ['TAG', data.endTag],

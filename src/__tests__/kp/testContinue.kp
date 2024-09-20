@@ -1,0 +1,13 @@
+iniciar-programa
+
+	inicia-ejecucion
+		repetir 16 veces
+		inicio
+			gira-izquierda;
+			si orientado-al-norte entonces
+				continua;
+			deja-zumbador;
+		fin;
+		apagate;
+	termina-ejecucion
+finalizar-programa
