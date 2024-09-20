@@ -139,8 +139,8 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
         if (termType !== tree.dataType) {
             yy.parser.parseError(`Expected a term of type ${tree.dataType}, but got ${termType}`, {
                 error: CompilationError.Errors.TYPE_ERROR,
-                loc: tree.loc,
-                line: tree.loc.first_line - 1,
+                loc: tree.totalLoc,
+                line: tree.totalLoc.first_line - 1,
                 expectedType: tree.dataType,
                 actualType: termType
             });
