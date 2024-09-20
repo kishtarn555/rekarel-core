@@ -198,7 +198,7 @@ import_list
 
 import
   : IMPORT package ';'
-  { $$ = [[$package]]; }
+  { $$ = [[$package, @2]]; }
   ;
 
 package
