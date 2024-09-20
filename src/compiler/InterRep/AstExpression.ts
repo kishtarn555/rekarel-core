@@ -204,14 +204,14 @@ function resolveVar(data: IRVar, definitions: DefinitionTable, scope:Scope, targ
 
 
 function resolveCall(data: IRCall, definitions: DefinitionTable, scope:Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
-    target.push(
-        ["LINE", data.nameLoc.first_line - 1, data.nameLoc.first_column]
-    );
     for (const parameter of data.params) {
         resolveTerm(parameter, definitions, scope, target, tags, yy);
     }
     target.push(["LOAD", data.params.length]);
     
+    target.push(
+        ["LINE", data.nameLoc.first_line - 1, data.nameLoc.first_column]
+    );
     if (!definitions.hasFunction(data.target)) {
         yy.parser.parseError("Undefined function: " + data.target, {
             error: CompilationError.Errors.UNDEFINED_FUNCTION,
