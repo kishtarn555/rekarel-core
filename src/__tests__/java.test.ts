@@ -156,3 +156,20 @@ describe("Java globals test ", ()=> {
         expect(world.bagBuzzers).toBe(116);
     });
 });
+
+
+
+describe("Test Java functions", ()=>{
+    test("Multiple parameters", ()=> {
+        const src = fs.readFileSync(__dirname + "/kj/multiParams.kj").toString();
+        const opcodes = compile(src);
+        expect(opcodes).toBeDefined()
+        const world = new World(10, 10);
+        world.setBagBuzzers(-1);
+        runAll(world, opcodes!);
+        expect(world.runtime.state.error).toBeUndefined();
+        expect(world.buzzers(1, 1)).toBe(1);
+        expect(world.buzzers(2, 1)).toBe(2);
+        expect(world.buzzers(3, 1)).toBe(3);
+    });
+});
