@@ -155,7 +155,7 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
 function resolveVar(data: IRVar, definitions: DefinitionTable, scope:Scope, target: IRSemiSimpleInstruction[], yy: YY) {
     const parameterIdx = scope.parameters.findIndex(e => data.target === e.name);
     if (parameterIdx !== -1) {
-        target.push(["PARAM", parameterIdx]);
+        target.push(["PARAM", scope.parameters.length - parameterIdx -1]);
         return;
     }
 

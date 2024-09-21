@@ -426,7 +426,7 @@ parameteredCall
   ;
 
 int_termList
-  : term ',' int_termList
+  : int_termList ',' term
     { 
       $$ = $int_termList.concat([
         {
