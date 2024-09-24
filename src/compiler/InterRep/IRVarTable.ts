@@ -21,11 +21,13 @@ export class DefinitionTable {
     private functions: FunctionTable
     private variables: VariableTable
     private variablesCanBeFunctions: boolean
+    private tagCounter: number
 
     constructor(variablesCanBeFunctions: boolean) {
         this.functions = new Map();
         this.variables = new Map();
         this.variablesCanBeFunctions = variablesCanBeFunctions;
+        this.tagCounter = 0;
     }
 
 
@@ -71,6 +73,10 @@ export class DefinitionTable {
 
     getVar(name: string) {
         return this.variables.get(name);
+    }
+
+    getUniqueTag(name: string) {
+        return `${name}.${this.tagCounter++}`;
     }
 
 }

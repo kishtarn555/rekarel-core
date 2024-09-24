@@ -175,3 +175,24 @@ describe("Test Pascal functions", ()=>{
         expect(world.buzzers(3, 1)).toBe(3);
     });
 });
+
+
+test("Pascal short circuit", ()=> {
+    const src = fs.readFileSync(__dirname + "/kp/shortCircuit.kp").toString();
+    const opcodes = compile(src);
+    expect(opcodes).toBeDefined()
+    const world = new World(10, 10);
+    world.setBagBuzzers(-1);
+    runAll(world, opcodes!);
+    expect(world.runtime.state.error).toBeUndefined();
+    //Test and shorting
+    expect(world.buzzers(1, 1)).toBe(6);
+    expect(world.buzzers(2, 1)).toBe(3);
+    expect(world.buzzers(3, 1)).toBe(2);
+    expect(world.buzzers(4, 1)).toBe(2);
+    //Test or shorting
+    expect(world.buzzers(5, 1)).toBe(5);
+    expect(world.buzzers(6, 1)).toBe(5);
+    expect(world.buzzers(7, 1)).toBe(7);
+    expect(world.buzzers(8, 1)).toBe(4);
+});
