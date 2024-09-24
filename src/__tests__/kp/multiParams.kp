@@ -1,0 +1,17 @@
+iniciar-programa
+	define-nueva-instruccion f(a, b, c) como
+	inicio
+		repetir a veces
+			deja-zumbador;
+		avanza;
+		repetir b veces
+			deja-zumbador;
+		avanza;
+		repetir c veces
+			deja-zumbador;
+	fin;
+	inicia-ejecucion
+		f(1,2,3);
+		apagate;
+	termina-ejecucion
+finalizar-programa

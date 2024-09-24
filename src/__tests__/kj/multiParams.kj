@@ -1,0 +1,16 @@
+class program {
+	void f(a, b, c) {
+		iterate(a)
+			putbeeper();
+		move();
+		iterate(b) 
+			putbeeper();
+		move();
+		iterate(c) 
+			putbeeper();
+	}
+	program () {
+		f(1,2,3);
+		turnoff();
+	}
+}
