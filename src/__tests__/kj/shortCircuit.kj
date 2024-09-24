@@ -7,7 +7,7 @@ class program {
     bool never() {
         putbeeper();
         putbeeper();
-        return true;
+        return false;
     }
     program() {
         if (always() && always()) {
