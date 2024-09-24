@@ -1,0 +1,58 @@
+usa rekarel.globales;
+iniciar-programa
+    define-instruccion-booleana always como 
+    inicio
+        deja-zumbador;
+        regresa verdadero;
+    fin;
+
+    define-instruccion-booleana never como
+    inicio
+        deja-zumbador;
+        deja-zumbador;
+        regresa falso;
+    fin;
+
+    inicia-ejecucion
+        si always y always entonces
+            repetir 4 veces
+                deja-zumbador;
+        
+        avanza;
+        si always y never entonces
+            repetir 4 veces
+                deja-zumbador;
+                
+        avanza;
+        si never y always entonces
+            repetir 4 veces
+                deja-zumbador;
+        
+        avanza;
+        si never y never entonces
+            repetir 4 veces
+                deja-zumbador;
+        
+        avanza;
+        { O }
+        
+        si always o always entonces
+            repetir 4 veces
+                deja-zumbador;
+        
+        avanza;
+        si always o never entonces
+            repetir 4 veces
+                deja-zumbador;
+                
+        avanza;
+        si never o always entonces
+            repetir 4 veces
+                deja-zumbador;
+        
+        avanza;
+        si never o never entonces
+            repetir 4 veces
+                deja-zumbador;
+	termina-ejecucion
+finalizar-programa
