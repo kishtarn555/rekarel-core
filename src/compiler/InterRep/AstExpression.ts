@@ -35,8 +35,18 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
     }
 
     if (tree.operation === "AND" || tree.operation === "OR") {
+        //Resolve left
         const leftType = resolveTerm(tree.left, definitions, scope, target, tags, yy);
+        // Add short circuit
+        target.push(["DUP"]);
+        if (tree.operation === "OR") {
+            target.push(["NOT"]);
+        }
+        const shortCircuit = definitions.getUniqueTag("shortCircuit");
+        target.push(["TJZ", shortCircuit]);
+        // Resolve right
         const rightType = resolveTerm(tree.right, definitions, scope, target, tags, yy);
+        // Add short circuit tag
         if (leftType !== "BOOL") {
             yy.parser.parseError(`${tree.operation} operator uses booleans terms only, left is of type: ${leftType}`, {
                 error: CompilationError.Errors.BINARY_OPERATOR_TYPE_ERROR,
@@ -60,6 +70,7 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
             });
         }
         target.push([tree.operation]);
+        resolveListWithASTs([["TAG", shortCircuit]], definitions, scope, target, tags, yy);
         return tree.dataType;
     }
     
