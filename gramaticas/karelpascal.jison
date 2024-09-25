@@ -37,6 +37,7 @@
 "coge-zumbador"                             { return 'PICKBUZZER'; }
 "deja-zumbador"                             { return 'LEAVEBUZZER'; }
 "continua"                                  { return 'CONTINUE'; }
+"continúa"                                  { return 'CONTINUE'; }
 "rompe"                                     { return 'BREAK'; }
 "inicio"                                    { return 'BEGIN'; }
 "fin"                                       { return 'END'; }
