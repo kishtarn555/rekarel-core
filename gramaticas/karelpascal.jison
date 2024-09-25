@@ -51,6 +51,7 @@
 "precede"                                   { return 'DEC'; }
 "sucede"                                    { return 'INC'; }
 "si-es-cero"                                { return 'IFZ'; }
+"es-cero"                                   { return 'IFZ'; }
 "frente-libre"                              { return 'IFNFWALL'; }
 "frente-bloqueado"                          { return 'IFFWALL'; }
 "izquierda-libre"                           { return 'IFNLWALL'; }
