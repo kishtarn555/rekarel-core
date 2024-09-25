@@ -26,6 +26,8 @@
 "define-prototipo-booleano"                 { return 'PROTO_BOOL'; }
 "define-instrucción-booleana"               { return 'DEF_BOOL'; }
 "define-instruccion-booleana"               { return 'DEF_BOOL'; }
+"define-condicion"                          { return 'DEF_BOOL'; }
+"define-condición"                          { return 'DEF_BOOL'; }
 "sal-de-instruccion"                        { return 'RET'; }
 "sal-de-instrucción"                        { return 'RET'; }
 "regresa"                                   { return 'RET'; }
