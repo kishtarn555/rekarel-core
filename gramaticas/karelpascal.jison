@@ -26,6 +26,8 @@
 "define-prototipo-booleano"                 { return 'PROTO_BOOL'; }
 "define-instrucción-booleana"               { return 'DEF_BOOL'; }
 "define-instruccion-booleana"               { return 'DEF_BOOL'; }
+"define-condicion"                          { return 'DEF_BOOL'; }
+"define-condición"                          { return 'DEF_BOOL'; }
 "sal-de-instruccion"                        { return 'RET'; }
 "sal-de-instrucción"                        { return 'RET'; }
 "regresa"                                   { return 'RET'; }
@@ -37,6 +39,7 @@
 "coge-zumbador"                             { return 'PICKBUZZER'; }
 "deja-zumbador"                             { return 'LEAVEBUZZER'; }
 "continua"                                  { return 'CONTINUE'; }
+"continúa"                                  { return 'CONTINUE'; }
 "rompe"                                     { return 'BREAK'; }
 "inicio"                                    { return 'BEGIN'; }
 "fin"                                       { return 'END'; }
@@ -48,6 +51,7 @@
 "precede"                                   { return 'DEC'; }
 "sucede"                                    { return 'INC'; }
 "si-es-cero"                                { return 'IFZ'; }
+"es-cero"                                   { return 'IFZ'; }
 "frente-libre"                              { return 'IFNFWALL'; }
 "frente-bloqueado"                          { return 'IFFWALL'; }
 "izquierda-libre"                           { return 'IFNLWALL'; }
