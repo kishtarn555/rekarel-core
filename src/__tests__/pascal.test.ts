@@ -27,7 +27,7 @@ const compilationError:[string,string | RegExp][] = [
     ["halfTrueReturn.kp", "Explicit return is required in function pasos"],
     ["halfFalseReturn.kp", "Explicit return is required in function pasos"],
     ["prototypeType.kp", "Prototype type mismatch: pasos"],
-    ["undefinedCallInTerm.kp", "Undefined function or variable: prueba"],
+    ["undefinedCallInTerm.kp", "Undefined function: prueba"],
 ]
 
 
