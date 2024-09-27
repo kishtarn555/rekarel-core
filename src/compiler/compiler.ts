@@ -3,8 +3,13 @@ import { RawProgram } from './opcodes.js';
 import { javaParser as importedJava } from '../kareljava.js';
 import { pascalParser as importedPascal } from '../karelpascal.js';
 import { generateOpcodesFromIR, IRObject } from './InterRep/IRProcessor.js';
+import { DebugData } from './debugData.js';
 
-export type Compiler = (code: string) => RawProgram
+export type Compiler = (
+    ((code: string) => RawProgram ) 
+    | ( (code: string, exportDebug: boolean) => RawProgram | [RawProgram, DebugData])
+)
+
 type Parser = (code: string) => IRObject
 
 const javaParser: Parser = importedJava as unknown as Parser;
@@ -51,7 +56,7 @@ export function detectLanguage(code: string): "java" | "pascal" | "unknown" {
 }
 
 
-export function compile(code:string) : RawProgram | null {
+export function compile(code:string, exportDebug: boolean = false) : RawProgram | [RawProgram, DebugData] | null {
     let lang = detectLanguage(code);
     let compiler:Compiler = null;  
     switch (lang) {
@@ -64,17 +69,18 @@ export function compile(code:string) : RawProgram | null {
       default:
         return null;
     }  
-    const result = compiler(code);
+    const result = compiler(code, exportDebug);
     return result;
   }
   
+  
 
-export function javaCompiler(code:string): RawProgram {
+export function javaCompiler(code:string, exportDebug: boolean = false): RawProgram | [RawProgram, DebugData] {
     const IR = javaParser(code);
-    return generateOpcodesFromIR(IR); 
+    return generateOpcodesFromIR(IR, exportDebug); 
 }
 
-export function pascalCompiler(code:string): RawProgram {
+export function pascalCompiler(code:string, exportDebug: boolean = false): RawProgram | [RawProgram, DebugData] {
     const IR = pascalParser(code);
-    return generateOpcodesFromIR(IR); 
+    return generateOpcodesFromIR(IR, exportDebug); 
 }

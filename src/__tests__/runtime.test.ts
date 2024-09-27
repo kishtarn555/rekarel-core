@@ -212,6 +212,7 @@ describe("Test runtime", () => {
                 function: "F1",
                 line: 1,
                 params: new Int32Array([3]),
+                fromFunction: "F2",
                 returnValue: 0,
                 // @ts-ignore
                 target: null
@@ -222,6 +223,7 @@ describe("Test runtime", () => {
                 line: -2,
                 params: new Int32Array([]),
                 returnValue: 0,
+                fromFunction: "F1",
                 // @ts-ignore
                 target: null
             },

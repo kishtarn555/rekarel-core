@@ -7,6 +7,7 @@ import { DefinitionTable, FunctionData } from "./IRVarTable";
 import { resolveListWithASTs } from "./AstExpression";
 import { MAIN_SCOPE, Scope } from "./Scope";
 import { CompilationError } from "./compileErrors";
+import { DebugData } from "../debugData";
 
 
 
@@ -293,8 +294,9 @@ function resolveComplexIR(IRInstructions: IRInstruction[], yy: YY, definitions: 
     });
 }
 
-export function generateOpcodesFromIR(data: IRObject): RawProgram {
+export function generateOpcodesFromIR(data: IRObject, exportDebug: boolean): RawProgram | [RawProgram, DebugData] {
     const definitions = new DefinitionTable(data.variablesCanBeFunctions);
+    const debugData = new DebugData();
     // Step 1 - Populate global definitions, and check for repeated definitions
     loadPackages(data, definitions);
     if (!validateAndGetFunctionDefinitions(data, definitions))
@@ -382,6 +384,11 @@ export function generateOpcodesFromIR(data: IRObject): RawProgram {
             continue;
         }
         program.push(instruction);
+    }
+
+    if (exportDebug) {        
+        debugData.definitions = definitions;
+        return [program, debugData];
     }
     return program;
 }

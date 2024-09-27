@@ -199,7 +199,7 @@ export class Runtime {
     let rot;
     let di = [0, 1, 0, -1];
     let dj = [-1, 0, 1, 0];
-    let paramCount, newSP, op1, op2, fname;
+    let paramCount, newSP, op1, op2, fname, params, line, fromFName, npc;
     try {
       if (this.debug) {
         this.eventController.fireEvent('debug', this, {
@@ -478,13 +478,13 @@ export class Runtime {
           this.state.stackSize--;
           this.state.stackMemory -= Math.max(1, paramCount);;
           if (!this.disableStackEvents) {
-            let params = this.state.stack.subarray(0,0);
+            params = this.state.stack.subarray(0,0);
+            fromFName = this.functionNames[this.program[3 * this.state.pc + 2]];
 
-
-            let fname = "N/A";
-            let line = -2;
+            fname = "N/A";
+            line = -2;
             if (this.state.stackSize >= 1) {
-              let npc = this.state.stack[this.state.fp + 2]; //Get the function name from the function that called me
+              npc = this.state.stack[this.state.fp + 2]; //Get the function name from the function that called me
               fname = this.functionNames[this.program[3 * npc + 2]];
               line = this.program[3 * (npc + 1) + 1]; //Get line. A call always is LINE -> LOAD PARAM -> CALL -> LINE
               paramCount = this.state.stack[this.state.fp + 3];
@@ -496,6 +496,7 @@ export class Runtime {
               target: this,
               params: params,
               function: fname,
+              fromFunction: fromFName, 
               line: line,
               returnValue: this.state.ret
             });
