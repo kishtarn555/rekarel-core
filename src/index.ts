@@ -3,6 +3,7 @@ import { World, DumpTypes } from "./world";
 import { Runtime } from "./runtime";
 import { java2PascalTranspiler, pascal2JavaTranspiler } from "./transpiler";
 import { CompilationError } from "./compiler/InterRep/compileErrors";
+import { DebugData } from "./compiler/debugData";
 
 export {
   compile,
@@ -14,5 +15,6 @@ export {
   Runtime,
   World,
   DumpTypes,
-  CompilationError
+  CompilationError,
+  DebugData
 };
