@@ -175,7 +175,7 @@ export type IRSimpleInstruction =
     [instruction: "INC", amount: number] |
     [instruction: "CALL", data:IRCall] |
     [instruction: "RET", term: IRRet] |
-    [instruction: "RET", "__DEFAULT", loc:YYLoc] |
+    [instruction: "RET", dummy:"__DEFAULT", loc:YYLoc] |
     [instruction: "PARAM", index: number] |
     [instruction: "SRET"] |
     [instruction: "LRET"] | 
