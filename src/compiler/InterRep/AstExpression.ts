@@ -179,28 +179,15 @@ function resolveVar(data: IRVar, definitions: DefinitionTable, scope:Scope, targ
     }
 
     if (data.couldBeFunction) {
-        //Resolve as an parameterless call
-        target.push(["LOAD", 0]); // Load 0 parameters
-        if (!definitions.hasFunction(data.target)) {           
-            yy.parser.parseError("Undefined function or variable: " + data.target, {
-                error: CompilationError.Errors.UNDEFINED_FUNCTION,
-                functionName: data.target,
-                line: data.loc.first_line - 1,
-                loc: data.loc
-            }); 
-        }
-        target.push(["LINE", data.loc.first_line - 1, data.loc.first_column]);
-        target.push([
-            "CALL",
+        resolveCall(
             {
-                target: data.target,
                 nameLoc: data.loc,
-                expectedType: data.expectedType,
                 params: [],
-
-            }
-        ]);
-        target.push(["LINE", data.loc.first_line - 1, data.loc.first_column]);
+                target: data.target,
+                expectedType: data.expectedType,
+            },
+            definitions, scope, target, {}, yy
+        );
         target.push(["LRET"]);
         return;
     }
@@ -235,7 +222,11 @@ function resolveCall(data: IRCall, definitions: DefinitionTable, scope:Scope, ta
 
     target.push(["CALL", data]);
     target.push(
-        ["LINE", data.nameLoc.first_line - 1, data.nameLoc.first_column]
+        [
+            "LINE", 
+            data.nameLoc.first_line - 1, 
+            data.nameLoc.first_column + data.target.length
+        ],
     );
 
 
