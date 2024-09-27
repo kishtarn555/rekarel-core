@@ -50,7 +50,7 @@ describe("Java compilation tests ", ()=> {
         expect(opcodes).toBeDefined()
         const world = new World(10, 10);
         world.setBagBuzzers(20);
-        runAll(world, opcodes!);
+        runAll(world, opcodes! as RawProgram);
         expect(world.buzzers(1, 1)).toBe(16);
         expect(world.bagBuzzers).toBe(4);
 
@@ -62,7 +62,7 @@ describe("Java compilation tests ", ()=> {
         expect(opcodes).toBeDefined()
         const world = new World(10, 10);
         world.setBagBuzzers(20);
-        runAll(world, opcodes!);
+        runAll(world, opcodes! as RawProgram);
         expect(world.buzzers(1, 1)).toBe(9);
         expect(world.bagBuzzers).toBe(11);
 
@@ -74,7 +74,7 @@ describe("Java compilation tests ", ()=> {
         expect(opcodes).toBeDefined()
         const world = new World(10, 10);
         world.setBagBuzzers(-1);
-        runAll(world, opcodes!);
+        runAll(world, opcodes! as RawProgram);
         expect(world.buzzers(1, 1)).toBe(5);
         expect(world.buzzers(10, 1)).toBe(40);
         expect(world.i).toBe(10); 
@@ -89,7 +89,7 @@ test("Test continue statement", () => {
     expect(opcodes).toBeDefined()
     const world = new World(10, 10);
     world.setBagBuzzers(-1);
-    runAll(world, opcodes!);
+    runAll(world, opcodes! as RawProgram);
     expect(world.buzzers(1, 1)).toBe(12);
     expect(world.orientation).toBe(1);    
 });
@@ -113,7 +113,7 @@ describe("Java globals test ", ()=> {
         world.setBuzzers(1, 1, 5);
         world.setBuzzers(3, 1, 2);
         world.setBagBuzzers(20);
-        runAll(world, opcodes!);
+        runAll(world, opcodes! as RawProgram);
         expect(world.buzzers(2, 1)).toBe(5);
         expect(world.buzzers(3, 1)).toBe(0);
         expect(world.bagBuzzers).toBe(17);
@@ -125,7 +125,7 @@ describe("Java globals test ", ()=> {
         expect(opcodes).toBeDefined()
         const world = new World(25,25);
         world.setBagBuzzers(12);
-        runAll(world, opcodes!);
+        runAll(world, opcodes! as RawProgram);
         expect(world.i).toBe(13);
         expect(world.j).toBe(1);
         expect(world.buzzers(13, 1)).toBe(12);
@@ -151,7 +151,7 @@ describe("Java globals test ", ()=> {
         const world = new World(25,25);
         world.setBagBuzzers(120);
         world.setBuzzers(1,1,10);
-        runAll(world, opcodes!);
+        runAll(world, opcodes! as RawProgram);
         expect(world.buzzers(1, 1)).toBe(14);
         expect(world.bagBuzzers).toBe(116);
     });
@@ -166,7 +166,7 @@ describe("Test Java functions", ()=>{
         expect(opcodes).toBeDefined()
         const world = new World(10, 10);
         world.setBagBuzzers(-1);
-        runAll(world, opcodes!);
+        runAll(world, opcodes! as RawProgram);
         expect(world.runtime.state.error).toBeUndefined();
         expect(world.buzzers(1, 1)).toBe(1);
         expect(world.buzzers(2, 1)).toBe(2);
@@ -180,7 +180,7 @@ test("Java short circuit", ()=> {
     expect(opcodes).toBeDefined()
     const world = new World(10, 10);
     world.setBagBuzzers(-1);
-    runAll(world, opcodes!);
+    runAll(world, opcodes! as RawProgram);
     expect(world.runtime.state.error).toBeUndefined();
     //Test and shorting
     expect(world.buzzers(1, 1)).toBe(6);

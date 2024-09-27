@@ -1,3 +1,4 @@
+import { DebugData } from "../compiler/debugData";
 import { RawProgram } from "../compiler/opcodes";
 import {  World } from "../index"
 
