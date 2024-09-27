@@ -15,6 +15,7 @@ type ReturnEventDetails = {
     params: Int32Array,
     function: string,
     line: number,
+    fromFunction: string,
     returnValue: number,
     target: Runtime,
 }
