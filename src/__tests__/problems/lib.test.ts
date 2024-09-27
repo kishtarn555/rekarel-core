@@ -42,8 +42,8 @@ export function simpleProblemTest (dirname:string) {
                 const XMLIn = fs.readFileSync(inFilePath).toString();
                 const XMLOut = fs.readFileSync(outFilePath).toString();
                 const inputDocument = new DOMParser().parseFromString(XMLIn, 'text/xml') as unknown as Document;
-                const javaResult = RunWorld(inputDocument, javaOpcode!);
-                const pascalResult = RunWorld(inputDocument, pascalOpcode!);
+                const javaResult = RunWorld(inputDocument, javaOpcode! as RawProgram);
+                const pascalResult = RunWorld(inputDocument, pascalOpcode! as RawProgram);
                 validateOutput(javaResult, XMLOut);
                 validateOutput(pascalResult, XMLOut);
 
