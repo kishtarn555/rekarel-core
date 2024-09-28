@@ -60,7 +60,9 @@ function compile(code:string) : RawProgram | null {
         compiler = pascalCompiler;
         break;
       default:
-        return null;
+        let error:any = new Error("Unrecognized syntax. Check the code, it must start either with class or iniciar-programa");
+        error.hash = {line: 0, text:""};
+        throw error;
     }  
     return compiler(code);
   }
