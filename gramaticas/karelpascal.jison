@@ -22,14 +22,10 @@
 "define-prototipo-instrucción"              { return 'PROTO'; }
 "define-prototipo-calculo"                   { return 'PROTO_INT'; }
 "define-prototipo-cálculo"                   { return 'PROTO_INT'; }
-"define-instrucción-entera"                 { return 'DEF_INT'; }
-"define-instruccion-entera"                 { return 'DEF_INT'; }
 "define-calculo"                            { return 'DEF_INT'; }
 "define-cálculo"                            { return 'DEF_INT'; }
 "define-prototipo-condicion"                 { return 'PROTO_BOOL'; }
 "define-prototipo-condición"                 { return 'PROTO_BOOL'; }
-"define-instrucción-booleana"               { return 'DEF_BOOL'; }
-"define-instruccion-booleana"               { return 'DEF_BOOL'; }
 "define-condicion"                          { return 'DEF_BOOL'; }
 "define-condición"                          { return 'DEF_BOOL'; }
 "sal-de-instruccion"                        { return 'RET'; }
