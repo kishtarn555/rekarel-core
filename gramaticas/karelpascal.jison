@@ -23,6 +23,8 @@
 "define-prototipo-entero"                   { return 'PROTO_INT'; }
 "define-instrucción-entera"                 { return 'DEF_INT'; }
 "define-instruccion-entera"                 { return 'DEF_INT'; }
+"define-calculo"                            { return 'DEF_INT'; }
+"define-cálculo"                            { return 'DEF_INT'; }
 "define-prototipo-booleano"                 { return 'PROTO_BOOL'; }
 "define-instrucción-booleana"               { return 'DEF_BOOL'; }
 "define-instruccion-booleana"               { return 'DEF_BOOL'; }
