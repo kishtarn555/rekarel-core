@@ -3,67 +3,67 @@
 %lex
 %%
 
-\s+                             {/* ignore */}
-\/\/[^\n]*			{/* ignore */}
-\/\*(?:[^*]|\*(?!\/))*\*\/	{/* ignore */}
-"class"				{ return 'CLASS'; }
-"program"		        { return 'PROG'; }
-"define"			{ return 'DEF'; }
-"import"			{ return 'IMPORT'; }
-"void"				{ return 'DEF'; }
-"int"				  { return 'INT'; }
-"bool"				  { return 'BOOL'; }
-"return"      { return 'RET'; }
-"turnoff"                       { return 'HALT'; }
-"turnleft"	                { return 'LEFT'; }
-"move" 		                { return 'FORWARD'; }
-"pickbeeper"	                { return 'PICKBUZZER'; }
-"putbeeper"                     { return 'LEAVEBUZZER'; }
-"continue"                      { return 'CONTINUE'; }
-"break"                         { return 'BREAK'; }
-"while"                         { return 'WHILE'; }
-"iterate"                       { return 'REPEAT'; }
-"pred" 		                { return 'DEC'; }
-"succ"          	        { return 'INC'; }
-"iszero" 	                { return 'IFZ'; }
-"frontIsClear"                  { return 'IFNFWALL'; }
-"frontIsBlocked"                { return 'IFFWALL'; }
-"leftIsClear"	                { return 'IFNLWALL'; }
-"leftIsBlocked"                 { return 'IFLWALL'; }
-"rightIsClear"                  { return 'IFNRWALL'; }
-"rightIsBlocked"                { return 'IFRWALL'; }
-"nextToABeeper"                 { return 'IFWBUZZER'; }
-"notNextToABeeper"   	        { return 'IFNWBUZZER'; }
-"anyBeepersInBeeperBag" 	{ return 'IFBBUZZER'; }
-"noBeepersInBeeperBag"		{ return 'IFNBBUZZER'; }
-"facingNorth"		        { return 'IFN'; }
-"facingSouth"	                { return 'IFS'; }
-"facingEast"		        { return 'IFE'; }
-"facingWest"	                { return 'IFW'; }
-"notFacingNorth"	        { return 'IFNN'; }
-"notFacingSouth"	        { return 'IFNS'; }
-"notFacingEast"		        { return 'IFNE'; }
-"notFacingWest"		        { return 'IFNW'; }
-"else"                          { return 'ELSE'; }
-"if"                            { return 'IF'; }
-"!"                             { return 'NOT'; }
-"||"                            { return 'OR'; }
-"&&"                            { return 'AND'; }
-"&"				{ return 'AND'; }
-"("                             { return '('; }
-")"                             { return ')'; }
-"{"                             { return 'BEGIN'; }
-"}"                             { return 'END'; }
-";"                             { return ';'; }
-"."                             { return '.'; }
-"*"                             { return '*'; }
-","                             { return ','; }
-"=="                            { return '=='; }
-"<="                            { return '<='; }
-"<"                             { return '<'; }
-[0-9]+                          { return 'NUM'; }
-[a-zA-Z][a-zA-Z0-9_]*           { return 'VAR'; }
-<<EOF>>                         { return 'EOF'; }
+\s+                                             {/* ignore */}
+\/\/[^\n]*			                                {/* ignore */}
+\/\*(?:[^*]|\*(?!\/))*\*\/	                    {/* ignore */}
+"class"				                                  { return 'CLASS'; }
+"program"		                                    { return 'PROG'; }
+"define"			                                  { return 'DEF'; }
+"import"			                                  { return 'IMPORT'; }
+"void"				                                  { return 'DEF'; }
+"int"				                                    { return 'INT'; }
+"bool"				                                  { return 'BOOL'; }
+"return"                                        { return 'RET'; }
+"turnoff"                                       { return 'HALT'; }
+"turnleft"	                                    { return 'LEFT'; }
+"move" 		                                      { return 'FORWARD'; }
+"pickbeeper"	                                  { return 'PICKBUZZER'; }
+"putbeeper"                                     { return 'LEAVEBUZZER'; }
+"continue"                                      { return 'CONTINUE'; }
+"break"                                         { return 'BREAK'; }
+"while"                                         { return 'WHILE'; }
+"iterate"                                       { return 'REPEAT'; }
+"pred" 		                                      { return 'DEC'; }
+"succ"          	                              { return 'INC'; }
+"iszero" 	                                      { return 'IFZ'; }
+"frontIsClear"                                  { return 'IFNFWALL'; }
+"frontIsBlocked"                                { return 'IFFWALL'; }
+"leftIsClear"	                                  { return 'IFNLWALL'; }
+"leftIsBlocked"                                 { return 'IFLWALL'; }
+"rightIsClear"                                  { return 'IFNRWALL'; }
+"rightIsBlocked"                                { return 'IFRWALL'; }
+"nextToABeeper"                                 { return 'IFWBUZZER'; }
+"notNextToABeeper"   	                          { return 'IFNWBUZZER'; }
+"anyBeepersInBeeperBag" 	                      { return 'IFBBUZZER'; }
+"noBeepersInBeeperBag"		                      { return 'IFNBBUZZER'; }
+"facingNorth"		                                { return 'IFN'; }
+"facingSouth"	                                  { return 'IFS'; }
+"facingEast"		                                { return 'IFE'; }
+"facingWest"	                                  { return 'IFW'; }
+"notFacingNorth"	                              { return 'IFNN'; }
+"notFacingSouth"	                              { return 'IFNS'; }
+"notFacingEast"		                              { return 'IFNE'; }
+"notFacingWest"		                              { return 'IFNW'; }
+"else"                                          { return 'ELSE'; }
+"if"                                            { return 'IF'; }
+"!"                                             { return 'NOT'; }
+"||"                                            { return 'OR'; }
+"&&"                                            { return 'AND'; }
+"&"				                                      { return 'AND'; }
+"("                                             { return '('; }
+")"                                             { return ')'; }
+"{"                                             { return 'BEGIN'; }
+"}"                                             { return 'END'; }
+";"                                             { return ';'; }
+"."                                             { return '.'; }
+"*"                                             { return '*'; }
+","                                             { return ','; }
+"=="                                            { return '=='; }
+"<="                                            { return '<='; }
+"<"                                             { return '<'; }
+[0-9]+                                          { return 'NUM'; }
+[A-Za-zÀ-ÖØ-öø-ÿ_][A-Za-zÀ-ÖØ-öø-ÿ0-9_-]*       { return 'VAR'; }
+<<EOF>>                                         { return 'EOF'; }
 /lex
 
 %nonassoc XIF
