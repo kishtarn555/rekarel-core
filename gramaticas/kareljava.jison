@@ -62,7 +62,7 @@
 "<="                            { return '<='; }
 "<"                             { return '<'; }
 [0-9]+                          { return 'NUM'; }
-[a-zA-Z][a-zA-Z0-9_]*           { return 'VAR'; }
+[A-Za-zÀ-ÖØ-öø-ÿ_][A-Za-zÀ-ÖØ-öø-ÿ0-9_-]*           { return 'VAR'; }
 <<EOF>>                         { return 'EOF'; }
 /lex
 
