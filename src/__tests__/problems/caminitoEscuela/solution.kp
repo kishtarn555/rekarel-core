@@ -10,7 +10,7 @@ iniciar-programa
 		turn(3);
 	fin;
 
-	define-instruccion-entera abs(n) como
+	define-calculo abs(n) como
 	inicio
 		si (0 <= n) entonces 
 			regresa n;

@@ -1,9 +1,9 @@
 iniciar-programa
-	define-prototipo-entero numerico;
-	define-prototipo-booleano logico;
+	define-prototipo-calculo numerico;
+	define-prototipo-condicion logico;
 	define-prototipo-instruccion metodo;
 
-	define-instruccion-entera numerico como
+	define-calculo numerico como
 	inicio
 		avanza;
 		regresa 3;
@@ -14,7 +14,7 @@ iniciar-programa
 		avanza;
 	fin;
 
-	define-instruccion-booleana logico como
+	define-condicion logico como
 	inicio
 		avanza;
 		regresa orientado-al-norte;

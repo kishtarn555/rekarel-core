@@ -1,10 +1,10 @@
 iniciar-programa
-    define-instruccion-entera func como
+    define-calculo func como
     inicio
         regresa 5;
     fin;
 
-    define-instruccion-entera otro-func(n) como
+    define-calculo otro-func(n) como
     inicio
         si si-es-cero(n) entonces
         inicio

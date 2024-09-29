@@ -1,7 +1,7 @@
 iniciar-programa
-	define-prototipo-booleano pasos;
+	define-prototipo-condicion pasos;
 
-	define-instruccion-entera pasos como
+	define-calculo pasos como
 	inicio
 		avanza;
 	fin;
