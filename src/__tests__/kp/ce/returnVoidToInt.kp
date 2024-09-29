@@ -1,5 +1,5 @@
 iniciar-programa
-    define-instruccion-entera test(n) como
+    define-calculo test(n) como
     inicio
         regresa;
     fin;

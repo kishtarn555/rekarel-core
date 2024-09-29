@@ -1,5 +1,5 @@
 iniciar-programa
-	define-instruccion-entera pasos como
+	define-calculo pasos como
 	inicio
         si frente-libre entonces
         inicio

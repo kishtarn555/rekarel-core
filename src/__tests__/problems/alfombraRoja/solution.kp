@@ -1,7 +1,7 @@
 usa rekarel.globales;
 iniciar-programa
 
-	define-instruccion-entera dfs como
+	define-calculo dfs como
 	inicio
 		si frente-bloqueado y izquierda-bloqueada y derecha-bloqueada entonces
 		inicio

@@ -1,5 +1,5 @@
 iniciar-programa
-    define-instruccion-entera func como
+    define-calculo func como
     inicio
         regresa 4;
     fin;

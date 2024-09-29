@@ -1,12 +1,12 @@
 usa rekarel.globales;
 iniciar-programa
-    define-instruccion-booleana always como 
+    define-condicion always como 
     inicio
         deja-zumbador;
         regresa verdadero;
     fin;
 
-    define-instruccion-booleana never como
+    define-condicion never como
     inicio
         deja-zumbador;
         deja-zumbador;
