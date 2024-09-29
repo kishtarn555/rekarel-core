@@ -23,7 +23,8 @@ export namespace CompilationError {
         UNDEFINED_FUNCTION_OR_VARIABLE,
         UNARY_OPERATOR_TYPE_ERROR,
         UNKNOWN_MODULE,
-        UNKNOWN_PACKAGE,    
+        UNKNOWN_PACKAGE,
+        UNKNOWN_SYNTAX,
         UNKNOWN_VARIABLE,
         VOID_COMPARISON,
     }
@@ -204,6 +205,12 @@ export namespace CompilationError {
         full: string
     }
     
+    type UnknownSyntaxErrorStatus = {
+        error: Errors.UNKNOWN_SYNTAX,
+        loc: YYLoc,
+        line: number,
+    }
+    
     type UnknownVariableErrorStatus = {
         error: Errors.UNKNOWN_VARIABLE,
         loc: YYLoc,
@@ -242,6 +249,7 @@ export namespace CompilationError {
         | UndefinedFunctionErrorStatus
         | UnknownModuleErrorStatus
         | UnknownPackageErrorStatus
+        | UnknownSyntaxErrorStatus
         | UnknownVariableErrorStatus
         | VoidComparisonErrorStatus
     ;
