@@ -4,6 +4,7 @@ import { javaParser as importedJava } from '../kareljava.js';
 import { pascalParser as importedPascal } from '../karelpascal.js';
 import { generateOpcodesFromIR, IRObject } from './InterRep/IRProcessor.js';
 import { DebugData } from './debugData.js';
+import { CompilationError } from './InterRep/compileErrors.js'
 
 export type Compiler = (
     ((code: string) => RawProgram ) 
@@ -67,7 +68,17 @@ export function compile(code:string, exportDebug: boolean = false) : RawProgram 
         compiler = pascalCompiler;
         break;
       default:
-        return null;
+        let errorStatus:CompilationError.ErrorStatus = {
+            error: CompilationError.Errors.UNKNOWN_SYNTAX,
+            line:0,
+            loc: {
+                first_column:0, first_line: 1, last_column: 0, last_line: 1
+            }
+        }
+        let error = new Error("Unknown syntax, the start of the file must be either 'class' or 'iniciar-programa'");
+        // @ts-ignore Adding extra error data
+        error.hash = errorStatus
+        throw error;
     }  
     const result = compiler(code, exportDebug);
     return result;
