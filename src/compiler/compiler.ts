@@ -8,7 +8,7 @@ import { CompilationError } from './InterRep/compileErrors.js'
 
 export type Compiler = (
     ((code: string) => RawProgram ) 
-    | ( (code: string, exportDebug: boolean) => RawProgram | [RawProgram, DebugData])
+    | ( (code: string, exportDebug: boolean) => [RawProgram, DebugData])
 )
 
 type Parser = (code: string) => IRObject
@@ -57,7 +57,7 @@ export function detectLanguage(code: string): "java" | "pascal" | "unknown" {
 }
 
 
-export function compile(code:string, exportDebug: boolean = false) : RawProgram | [RawProgram, DebugData] | null {
+export function compile(code:string, exportDebug: boolean = false) : [RawProgram, DebugData] {
     let lang = detectLanguage(code);
     let compiler:Compiler = null;  
     switch (lang) {
@@ -86,12 +86,12 @@ export function compile(code:string, exportDebug: boolean = false) : RawProgram 
   
   
 
-export function javaCompiler(code:string, exportDebug: boolean = false): RawProgram | [RawProgram, DebugData] {
+export function javaCompiler(code:string, exportDebug: boolean = false):  [RawProgram, DebugData] {
     const IR = javaParser(code);
     return generateOpcodesFromIR(IR, exportDebug); 
 }
 
-export function pascalCompiler(code:string, exportDebug: boolean = false): RawProgram | [RawProgram, DebugData] {
+export function pascalCompiler(code:string, exportDebug: boolean = false): [RawProgram, DebugData] {
     const IR = pascalParser(code);
     return generateOpcodesFromIR(IR, exportDebug); 
 }
