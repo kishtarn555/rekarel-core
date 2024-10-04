@@ -294,7 +294,7 @@ function resolveComplexIR(IRInstructions: IRInstruction[], yy: YY, definitions: 
     });
 }
 
-export function generateOpcodesFromIR(data: IRObject, exportDebug: boolean): RawProgram | [RawProgram, DebugData] {
+export function generateOpcodesFromIR(data: IRObject, exportDebug: boolean): [RawProgram, DebugData] {
     const definitions = new DefinitionTable(data.variablesCanBeFunctions);
     const debugData = new DebugData();
     // Step 1 - Populate global definitions, and check for repeated definitions
@@ -390,5 +390,5 @@ export function generateOpcodesFromIR(data: IRObject, exportDebug: boolean): Raw
         debugData.definitions = definitions;
         return [program, debugData];
     }
-    return program;
+    return [program, null];
 }
