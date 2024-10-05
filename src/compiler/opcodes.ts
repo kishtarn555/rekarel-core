@@ -1,5 +1,8 @@
 "use strict";
 
+/**
+ * The Opcodes that conform the instruction set of Karel
+ */
 export enum OpCodeID {
   HALT = 0,
   LINE,
@@ -35,8 +38,16 @@ export enum OpCodeID {
   LTE
 };
 
+/**
+ * String type OPCODES 
+ */
 export type OpCodeLiteral = keyof typeof OpCodeID
 
+/**
+ * Converts from String mnemonic to numeric opcode
+ * @param literal Opcode Literal
+ * @returns The opcode numeric value, or -1 if the literal is not valid
+ */
 export function getOpCodeID(literal: string): number {
   if (literal in OpCodeID) {
     return OpCodeID[literal];
@@ -44,7 +55,9 @@ export function getOpCodeID(literal: string): number {
   return -1;
 }
 
-
+/**
+ * Runtime Errors types
+ */
 export enum ErrorType {
   INSTRUCTION = "INSTRUCTION",
   STACK = "STACK",
@@ -59,6 +72,9 @@ export enum ErrorType {
 
 export type ErrorLiteral = keyof typeof ErrorType;
 
+/**
+ * An instruction the Runtime can run
+ */
 export type OpCode =
   [instruction: "HALT"] |
   [instruction: "LINE", lineNumber: number, columnNumber: number] |
@@ -94,4 +110,8 @@ export type OpCode =
   [instruction: "LTE"] 
   ;
 
+
+/**
+ * A set of instructions that conform a program. 
+ */
 export type RawProgram = OpCode[]

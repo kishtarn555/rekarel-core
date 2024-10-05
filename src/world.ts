@@ -2,6 +2,9 @@
 
 import { Runtime } from "./runtime";
 
+/**
+ * Dump flags, they change what is emitted to the output of an world
+ */
 export enum DumpTypes {
     DUMP_WORLD = 'mundo',
     DUMP_POSITION = 'posicion',
@@ -23,6 +26,9 @@ type Orientation = 'OESTE' | 'NORTE' | 'ESTE' | 'SUR';
 
 const error_mapping = ['WALL', 'WORLDUNDERFLOW', 'BAGUNDERFLOW', 'INSTRUCTION'];
 
+/**
+ * Maps errors to their output message
+ */
 enum ERROR_MAPPING {
     BAGUNDERFLOW = 'ZUMBADOR INVALIDO',
     WALL = 'MOVIMIENTO INVALIDO',
@@ -32,37 +38,161 @@ enum ERROR_MAPPING {
     STACKMEMORY = "LIMITE DE MEMORIA DEL STACK",
     CALLSIZE = "LIMITE DE LONGITUD DE LLAMADA"
 }
+
+/**
+ * Represents a Karel World, it keeps track of both the starting state and the current state
+ * Contains information such as beepers, walls, Karel position, etc.
+ */
 export class World {
+    /**
+     * Width of the world
+     */
     w: number
+    /**
+     * Height of the world
+     */
     h: number
+    /**
+     * Runtime linked to this world
+     */
     runtime: Runtime
+    /**
+     * Stores the initial beepers. -1 Means infinite
+     * 
+     * 
+     */
     map: Int32Array | number[]
+    
+    /**
+     * Stores the current beepers. -1 Means infinite
+     */
     currentMap: Int32Array | number[]
+    /**
+     * Stores the walls of the worlds.
+     * Each cell contains a bitmask representing the cells
+     * - bit 0: West
+     * - bit 1: North
+     * - bit 2: East
+     * - bit 3: South
+     */
     wallMap: Uint8Array | number[]
+    /**
+     * Flag set if the world is modified either by a function or runtime
+     * It is not reset internally, but by an external controller
+     */
     dirty: boolean
+    /**
+     * Array of [row, column] which select which cells are emitted to the output
+     */
     dumpCells: [number, number][]
+    /**
+     * Dump flags, they control what is emitted to the output
+     */
     dumps: DumpData
+    /**
+     * Maximum number of instructions that a program can execute
+     */
     maxInstructions: number
+    /**
+     * Maximum number of moves a program can run
+     */
     maxMove: number
+    /**
+     * Maximum number of turn lefts a program can run
+     */
     maxTurnLeft: number
+    /**
+     * Maximum number of pick buzzers a program can run
+     */
     maxPickBuzzer: number
+    /**
+     * Maximum number of leave buzzers a program can run
+     */
     maxLeaveBuzzer: number
+    /**
+     * Inherited value, seems to do nothing...
+     * 
+     * TODO: Erase me or fix me
+     * 
+     * @experimental
+     */
     maxKarelBeepers: number
+    /**
+     * Inherited value, seems to do nothing...
+     * 
+     * TODO: Erase me or fix me
+     * @experimental
+     */
     maxBeepers: number
+    /**
+     * Maximum number of functions in the stack
+     */
     maxStackSize: number
-    maxCallSize: number
+    /**
+     * Maximum number of parameters a call can have
+     */
+    maxCallSize: number    
+    /**
+     * Maximum stack memory. A call consumes max(1, number of parameters) memory
+     */
     maxStackMemory: number
+    /**
+     * Name of the world
+     */
     worldName: string
+    /**
+     * Name of the program
+     */
     programName: string
-    preValidators: any[] //FIXME: I Don't know what this are
+    /**
+     * This allow for http requests on load (?)
+     * @deprecated
+     */
+    preValidators: any[] //FIXME: I Don't know what this are    
+    /**
+     * This allow for http requests after run (?)
+     * @deprecated
+     */
     postValidators: any[] //FIXME: I Don't know what this are
-    i: number
+    /**
+     * The current row where Karel is
+     */
+    i: number    
+    /**
+     * The current column where Karel is
+     */
     j: number
+    /**
+     * The current orientation of Karel
+     * - 0 is West
+     * - 1 is North
+     * - 2 is East
+     * - 3 is South
+     */
     orientation: number
+    /**
+     * Current number of beepers in the Bag. -1 if infinite
+     */
     bagBuzzers: number
+    /**
+     * The start row of Karel
+     */
     start_i: number
+    /**
+     * The start column of Karel
+     */
     start_j: number
+    /**
+     * Start orientation of Karel
+     * - 0 is West
+     * - 1 is North
+     * - 2 is East
+     * - 3 is South
+     */
     startOrientation: number
+    /**
+     * Start number of beepers in the Bag. -1 if infinite
+     */
     startBagBuzzers: number
 
 
@@ -79,6 +209,9 @@ export class World {
         this.clear();
     }
 
+    /**
+     * Creates and reserves the memory for the arrays
+     */
     createMaps(): void {
         if (ArrayBuffer) {
             let len = (this.w + 2) * (this.h + 2);
@@ -99,6 +232,11 @@ export class World {
         }
     }
 
+    /**
+     * Changes the size of the world
+     * @param w New width
+     * @param h New Height
+     */
     resize(w: number, h: number): void {
         // Eliminamos las paredes del borde
         for (let i = 1; i <= this.h; i++) {
@@ -152,6 +290,9 @@ export class World {
         this.dirty = true;
     }
 
+    /**
+     * Sets all values to their default. 
+     */
     clear(): void {
         for (let i = 0; i < this.wallMap.length; i++) {
             this.wallMap[i] = 0;
@@ -190,12 +331,29 @@ export class World {
 
         this.dirty = true;
     }
+    /**
+     * Returns the wall mask at a location
+     * @param i row
+     * @param j column
+     * @returns Wall Mask
+     */
 
     walls(i: number, j: number): number {
         if (0 > i || i > this.h || 0 > j || j > this.w) return 0;
         return this.wallMap[this.w * i + j];
     }
 
+    /**
+     * Sets the current walls at the current position
+     * 
+     * Does not set modifies the neighboring cells, so it allows "one way" walls.
+     * 
+     * It cannot destroy border walls
+     * 
+     * @param i Row
+     * @param j Column
+     * @param wallMask Value of the mask
+     */
     setWallMask = function (i: number, j: number, wallMask: number): void {
         let newMask = wallMask;
         if (
@@ -218,6 +376,13 @@ export class World {
         this.wallMap[this.w * i + j] = newMask;
     }
 
+    /**
+     * Toggles a wall in the specified orientation. It keeps the border walls and toggles the corresponding neighbor wall
+     *
+     * @param i row
+     * @param j column
+     * @param orientation number, they're [west, north, east, south]
+     */
     toggleWall(i: number, j: number, orientation: number): void {
 
         if (
@@ -255,6 +420,9 @@ export class World {
         this.dirty = true;
     }
 
+    /**
+     * Adds the border walls
+     */
     addBorderWalls(): void {
         for (let i = 1; i <= this.h; i++) {
             this.addWall(i, 1, 0);
@@ -267,12 +435,24 @@ export class World {
         }
     }
 
+    /**
+     * Adds the walls set in the wellMask to the specified cell and the corresponding neighbor's wall.
+     * @param i row
+     * @param j column
+     * @param wallMask Walls (lsb to msb is West, North, East, South) 
+     */
     setCellWalls(i: number, j: number, wallMask: number): void {
         for (let pos = 0; pos < 4; pos++) {
             if (wallMask & (1 << pos)) this.addWall(i, j, pos);
         }
     }
 
+    /**
+     * Adds a wall in to the specified cell and the corresponding neighbor's wall
+     * @param i row
+     * @param j column
+     * @param orientation Wall number (0-West, 1-North, 2-East, 3-South)
+     */
     addWall(i: number, j: number, orientation: number): void {
 
 
@@ -302,6 +482,12 @@ export class World {
         this.dirty = true;
     }
 
+    /**
+     * Set the amount of buzzers in a cell in both the **start** and **current** state
+     * @param i row
+     * @param j column
+     * @param count Number of beepers
+     */
     setBuzzers(i: number, j: number, count: number): void {
         if (0 >= i || i > this.h || 0 >= j || j > this.w)
             return;
@@ -335,6 +521,11 @@ export class World {
         return this.map[this.w * i + j];        
     }
 
+    /**
+     * Reduces in one the **current** cell and increases in one the **current** beeperBag. Respects infinite cells and bag.
+     * @param i cell
+     * @param j row
+     */
     pickBuzzer(i: number, j: number): void {
         if (0 > i || i > this.h || 0 > j || j > this.w)
             return;
@@ -347,6 +538,11 @@ export class World {
         this.dirty = true;
     }
 
+    /**
+     * Increases in one the **current** cell and reduces  in one the **current** beeperBag. Respects infinite cells and bag
+     * @param i cell
+     * @param j row
+     */
     leaveBuzzer(i: number, j: number): void {
         if (0 > i || i > this.h || 0 > j || j > this.w)
             return;
@@ -359,6 +555,12 @@ export class World {
         this.dirty = true;
     }
 
+    /**
+     * Adds or removes a cell to the dump list
+     * @param i row
+     * @param j column
+     * @param dumpState True if it should be added, false if not
+     */
     setDumpCell(i: number, j: number, dumpState: boolean): void {
         let dumpPos = -1;
 
@@ -384,6 +586,11 @@ export class World {
         this.dumps[DumpTypes.DUMP_WORLD] = this.dumpCells.length !== 0;
     }
 
+    /**
+     * Alternates a cell if it is dumped or not
+     * @param i row
+     * @param j column
+     */
     toggleDumpCell(i: number, j: number): void {
         let dumpPos = 0;
 
@@ -404,6 +611,12 @@ export class World {
         this.dumps[DumpTypes.DUMP_WORLD] = this.dumpCells.length !== 0;
     }
 
+    /**
+     * Returns if a cell is in the dumped list
+     * @param i row
+     * @param j column
+     */
+
     getDumpCell(i: number, j: number): boolean {
         let dumpPos = -1;
 
@@ -416,18 +629,35 @@ export class World {
         return false;
     }
 
+    /**
+     * Returns if a dump flag is set or not
+     * @param dumpFlag Flag to get
+     */
     getDumps(dumpFlag: DumpTypes): boolean {
         return this.dumps.hasOwnProperty(dumpFlag.toLowerCase()) && this.dumps[dumpFlag];
     }
 
+    /**
+     * Sets or disables a dump flag
+     * @param dumpFlag Flag to set
+     * @param flagValue True if it dumps, false if not
+     */
     setDumps(dumpFlag: DumpTypes, flagValue: boolean) {
         this.dumps[dumpFlag] = flagValue;
     }
 
+    /**
+     * Toggles a dump flag
+     * @param dumpFlag Flag to toggle
+     */
     toggleDumps(dumpFlag: DumpTypes) {
         this.setDumps(dumpFlag, !this.getDumps(dumpFlag));
     }
 
+    /**
+     * Loads a world data into the this object
+     * @param doc XML document that represents the world
+     */
     load(doc: Document) {
         const self = this;
         self.clear();
@@ -667,6 +897,7 @@ export class World {
 
     /**
      * Generates the XML representation of the input
+     * @param targetState if "current", it saves the current state. If "start" it saves the start state
      * @returns XML string representing the input
      */
     save(targetState:"current"|"start"): string {
@@ -931,12 +1162,21 @@ export class World {
         return this.serialize(result, 'resultados', 0);
     }
 
+    /**
+     * Moves Karel both at the **start** and **current** state to a cell
+     * @param i row
+     * @param j column
+     */
     move(i: number, j: number): void {
         this.i = this.start_i = i;
         this.j = this.start_j = j;
         this.dirty = true;
     }
 
+    /**
+     * Rotates Karel both at the **start** and **current**
+     * @param orientation If set, it rotates to the specified rotation, otherwise it rotates to the left.
+     */
     rotate(orientation?: Orientation): void {
         let orientations: Orientation[] = ['OESTE', 'NORTE', 'ESTE', 'SUR'];
 
@@ -950,12 +1190,19 @@ export class World {
         this.dirty = true;
     }
 
+    /**
+     * Sets both the **start** and **current** state buzzer bag
+     * @param buzzers 
+     */
     setBagBuzzers(buzzers: number): void {
         if (isNaN(buzzers)) buzzers = 0;
         this.bagBuzzers = this.startBagBuzzers = buzzers == 0xffff ? -1 : buzzers;
         this.dirty = true;
     }
 
+    /**
+     * Restores the current state to the start state
+     */
     reset () {
       
         this.orientation = this.startOrientation;
@@ -971,6 +1218,11 @@ export class World {
         this.dirty = true;
       }
     
+    /**
+     * Converts an error to an string output
+     * @param s error, if not set, it is understood there was no error
+     * @returns The program output
+     */
     errorMap(s: string | null): string {
         if (!s) return 'FIN PROGRAMA';
         if (ERROR_MAPPING.hasOwnProperty(s)) {

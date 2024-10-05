@@ -1,5 +1,12 @@
 import type { YYLoc } from "./IRParserTypes"
 
+/**
+ * Namespace holding the compilation error types and enums
+ * An ErrorStatus is formatted the following way:
+ * @param error - An CompilationError.Errors representing the error type
+ * @param loc - A YYLoc representing the location of the error
+ * @param line - number representing the line where the error happened
+ */
 export namespace CompilationError {
     export enum Errors {
         BINARY_OPERATOR_TYPE_ERROR,

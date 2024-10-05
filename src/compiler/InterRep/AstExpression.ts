@@ -6,19 +6,23 @@ import { Scope } from "./Scope";
 
 
 /**
- * Represents the info after traversing an AST
+ * Represents the info after traversing an AST subtree
  */
 type ASTInfo = {
+    /**
+     * True if the AST subtree always has an explicit return
+     */
     explicitReturn: boolean
 }
 
 /**
+ * Resolves a Term
  * @throws If the AST is not type correct
  * @param tree The ast expression to solve
  * @param table Definition table
  * @param yy Requiered to emmit compilation error
  * @param scope.expectedReturn The type of the return in the current scope
- * @returns Returns the equivalent AST into IRInstructions without AST
+ * @returns Returns the dataType the term resolved to.
  */
 function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY): string {
     if (tree.operation === "ATOM") {
@@ -162,7 +166,25 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
 
 }
 
-
+/**
+ * Resolves a variable into the SemiSimple Instructions
+ * 
+ * If the language has active the flag VariablesCanBeFunctions (such as pascal),
+ * the it may attempt to resolve it to a parameter-less function call
+ * 
+ * @param data the Variable IR
+ * @param definitions Table of definitions
+ * @param scope Scope data
+ * @param target target where the SemiSimple Instructions are appended to
+ * @param yy to emit compilation errors
+ * 
+ * 
+ * @throws 
+ * CompilationError.Errors.UNKNOWN_VARIABLE | CompilationError.Errors.UNDEFINED_FUNCTION
+ * 
+ * if the variable is not defined
+ * 
+ */
 function resolveVar(data: IRVar, definitions: DefinitionTable, scope:Scope, target: IRSemiSimpleInstruction[], yy: YY) {
     const parameterIdx = scope.parameters.findIndex(e => data.target === e.name);
     if (parameterIdx !== -1) {
@@ -201,6 +223,22 @@ function resolveVar(data: IRVar, definitions: DefinitionTable, scope:Scope, targ
 }
 
 
+/**
+ * Resolves a call into the SemiSimple Instructions
+ * It resolves its parameters and formats it properly for the VM
+ * 
+ * @param data the Call IR
+ * @param definitions Table of definitions
+ * @param scope Scope data
+ * @param target target where the SemiSimple Instructions are appended to
+ * @param tags A record of tags
+ * @param yy to emit compilation errors
+ * 
+ * 
+ * @throws 
+ * CompilationError.Errors.UNDEFINED_FUNCTION
+ * If the function is not defined
+ */
 function resolveCall(data: IRCall, definitions: DefinitionTable, scope:Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
     for (const parameter of data.params) {
         resolveTerm(parameter, definitions, scope, target, tags, yy);
@@ -231,6 +269,23 @@ function resolveCall(data: IRCall, definitions: DefinitionTable, scope:Scope, ta
 
 
 }
+
+
+/**
+ * Resolves a return
+ * 
+ * @param data the Return IR
+ * @param definitions Table of definitions
+ * @param scope Scope data
+ * @param target target where the SemiSimple Instructions are appended to
+ * @param tags A record of tags
+ * @param yy to emit compilation errors
+ * 
+ * 
+ * @throws 
+ * CompilationError.Errors.RETURN_TYPE
+ * If the return type is not correct
+ */
 function resolveReturn(data: IRRet, definitions: DefinitionTable, scope:Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
     const retType = resolveTerm(data.term, definitions, scope,  target, tags, yy);
     if (scope.expectedReturn !== retType) {
@@ -248,7 +303,17 @@ function resolveReturn(data: IRRet, definitions: DefinitionTable, scope:Scope, t
 
 }
 
-
+/**
+ * Resolves a repeat loop
+ * @param data The repeat AST
+ * @param definitions Table of definitions
+ * @param scope Scope data
+ * @param target the SemiSimple Instruction array where instructions are inserted
+ * @param tags Available tags record
+ * @param yy For compilation error purposes
+ * 
+ * @throws If inner blocks fail to be resolved
+ */
 function resolveRepeat(data: IRRepeat, definitions: DefinitionTable, scope:Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
     // Add line marker
     target.push(data.line);    
@@ -309,14 +374,15 @@ function resolveRepeat(data: IRRepeat, definitions: DefinitionTable, scope:Scope
 }
 
 /**
- * Resolves a while
- * @param data 
- * @param definitions 
- * @param scope.parameters 
- * @param scope.expectedReturn 
- * @param target 
- * @param tags 
- * @param yy 
+ * Resolves a while AST
+ * @param data While data
+ * @param definitions  table of definitions
+ * @param scope Scope data
+ * @param target Target where SemiSimpleInstructions are emitted to
+ * @param tags Available tags
+ * @param yy Parser errors
+ * 
+ * @throws
  */
 function resolveWhile(data: IRWhile, definitions: DefinitionTable, scope:Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY) {
     // Add repeat tag
@@ -377,8 +443,18 @@ function resolveWhile(data: IRWhile, definitions: DefinitionTable, scope:Scope, 
         tags,
         yy
     );
-
 }
+
+/**
+ * Resolves a conditional
+ * @param data Conditional data
+ * @param definitions Table of definitions
+ * @param scope Scope info
+ * @param target Target where the SemiSimple instructions are emitted to
+ * @param tags Tags available
+ * @param yy Parser errors
+ * @returns Flow data
+ */
 
 function resolveConditional(data: IRConditional, definitions: DefinitionTable, scope:Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY): ASTInfo {
     let trueReturns = false, falseReturns = false;
@@ -458,7 +534,7 @@ function resolveConditional(data: IRConditional, definitions: DefinitionTable, s
  * @throws Iterates through an IR list and resolve any AST it finds
  * @param tree The ast expression to solve
  * @param definitions Definition table
- * @param yy Requiered to emmit compilation error
+ * @param yy Required to emit compilation error
  * @returns Returns the equivalent AST into IRInstructions without AST
  */
 export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions: DefinitionTable, scope: Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY): ASTInfo {
