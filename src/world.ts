@@ -110,21 +110,6 @@ export class World {
      */
     maxLeaveBuzzer: number
     /**
-     * Inherited value, seems to do nothing...
-     * 
-     * TODO: Erase me or fix me
-     * 
-     * @experimental
-     */
-    maxKarelBeepers: number
-    /**
-     * Inherited value, seems to do nothing...
-     * 
-     * TODO: Erase me or fix me
-     * @experimental
-     */
-    maxBeepers: number
-    /**
      * Maximum number of functions in the stack
      */
     maxStackSize: number
@@ -144,16 +129,6 @@ export class World {
      * Name of the program
      */
     programName: string
-    /**
-     * This allow for http requests on load (?)
-     * @deprecated
-     */
-    preValidators: any[] //FIXME: I Don't know what this are    
-    /**
-     * This allow for http requests after run (?)
-     * @deprecated
-     */
-    postValidators: any[] //FIXME: I Don't know what this are
     /**
      * The current row where Karel is
      */
@@ -319,15 +294,11 @@ export class World {
         this.maxTurnLeft = -1;
         this.maxPickBuzzer = -1;
         this.maxLeaveBuzzer = -1;
-        this.maxKarelBeepers = -1;
-        this.maxBeepers = -1;
         this.maxStackSize = 65000;
         this.maxStackMemory = 65000;
         this.maxCallSize = 5;
         this.worldName = 'mundo_0';
         this.programName = 'p1';
-        this.preValidators = [];
-        this.postValidators = [];
 
         this.dirty = true;
     }
@@ -757,27 +728,7 @@ export class World {
                     parseInt(dump.getAttribute('y'), 10),
                     parseInt(dump.getAttribute('x'), 10),
                 ]);
-            },
-
-            validador: function (validador) {
-                //FIXME: What is a validator
-
-                // let src = null;
-                // if (validador.getAttribute('src')) {
-                //     src = $.ajax({
-                //         type: 'GET',
-                //         url: validador.getAttribute('src'),
-                //         async: false,
-                //     }).responseText;
-                // } else {
-                //     src = validador.firstChild.nodeValue;
-                // }
-                // if (validador.getAttribute('tipo') == 'post') {
-                //     self.postValidators.push(src);
-                // } else {
-                //     self.preValidators.push(src);
-                // }
-            },
+            },            
 
             programa: function (programa) {
                 let xKarel = parseInt(
@@ -1020,26 +971,6 @@ export class World {
             if (this.dumps.hasOwnProperty(p) && this.dumps[p]) {
                 result.programas.programa.despliega.push({
                     '#attributes': { tipo: p.toUpperCase() },
-                });
-            }
-        }
-
-        if (this.preValidators || this.postValidators) {
-            result.validadores = [];
-            for (let i = 0; i < this.preValidators.length; i++) {
-                result.validadores.push({
-                    validador: {
-                        '#attributes': { tipo: 'pre' },
-                        '#text': '<![CDATA[' + this.preValidators[i] + ']]>',
-                    },
-                });
-            }
-            for (let i = 0; i < this.postValidators.length; i++) {
-                result.validadores.push({
-                    validador: {
-                        '#attributes': { tipo: 'post' },
-                        '#text': '<![CDATA[' + this.postValidators[i] + ']]>',
-                    },
                 });
             }
         }
