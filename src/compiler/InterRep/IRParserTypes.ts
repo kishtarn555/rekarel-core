@@ -1,6 +1,9 @@
 import { CompilationError } from "./compileErrors"
 
-// TODO: complete the parser
+/**
+ * Represents a JISON parser
+ * 
+ */
 export interface Parser {
     /**
      * @throws It throws a error
@@ -10,10 +13,16 @@ export interface Parser {
     parseError(str: string, hash: CompilationError.ErrorStatus)
 }
 
+/**
+ * JISON YY object
+ */
 export interface YY {
     parser: Parser
 }
 
+/**
+ * A JISON YY location
+ */
 export type YYLoc = {
     first_line: number,
     first_column: number,

@@ -5,26 +5,27 @@ import {  ErrorLiteral, ErrorType, getOpCodeID, OpCodeID, OpCodeLiteral, RawProg
 import type { World } from './world';
 
 
+
+
 /**
- * A class that holds the state of computation and executes opcodes.
- *
- * The Karel Virtual Machine is a simple, stack-based virtual machine with
- * a small number of opcodes, based loosely on the Java Virtual Machine.
- * All opcodes are represented as an array where the first element is the
- * opcode name, followed by zero or one parameters.
+ * A Karel program Represented as a flattened integer array. 
+ * Each instruction occupies three consecutive elements in the format of
+ * [OpcodeID, Arg1, Arg2]
  */
-
-
-
 type ByteProgram = Int32Array
 
-
-
+/**
+ * Error instruction type error
+ * Used to report too many instructions
+ */
 type ErrorData = {
   type:ErrorType.INSTRUCTION,
   instruction?: OpCodeLiteral
 }
 
+/**
+ * Stores the registers and memory of an execution
+ */
 type RuntimeState = {
   pc: number
   sp: number
@@ -50,15 +51,45 @@ type RuntimeState = {
 
 
 
+/**
+ * A class that holds the state of computation and executes opcodes.
+ *
+ * The Karel Virtual Machine is a simple, stack-based virtual machine with
+ * a small number of opcodes, based loosely on the Java Virtual Machine.
+ * All opcodes are represented as an array where the first element is the
+ * opcode name, followed by zero or one parameters.
+ */
 export class Runtime {
   world: World
   debug: boolean
+  /**
+   * If true, it does no fire stack events 
+   */
   disableStackEvents: boolean
+  /**
+   * @deprecated This should not be here, use eventController instead
+   * 
+   */
   events: KarelRuntimeEventTarget
+  /**
+   * Object representing the opcodes as given by the compiler
+   */
   rawOpcodes: RawProgram
+  /**
+   * The program in the numeric machine code representation
+   */
   program: ByteProgram
+  /*
+   * Array containing the functions name in the same order as they are referenced by the ByteProgram
+  */
   functionNames: string[]
+  /**
+   * The current state of the execution. Stores the registers and memory of an execution
+  */
   state: RuntimeState
+  /**
+   * Event controller that fires and notifies the listeners of any event
+   */
   eventController: KarelRuntimeEventTarget
 
   constructor(world: World) {
@@ -71,6 +102,10 @@ export class Runtime {
 
   }
 
+  /**
+   * Loads the runtime with an opcode
+   * @param opcodes The program as given by the compiler
+   */
   load(opcodes: RawProgram) {
 
     let error_mapping: ErrorLiteral[] = ['WALL', 'WORLDUNDERFLOW', 'BAGUNDERFLOW', 'INSTRUCTION'];
@@ -106,6 +141,9 @@ export class Runtime {
     this.reset();
   }
 
+  /**
+   * Starts the execution
+   */
   start(): void {
     this.eventController.fireEvent(
       'start',
@@ -118,6 +156,9 @@ export class Runtime {
     );
   }
 
+  /**
+   * Resets the state. **Does not** reset the world
+   */
   reset() {
 
     this.state = {
@@ -153,6 +194,9 @@ export class Runtime {
     }
   }
 
+  /**
+   * Runs the program until the next Line instruction or until it stops running.
+   */
   step(): boolean {
     while (this.state.running) {
       try {
@@ -179,6 +223,9 @@ export class Runtime {
     return this.state.running;
   }
 
+  /**
+   * Executes the instruction at the program counter.
+   */
   next(): boolean {
     if (!this.state.running) return;
 

@@ -21,8 +21,13 @@ export type IRVar= {
     expectedType: string
 };
 
-
+/**
+ * A parameter definition Data
+ */
 export type IRParam = {
+    /**
+     * Param name
+     */
     name: string,
     loc: YYLoc,
 }
@@ -73,6 +78,9 @@ export type IRTerm =
     }
 ;
 
+/**
+ * Represents an IR return
+ */
 export type IRRet = {
     term:IRTerm,
     loc: YYLoc
@@ -105,7 +113,9 @@ export type IRWhile = {
     instructions: IRInstruction[]
 }
 
-
+/**
+ * AST of a Conditional
+ */
 export type IRConditional = {
     condition: IRInstructionTerm,
     line: IRSimpleInstruction,
@@ -115,6 +125,9 @@ export type IRConditional = {
     falseCase?: IRInstruction[],
 };
 
+/**
+ * IR tag jumps
+ */
 export type IRJumps =     
     [instruction: "TJMP", data:string] |  //Jumps to a opcode by tag
     [instruction: "TJZ", data:string]  //Jumps to a opcode by tag if stack has zero
