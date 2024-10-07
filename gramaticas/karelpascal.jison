@@ -598,7 +598,7 @@ term
   | '(' term ')'
     { 
       $$ = { 
-        term: $term
+        term: $term,
         operation: "PARENTHESIS",
         dataType: $term.dataType,
         loc: $term.loc,
