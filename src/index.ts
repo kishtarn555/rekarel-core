@@ -4,6 +4,9 @@ import { Runtime } from "./runtime";
 import { CompilationError } from "./compiler/InterRep/compileErrors";
 import { DebugData } from "./compiler/debugData";
 import { transpileCode } from "./transpiler/transpiler";
+import { generateOpcodesFromIR } from "./compiler/InterRep/IRProcessor";
+import { generateJavaFromIR } from "./transpiler/javaTranspiler";
+import { generatePascalFromIR } from "./transpiler/pascalTranspiler";
 
 export {
   compile,
@@ -15,5 +18,8 @@ export {
   World,
   DumpTypes,
   CompilationError,
-  DebugData
+  DebugData,
+  generateJavaFromIR,
+  generateOpcodesFromIR,
+  generatePascalFromIR
 };
