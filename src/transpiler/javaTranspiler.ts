@@ -99,7 +99,9 @@ export function generateJavaFromIR(data: IRObject): string {
         data.functions.map(
             (func)=> processFunction(func)
         );
-    let mainBody = processInstructions(data.program, 2);
+    // remove extra turnoff
+    const program = data.program.slice(0, -1);
+    let mainBody = processInstructions(program, 2);
 return `class program {
 ${functions}
 
