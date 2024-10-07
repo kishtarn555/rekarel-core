@@ -80,6 +80,24 @@ function processTerm(term:IRTerm):string {
     if (term.operation === "PASS") {
         return processTerm(term.term);
     }
+    if (term.operation === "AND") {
+        return `${processTerm(term.left)} && ${processTerm(term.right)}`;
+    }
+    if (term.operation === "OR") {
+        return `${processTerm(term.left)} || ${processTerm(term.right)}`;
+    }
+    if (term.operation === "NOT") {
+        return `!${processTerm(term.term)}`;
+    }
+    if (term.operation === "EQ") {
+        return `${processTerm(term.left)} == ${processTerm(term.right)}`;
+    }
+    if (term.operation === "LT") {
+        return `${processTerm(term.left)} < ${processTerm(term.right)}`;
+    }
+    if (term.operation === "LTE") {
+        return `${processTerm(term.left)} <= ${processTerm(term.right)}`;
+    }
 }
 
 function processIf(conditional: IRConditional, indentation: number):string[] {
