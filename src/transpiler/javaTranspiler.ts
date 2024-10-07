@@ -62,7 +62,7 @@ function processInstructions(instructions: IRInstruction[], indentation:number):
             const params = data.params.map(
                 (param)=>processTerm(param)
             ).join(", ");
-            result.push(`${tabs(indentation)}${data.target}`)
+            result.push(`${tabs(indentation)}${data.target}(${params});`)
             continue;
         }
         if (instruction[0]==="RET" && instruction[1] !== "__DEFAULT") {
@@ -99,7 +99,7 @@ export function generateJavaFromIR(data: IRObject): string {
         data.functions.map(
             (func)=> processFunction(func)
         );
-    let mainBody = "";
+    let mainBody = processInstructions(data.program, 2);
 return `class program {
 ${functions}
 
