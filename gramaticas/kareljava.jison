@@ -288,13 +288,13 @@ expr_list
 
 expr
   : FORWARD '(' ')' ';'
-    { $$ = [locToIR(@1), ['WORLDWALLS'], ['ORIENTATION'], ['MASK'], ['AND'], ['NOT'], ['EZ', 'WALL'], ['FORWARD']]; }
+    { $$ = [locToIR(@1), ['FORWARD']]; }
   | LEFT '(' ')' ';'
     { $$ = [locToIR(@1), ['LEFT']]; }
   | PICKBUZZER '(' ')' ';'
-    { $$ = [locToIR(@1), ['WORLDBUZZERS'], ['EZ', 'WORLDUNDERFLOW'], ['PICKBUZZER']]; }
+    { $$ = [locToIR(@1), ['PICKBUZZER']]; }
   | LEAVEBUZZER '(' ')' ';'
-    { $$ = [locToIR(@1), ['BAGBUZZERS'], ['EZ', 'BAGUNDERFLOW'], ['LEAVEBUZZER']]; }
+    { $$ = [locToIR(@1), ['LEAVEBUZZER']]; }
   | HALT '(' ')' ';'
     { $$ = [locToIR(@1), ['HALT']]; }
   | CONTINUE ';'

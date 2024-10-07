@@ -547,7 +547,28 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
             resolveVar(instruction[1], definitions, scope, target, yy);
             continue;
         }
-
+        if (instruction[0] === "FORWARD") {
+            target.push(['WORLDWALLS']);
+            target.push(['ORIENTATION']);
+            target.push(['MASK']);
+            target.push(['AND']);
+            target.push(['NOT']);
+            target.push(['EZ', 'WALL']);
+            target.push(instruction);
+            continue;
+        }
+        if (instruction[0] === "PICKBUZZER") {
+            target.push(['WORLDBUZZERS']);
+            target.push(['EZ', 'WORLDUNDERFLOW']);
+            target.push(instruction);
+            continue;
+        }
+        if (instruction[0] === "LEAVEBUZZER") {
+            target.push(['BAGBUZZERS']);
+            target.push(['EZ', 'BAGUNDERFLOW']);
+            target.push(instruction);
+            continue;
+        }
         if (instruction[0] === "TERM") {
             resolveTerm(instruction[1], definitions, scope, target, tags, yy);
             continue;
