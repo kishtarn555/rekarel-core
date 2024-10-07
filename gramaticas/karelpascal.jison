@@ -264,7 +264,12 @@ def
         code: [
           locToIR(@2),
           ...$expr,
-          ['RET', '__DEFAULT', @1]
+          ['RET', '__DEFAULT', {
+            first_line: @4.last_line,
+            first_column: @4.last_column,
+            last_line: @4.last_line,
+            last_column: @4.last_column,
+          }]
         ],
         params: [], 
         loc: @$,
@@ -284,7 +289,12 @@ def
         code: [
           locToIR(@2),
           ...$expr,
-          ['RET', '__DEFAULT', @1]
+          ['RET', '__DEFAULT', {
+            first_line: @7.last_line,
+            first_column: @7.last_column,
+            last_line: @7.last_line,
+            last_line: @7.last_column,
+          }]
         ],
         params: $paramList,
         loc: @$,        
@@ -383,8 +393,7 @@ return
           dataType:"VOID"
         },
         loc: @1
-      }],
-      locToIR(@1)
+      }]
     ]; }
   | RET term
     
@@ -392,8 +401,7 @@ return
       ['RET', {
         term: $term,
         loc: @1
-      }],
-      locToIR(@1)
+      }]
     ]; }
   ;
 
