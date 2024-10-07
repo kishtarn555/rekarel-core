@@ -12,6 +12,7 @@ import {
 import { CompilationError } from "../compiler/InterRep/compileErrors";
 import { pascalParser } from "../karelpascal";
 import { generateJavaFromIR } from "./javaTranspiler";
+import { generatePascalFromIR } from "./pascalTranspiler";
 
 /**
  * Takes a source code and transpiles it to a target language
@@ -45,6 +46,9 @@ export function transpileCode(source: string, target: "java"|"pascal"):string {
     const result = parser(source);
     if (target === "java") {
         return generateJavaFromIR(result);
+    }
+    if (target === "pascal") {
+        return generatePascalFromIR(result);
     }
     return "000";
 }
