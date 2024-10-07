@@ -376,7 +376,12 @@ return
     
     { $$ = [
       ['RET', {
-        term: { operation: "ATOM", instructions:[["LOAD", 0]], dataType:"VOID" },
+        term: { 
+          operation: "ATOM", 
+          instructions:[["LOAD", 0]],
+          atomType: "IMPLICIT.0",
+          dataType:"VOID"
+        },
         loc: @1
       }],
       locToIR(@1)
@@ -636,6 +641,7 @@ clause
         operation: "ATOM",
         instructions: $int_term.concat([['NOT']]),
         dataType: "BOOL",
+        atomType: "IS_ZERO",
         loc: @1,
         totalLoc: @$
       };
@@ -644,7 +650,8 @@ clause
     { 
       $$ = {
         operation: "ATOM",
-        instructions: $bool_fun,
+        instructions: $bool_fun.code,
+        atomType: $bool_fun.name,
         dataType: "BOOL",
         loc: @1,
         totalLoc: @1
@@ -654,7 +661,8 @@ clause
     {
       $$ = {
         operation: "ATOM",
-        instructions: $integer,
+        instructions: $integer.code,
+        atomType: $integer.data,
         dataType: "INT",
         loc: @1,
         totalLoc: @1
@@ -676,6 +684,7 @@ clause
           operation: "ATOM",
           instructions: ir,
           dataType: "$"+$var.toLowerCase(),
+          atomType: `VAR.${$var.toLowerCase()}`,
           loc: @1,
           totalLoc: @1
         }; 
@@ -688,6 +697,7 @@ clause
         operation: "ATOM",
         instructions: [...callIR, ['LRET']],
         dataType: "$"+callData.target,
+        atomType: "CALL",
         loc: @1,
         totalLoc: @1
       }
@@ -696,54 +706,169 @@ clause
 
 bool_fun
   : IFNFWALL
-    { $$ = [['WORLDWALLS'], ['ORIENTATION'], ['MASK'], ['AND'], ['NOT']]; }
+    {
+      $$ = {
+        name: "IFNFWALL",
+        code: [['WORLDWALLS'], ['ORIENTATION'], ['MASK'], ['AND'], ['NOT']]
+      };
+    }
   | IFFWALL
-    { $$ = [['WORLDWALLS'], ['ORIENTATION'], ['MASK'], ['AND']]; }
+    {
+      $$ = {
+        name: "IFFWALL",
+        code: [['WORLDWALLS'], ['ORIENTATION'], ['MASK'], ['AND']]
+      };
+    }
   | IFNLWALL
-    { $$ = [['WORLDWALLS'], ['ORIENTATION'], ['ROTL'], ['MASK'], ['AND'], ['NOT']]; }
+    {
+      $$ = {
+        name: "IFNLWALL",
+        code: [['WORLDWALLS'], ['ORIENTATION'], ['ROTL'], ['MASK'], ['AND'], ['NOT']]
+      };
+    }
   | IFLWALL
-    { $$ = [['WORLDWALLS'], ['ORIENTATION'], ['ROTL'], ['MASK'], ['AND']]; }
+    {
+      $$ = {
+        name: "IFLWALL",
+        code: [['WORLDWALLS'], ['ORIENTATION'], ['ROTL'], ['MASK'], ['AND']]
+      };
+    }
   | IFNRWALL
-    { $$ = [['WORLDWALLS'], ['ORIENTATION'], ['ROTR'], ['MASK'], ['AND'], ['NOT']]; }
+    {
+      $$ = {
+        name: "IFNRWALL",
+        code: [['WORLDWALLS'], ['ORIENTATION'], ['ROTR'], ['MASK'], ['AND'], ['NOT']]
+      };
+    }
   | IFRWALL
-    { $$ = [['WORLDWALLS'], ['ORIENTATION'], ['ROTR'], ['MASK'], ['AND']]; }
+    {
+      $$ = {
+        name: "IFRWALL",
+        code: [['WORLDWALLS'], ['ORIENTATION'], ['ROTR'], ['MASK'], ['AND']]
+      };
+    }
   | IFWBUZZER
-    { $$ = [['WORLDBUZZERS'], ['LOAD', 0], ['EQ'], ['NOT']]; }
+    {
+      $$ = {
+        name: "IFWBUZZER",
+        code: [['WORLDBUZZERS'], ['LOAD', 0], ['EQ'], ['NOT']]
+      };
+    }
   | IFNWBUZZER
-    { $$ = [['WORLDBUZZERS'], ['NOT']]; }
+    {
+      $$ = {
+        name: "IFNWBUZZER",
+        code: [['WORLDBUZZERS'], ['NOT']]
+      };
+    }
   | IFBBUZZER
-    { $$ = [['BAGBUZZERS'], ['LOAD', 0], ['EQ'], ['NOT']]; }
+    {
+      $$ = {
+        name: "IFBBUZZER",
+        code: [['BAGBUZZERS'], ['LOAD', 0], ['EQ'], ['NOT']]
+      };
+    }
   | IFNBBUZZER
-    { $$ = [['BAGBUZZERS'], ['NOT']]; }
+    {
+      $$ = {
+        name: "IFNBBUZZER",
+        code: [['BAGBUZZERS'], ['NOT']]
+      };
+    }
   | IFW
-    { $$ = [['ORIENTATION'], ['LOAD', 0], ['EQ']]; }
+    {
+      $$ = {
+        name: "IFW",
+        code: [['ORIENTATION'], ['LOAD', 0], ['EQ']]
+      };
+    }
   | IFN
-    { $$ = [['ORIENTATION'], ['LOAD', 1], ['EQ']]; }
+    {
+      $$ = {
+        name: "IFN",
+        code: [['ORIENTATION'], ['LOAD', 1], ['EQ']]
+      };
+    }
   | IFE
-    { $$ = [['ORIENTATION'], ['LOAD', 2], ['EQ']]; }
+    {
+      $$ = {
+        name: "IFE",
+        code: [['ORIENTATION'], ['LOAD', 2], ['EQ']]
+      };
+    }
   | IFS
-    { $$ = [['ORIENTATION'], ['LOAD', 3], ['EQ']]; }
+    {
+      $$ = {
+        name: "IFS",
+        code: [['ORIENTATION'], ['LOAD', 3], ['EQ']]
+      };
+    }
   | IFNW
-    { $$ = [['ORIENTATION'], ['LOAD', 0], ['EQ'], ['NOT']]; }
+    {
+      $$ = {
+        name: "IFNW",
+        code: [['ORIENTATION'], ['LOAD', 0], ['EQ'], ['NOT']]
+      };
+    }
   | IFNN
-    { $$ = [['ORIENTATION'], ['LOAD', 1], ['EQ'], ['NOT']]; }
+    {
+      $$ = {
+        name: "IFNN",
+        code: [['ORIENTATION'], ['LOAD', 1], ['EQ'], ['NOT']]
+      };
+    }
   | IFNE
-    { $$ = [['ORIENTATION'], ['LOAD', 2], ['EQ'], ['NOT']]; }
+    {
+      $$ = {
+        name: "IFNE",
+        code: [['ORIENTATION'], ['LOAD', 2], ['EQ'], ['NOT']]
+      };
+    }
   | IFNS
-    { $$ = [['ORIENTATION'], ['LOAD', 3], ['EQ'], ['NOT']]; }
+    {
+      $$ = {
+        name: "IFNS",
+        code: [['ORIENTATION'], ['LOAD', 3], ['EQ'], ['NOT']]
+      };
+    }
   ;
 
 integer
   : int_literal
-    { $$ = [['LOAD',  $int_literal]]; }
+    { 
+      $$ = {
+        data: `NUMBER.${$int_literal}`,
+        code: [['LOAD',  $int_literal]]
+      }; 
+    }
   | INC '(' int_term ')'
-    { $$ = $int_term.concat([['INC', 1]]); }
+    { 
+      $$ = {
+        data: "INC",
+        code: $int_term.concat([['INC', 1]])
+      };
+    }
   | DEC	 '(' int_term ')'
-    { $$ = $int_term.concat([['DEC', 1]]); }
+    { 
+      $$ = {
+        data: "DEC",
+        code: $int_term.concat([['DEC', 1]])
+      };
+    }
   | INC '(' int_term ',' int_literal ')'
-    { $$ = $int_term.concat([['INC', $int_literal]]); }
+    { 
+      $$ = {
+        data: `INC.${$int_literal}`,
+        code: $int_term.concat([['INC', $int_literal]])
+      };
+    }
   | DEC	 '(' int_term ',' int_literal ')'
-    { $$ = $int_term.concat([['DEC', $int_literal]]); }
+    { 
+      $$ = {
+        data: `DEC.${$int_literal}`,
+        code: $int_term.concat([['DEC', $int_literal]])
+      };
+    }
   ;
 
 int_literal
