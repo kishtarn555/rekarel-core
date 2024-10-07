@@ -303,6 +303,7 @@ function resolveReturn(data: IRRet, definitions: DefinitionTable, scope:Scope, t
         });
     }
     target.push(["SRET"]);
+    target.push(["LINE", data.loc.first_line - 1, data.loc.first_column])
     target.push(["RET", data]);
 
 
@@ -593,6 +594,11 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
                 //set SRET to 0
                 target.push(["LOAD",0])
                 target.push(["SRET"])
+                target.push([
+                    "LINE", 
+                    instruction[2].first_line - 1,
+                    instruction[2].first_column
+                ]);
                 target.push(instruction);
                 continue;
             }

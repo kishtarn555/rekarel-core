@@ -221,7 +221,12 @@ def
         code: [
           locToIR(@2),
           ...$block,
-          ['RET', '__DEFAULT', @1],
+          ['RET', '__DEFAULT', {
+            first_line: @5.last_line,
+            first_column: @5.last_column-1,
+            last_line: @5.last_line,
+            last_column: @5.last_column
+          }],
         ],  
         params: [], 
         loc: @$, 
@@ -238,7 +243,12 @@ def
         
           locToIR(@2),
           ...$block,
-          ['RET', '__DEFAULT', @1]
+          ['RET', '__DEFAULT', {
+            first_line: @6.last_line,
+            first_column: @6.last_column-1,
+            last_line: @6.last_line,
+            last_column: @6.last_column
+          }],
       ];
       let params = [$5];
     	$$ = [{
@@ -328,8 +338,7 @@ return
           atomType:"IMPLICIT.0"
         },
         loc: @1
-      }],
-      locToIR(@1)
+      }]
     ]; }
   | RET 
     { $$ = [
@@ -341,13 +350,11 @@ return
           atomType:"IMPLICIT.0"
         },
         loc: @1
-      }],      
-      locToIR(@1)
+      }]
     ]; }
   | RET  term 
     
     { $$ = [
-      locToIR(@1),
       ['RET', {
         term: $term,
         loc: @1
