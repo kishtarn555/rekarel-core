@@ -123,16 +123,15 @@ ${body}
 
 export function generateJavaFromIR(data: IRObject): string {
 
-    let functions:string[] = 
+    let functions:string = 
         data.functions.map(
             (func)=> processFunction(func)
-        );
+        ).join("\n");
     // remove extra turnoff
-    const program = data.program.slice(0, -1);
+    const program = data.program.slice(0, -1); 
     let mainBody = processInstructions(program, 2);
 return `class program {
 ${functions}
-
 \tprogram() {
 ${mainBody}
 \t}   
