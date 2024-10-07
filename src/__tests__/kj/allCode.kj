@@ -1,0 +1,88 @@
+import rekarel.globals;
+class program {
+    // We can @also have comments here
+    void f1() {
+        return;
+    }
+	define f2() {
+		f1();
+		return();
+	}
+	int n1(a) {
+		return a;
+	}
+	bool l1(a, b) {
+		return a < b;
+	}
+	
+    program() {
+        // This is a comment
+        /*  
+            This is a
+            block 
+            comment        
+        */
+		// Test all built in
+        move();
+        turnleft();
+        putbeeper();
+        pickbeeper();		
+		f1();
+		// Test all booleans
+		if (frontIsClear) {}
+		if (frontIsBlocked) {}
+		if (leftIsClear) {}
+		if (leftIsBlocked) {}
+		if (rightIsClear) {}
+		if (rightIsBlocked) {}
+		if (nextToABeeper) {}
+		if (notNextToABeeper) {}
+		if (anyBeepersInBeeperBag) {}
+		if (noBeepersInBeeperBag) {}
+		if (facingNorth) {}
+		if (facingSouth) {}
+		if (facingEast) {}
+		if (facingWest) {}
+		if (notFacingNorth) {}
+		if (notFacingSouth) {}
+		if (notFacingEast) {}
+		if (notFacingWest) {}
+		//test globals
+		if (true) {}
+		if (false) {}
+		if (beeperBag == 0) {}
+		if (floorBeepers == 0) {}
+		//Test all logical operator
+		if (true && true) {}
+		if (true || true) {}
+		if (true == true) {}
+		if (!false) {}
+		if (!(true || ((false) &&((((true))))) )==false) {}
+		// Test numeric comparisons		
+		if (3 < 5) {}
+		if (3 <= 5) {}
+		if (3 == 5) {}
+		//Test succ and pred
+		iterate(succ(4)) {}
+		iterate(succ(0, 10)) {}
+		iterate(succ(beeperBag, 10)) {}
+		iterate(pred(4)) {}
+		iterate(pred(3, 10)) {}
+		iterate(pred(beeperBag, 10)) {}
+		// Test while
+		while (false) {}
+		//Test params
+		iterate(n1(10)) {
+			putbeeper();
+		}
+
+		if (l1(10, 3)) {}
+		while (true) {
+			break;
+		}
+		while (false) {
+			continue;
+		}
+        turnoff();
+    }
+}a
