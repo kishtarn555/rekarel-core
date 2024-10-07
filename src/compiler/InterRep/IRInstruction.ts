@@ -43,6 +43,15 @@ export type IRFunction = {
     returnType: string
 }
 
+export type IRTermAtom = {
+    operation: "ATOM",
+    atomType: string
+    instructions: IRInstruction[],
+    dataType: string,
+    loc: YYLoc,
+    totalLoc: YYLoc,
+};
+
 /**
  * Represents and IR instruction
  */
@@ -62,14 +71,7 @@ export type IRTerm =
         loc: YYLoc,
         totalLoc: YYLoc,
     } 
-    | {
-        operation: "ATOM",
-        atomType: string
-        instructions: IRInstruction[],
-        dataType: string,
-        loc: YYLoc,
-        totalLoc: YYLoc,
-    }
+    | IRTermAtom
     | {
         operation: "PASS",
         term: IRTerm,
