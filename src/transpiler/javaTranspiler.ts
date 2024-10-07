@@ -32,7 +32,7 @@ function processAtom(atom:IRTermAtom):string {
         if (atomType === atom.atomType) {
             return `succ(${term})`;
         }
-        const literal = atom.dataType.split(".")[1];        
+        const literal = atom.atomType.split(".")[1];        
         return `succ(${term}, ${literal})`;
     }
     if (atomType === "DEC") {
