@@ -86,6 +86,12 @@ function translateVars(word: string):string {
     if (word === "mochila") {
         return "beeperBag";
     }
+    if (word === "verdadero") {
+        return "true";
+    }
+    if (word === "falso") {
+        return "false";
+    }
     return word;
 }
 
