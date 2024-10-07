@@ -1,4 +1,4 @@
-import { IRComplexInstruction, IRFunction, IRInstruction, IRInstructionTerm, IRTerm, IRTermAtom } from "../compiler/InterRep/IRInstruction";
+import { IRComplexInstruction, IRConditional, IRFunction, IRInstruction, IRInstructionTerm, IRTerm, IRTermAtom } from "../compiler/InterRep/IRInstruction";
 import { IRObject } from "../compiler/InterRep/IRProcessor"
 
 function tabs(indentation:number):string{
@@ -58,7 +58,23 @@ function processTerm(term:IRTerm):string {
     }
 }
 
-function processInstructions(instructions: IRInstruction[], indentation:number): string {
+function processIf(conditional: IRConditional, indentation: number):string[] {
+    let result:string[]=[];
+    const condition = processTerm(conditional.condition[1]);
+    result.push(`${tabs(indentation)}if (${condition}) {`);
+    result = result.concat(processInstructions(conditional.trueCase, indentation+1));
+    if (conditional.skipFalseTag == null) {
+        result.push(`${tabs(indentation)}}`);
+        return result;
+    }
+    result.push(`${tabs(indentation)}} else {`);
+    result = result.concat(processInstructions(conditional.falseCase!, indentation+1));    
+    result.push(`${tabs(indentation)}}`);
+    return result;
+
+}
+
+function processInstructions(instructions: IRInstruction[], indentation:number): string[] {
     let result:string[]= [];
     for (const instruction of instructions) {
         if (instruction[0]==="HALT") {
@@ -99,12 +115,20 @@ function processInstructions(instructions: IRInstruction[], indentation:number):
             }
             continue;
         }
+        
+        if (instruction[0]==="IF") {
+            result = result.concat(processIf(instruction[1], indentation));
+            
+            continue;
+        }
+        result.push(`${tabs(indentation)}´/** @PARSER Unknown intruction ${instruction[0]}*/`)
+        
     }
-    return result.join("\n");
+    return result;
 }
 
 function processFunction(func: IRFunction):string {
-    let body = processInstructions(func.code, 2);
+    let body:string = processInstructions(func.code, 2).join("\n");
     let func_type = "define";
     if (func.returnType === "INT") {
         func_type = "int";
@@ -128,8 +152,8 @@ export function generateJavaFromIR(data: IRObject): string {
             (func)=> processFunction(func)
         ).join("\n");
     // remove extra turnoff
-    const program = data.program.slice(0, -1); 
-    let mainBody = processInstructions(program, 2);
+    const program:IRInstruction[] = data.program.slice(0, -1); 
+    let mainBody:string = processInstructions(program, 2).join("\n");
 return `class program {
 ${functions}
 \tprogram() {
