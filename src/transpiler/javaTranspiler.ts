@@ -221,6 +221,14 @@ function processInstructions(instructions: IRInstruction[], indentation:number):
             result = result.concat(processWhile(instruction[1], indentation));            
             continue;
         }
+        if (instruction[0]==="CONTINUE") {
+            result.push(`${tabs(indentation)}continue;`);
+            break;
+        }
+        if (instruction[0]==="BREAK") {
+            result.push(`${tabs(indentation)}break;`);
+            break;
+        }
         result.push(`${tabs(indentation)}/** @PARSER Unknown intruction ${instruction[0]}*/`)
         
     }
