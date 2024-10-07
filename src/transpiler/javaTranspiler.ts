@@ -1,4 +1,4 @@
-import { IRComplexInstruction, IRFunction, IRInstruction, IRTerm } from "../compiler/InterRep/IRInstruction";
+import { IRComplexInstruction, IRFunction, IRInstruction, IRInstructionTerm, IRTerm, IRTermAtom } from "../compiler/InterRep/IRInstruction";
 import { IRObject } from "../compiler/InterRep/IRProcessor"
 
 function tabs(indentation:number):string{
@@ -9,14 +9,28 @@ function tabs(indentation:number):string{
     return result;
 }
 
-function processAtom(term:IRInstruction[]):string {
-    
+function processAtom(atom:IRTermAtom):string {
+    const atomType = atom.dataType.split(".")[0];
+    if (atomType === "IMPLICIT") {
+        // Ignore implicit type
+        return "";
+    }
+    if (atomType === "IS_ZERO") {
+        const body = processTerm(
+            (atom.instructions[0] as IRInstructionTerm)[1]
+        );
+        return `iszero(${body})`;
+    }
+    if (atomType === "") {
+
+    }
+    return "000";
 }
 
 
 function processTerm(term:IRTerm):string {
     if (term.operation === "ATOM") {
-        return processAtom(term.instructions)
+        return processAtom(term);
     }
 }
 
@@ -61,7 +75,7 @@ function processInstructions(instructions: IRInstruction[], indentation:number):
     return result.join("\n");
 }
 
-function processFunctions(func: IRFunction):string {
+function processFunction(func: IRFunction):string {
     let body = processInstructions(func.code, 2);
     let func_type = "define";
     if (func.returnType === "INT") {
@@ -81,7 +95,7 @@ ${body}
 
 export function generateJavaFromIR(data: IRObject): string {
 
-    let functions:string = 
+    let functions:string[] = 
         data.functions.map(
             (func)=> processFunction(func)
         );
