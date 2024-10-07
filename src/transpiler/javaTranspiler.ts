@@ -1,4 +1,4 @@
-import { IRComplexInstruction, IRConditional, IRFunction, IRInstruction, IRInstructionTerm, IRRepeat, IRTerm, IRTermAtom } from "../compiler/InterRep/IRInstruction";
+import { IRComplexInstruction, IRConditional, IRFunction, IRInstruction, IRInstructionTerm, IRRepeat, IRTerm, IRTermAtom, IRWhile } from "../compiler/InterRep/IRInstruction";
 import { IRObject } from "../compiler/InterRep/IRProcessor"
 
 function tabs(indentation:number):string{
@@ -84,6 +84,15 @@ function processRepeat(conditional: IRRepeat, indentation: number):string[] {
 
 }
 
+function processWhile(conditional: IRWhile, indentation: number):string[] {
+    let result:string[]=[];
+    const condition = processTerm(conditional.condition[1]);
+    result.push(`${tabs(indentation)}while (${condition}) {`);
+    result = result.concat(processInstructions(conditional.instructions, indentation+1));  
+    result.push(`${tabs(indentation)}}`);
+    return result;
+}
+
 function processInstructions(instructions: IRInstruction[], indentation:number): string[] {
 
     let result:string[]= [];
@@ -136,6 +145,11 @@ function processInstructions(instructions: IRInstruction[], indentation:number):
         if (instruction[0]==="REPEAT") {
             result = result.concat(processRepeat(instruction[1], indentation));
             
+            continue;
+        }
+        
+        if (instruction[0]==="WHILE") {
+            result = result.concat(processWhile(instruction[1], indentation));            
             continue;
         }
         result.push(`${tabs(indentation)}/** @PARSER Unknown intruction ${instruction[0]}*/`)
