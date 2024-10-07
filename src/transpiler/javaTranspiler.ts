@@ -80,6 +80,9 @@ function processTerm(term:IRTerm):string {
     if (term.operation === "PASS") {
         return processTerm(term.term);
     }
+    if (term.operation === "PARENTHESIS") {
+        return `(${processTerm(term.term)})`;
+    }
     if (term.operation === "AND") {
         return `${processTerm(term.left)} && ${processTerm(term.right)}`;
     }
