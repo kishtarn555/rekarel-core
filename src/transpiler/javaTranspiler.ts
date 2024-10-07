@@ -11,6 +11,27 @@ function tabs(indentation:number):string{
 
 function processAtom(atom:IRTermAtom):string {
     const atomType = atom.atomType.split(".")[0];
+
+    const boolFunctions:Record<string, string> = {
+        "IFNFWALL": "frontIsClear",
+        "IFFWALL": "frontIsBlocked",
+        "IFNLWALL": "leftIsClear",
+        "IFLWALL": "leftIsBlocked",
+        "IFNRWALL": "rightIsClear",
+        "IFRWALL": "rightIsBlocked",
+        "IFWBUZZER": "nextToABeeper",
+        "IFNWBUZZER": "notNextToABeeper",
+        "IFBBUZZER": "anyBeepersInBeeperBag",
+        "IFNBBUZZER": "noBeepersInBeeperBag",
+        "IFN": "facingNorth",
+        "IFS": "facingSouth",
+        "IFE": "facingEast",
+        "IFW": "facingWest",
+        "IFNN": "notFacingNorth",
+        "IFNS": "notFacingSouth",
+        "IFNE": "notFacingEast",
+        "IFNW": "notFacingWest",
+    }
     if (atomType === "IMPLICIT") {
         // Ignore implicit type
         return "";
@@ -44,6 +65,9 @@ function processAtom(atom:IRTermAtom):string {
         }
         const literal = atom.atomType.split(".")[1];        
         return `pred(${term}, ${literal})`;
+    }
+    if (atomType in boolFunctions) {
+        return boolFunctions[atomType];
     }
     return `/* UNKNOWN ATOM TYPE ${atomType }*/`;
 }
