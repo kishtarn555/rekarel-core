@@ -5,3 +5,6 @@ export function tabs(indentation:number):string{
     }
     return result;
 }
+export interface TranspilerData {
+    hasGlobals: boolean
+}

@@ -1,17 +1,7 @@
 import { IRComplexInstruction, IRConditional, IRFunction, IRInstruction, IRInstructionTerm, IRRepeat, IRTerm, IRTermAtom, IRWhile } from "../compiler/InterRep/IRInstruction";
 import { IRObject } from "../compiler/InterRep/IRProcessor"
+import { tabs, TranspilerData } from "./transpilerCommon";
 
-interface TranspilerData {
-    hasGlobals: boolean
-}
-
-function tabs(indentation:number):string{
-    let result="";
-    for (let i=0; i < indentation; i++) {
-        result+="\t";
-    }
-    return result;
-}
 
 function processAtom(atom:IRTermAtom, data: TranspilerData):string {
     const atomType = atom.atomType.split(".")[0];
