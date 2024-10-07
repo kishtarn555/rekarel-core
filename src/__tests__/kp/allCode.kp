@@ -1,17 +1,37 @@
 usa rekarel.globales;
 iniciar-programa
-	define f1 como
+	define-prototipo-instruccion f3;
+	define-prototipo-calculo n1(a);
+	define-prototipo-cálculo n2(otroNombre);
+	define-prototipo-condicion l1(a,b);
+	define-prototipo-condición l2(c,d);
+	
+	define-nueva-instruccion f1 como
 	inicio
 		regresa;
 	fin;
 
-	define f2 como
+	define-nueva-instrucción f2 como
 	inicio
 		f1;
-		regresa;
+		sal-de-instruccion;
+	fin;
+	define f3 como
+	inicio
+		f1;
+		sal-de-instrucción;
 	fin;
 
 	define-calculo n1 (a) como
+	inicio
+		regresa a;
+	fin;
+
+	define-condición l2 (a, b) como
+	inicio
+		regresa a < b;
+	fin;
+	define-cálculo n2 (a) como
 	inicio
 		regresa a;
 	fin;
@@ -20,6 +40,7 @@ iniciar-programa
 	inicio
 		regresa a < b;
 	fin;
+	
 
 	inicia-ejecucion
 		avanza;
@@ -153,6 +174,15 @@ iniciar-programa
 		inicio
 			continua;
 		fin;
+		mientras verdadero hacer
+		inicio
+			continúa;
+		fin;
+		mientras falso hacer
+		inicio
+			rompe;
+		fin;
 		apagate;
+		apágate;
 	termina-ejecucion   
 finalizar-programa
