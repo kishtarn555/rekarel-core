@@ -10,7 +10,7 @@ function tabs(indentation:number):string{
 }
 
 function processAtom(atom:IRTermAtom):string {
-    const atomType = atom.dataType.split(".")[0];
+    const atomType = atom.atomType.split(".")[0];
     if (atomType === "IMPLICIT") {
         // Ignore implicit type
         return "";
@@ -21,16 +21,40 @@ function processAtom(atom:IRTermAtom):string {
         );
         return `iszero(${body})`;
     }
-    if (atomType === "") {
-
+    if (atomType === "NUMBER") {
+        const argument = atom.atomType.split(".")[1];
+        return argument;
     }
-    return "000";
+    if (atomType === "INC") {
+        const term = processTerm((
+            atom.instructions[0] as IRInstructionTerm)[1]
+        );
+        if (atomType === atom.atomType) {
+            return `succ(${term})`;
+        }
+        const literal = atom.dataType.split(".")[1];        
+        return `succ(${term}, ${literal})`;
+    }
+    if (atomType === "DEC") {
+        const term = processTerm((
+            atom.instructions[0] as IRInstructionTerm)[1]
+        );
+        if (atomType === atom.atomType) {
+            return `pred(${term})`;
+        }
+        const literal = atom.atomType.split(".")[1];        
+        return `pred(${term}, ${literal})`;
+    }
+    return `/* UNKNOWN ATOM TYPE ${atomType }*/`;
 }
 
 
 function processTerm(term:IRTerm):string {
     if (term.operation === "ATOM") {
         return processAtom(term);
+    }
+    if (term.operation === "PASS") {
+        return processTerm(term.term);
     }
 }
 
