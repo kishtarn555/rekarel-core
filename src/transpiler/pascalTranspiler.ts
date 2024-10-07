@@ -1,7 +1,16 @@
-import { IRComplexInstruction, IRConditional, IRFunction, IRInstruction, IRInstructionTerm, IRRepeat, IRTerm, IRTermAtom, IRWhile } from "../compiler/InterRep/IRInstruction";
+import { IRCall, IRComplexInstruction, IRConditional, IRFunction, IRInstruction, IRInstructionTerm, IRRepeat, IRTerm, IRTermAtom, IRWhile } from "../compiler/InterRep/IRInstruction";
 import { IRObject } from "../compiler/InterRep/IRProcessor"
 import { tabs, TranspilerData } from "./transpilerCommon";
 
+function resolveCall(data:IRCall, transpilerData: TranspilerData) {
+    if (data.params.length > 0) {
+        const params = data.params.map(
+            (param)=>processTerm(param, transpilerData)
+        ).join(", ");
+        return `${data.target}(${params})`;
+    }
+    return `${data.target}`;
+}
 
 function processAtom(atom:IRTermAtom, data: TranspilerData):string {
     const atomType = atom.atomType.split(".")[0];
@@ -67,6 +76,12 @@ function processAtom(atom:IRTermAtom, data: TranspilerData):string {
     if (atomType === "VAR") {
         const variable = atom.atomType.split(".")[1];
         return translateVars(variable, data);
+    }
+    if (atomType === "CALL") {
+        return resolveCall(
+            atom.instructions[0][1] as IRCall,
+            data
+        );
     }
 
     if (atomType in boolFunctions) {
@@ -200,15 +215,8 @@ function processInstructions(instructions: IRInstruction[], indentation:number, 
             continue;
         }
         if (instruction[0]==="CALL") {
-            const data = instruction[1];
-            if (data.params.length > 0) {
-                const params = data.params.map(
-                    (param)=>processTerm(param, transpilerData)
-                ).join(", ");
-                result.push(`${tabs(indentation)}${data.target}(${params});`);
-            } else {
-                result.push(`${tabs(indentation)}${data.target};`);
-            }
+            const data = instruction[1];            
+            result.push(`${tabs(indentation)}${resolveCall(data, transpilerData)};`);            
             continue;
         }
         if (instruction[0]==="RET" ) {
