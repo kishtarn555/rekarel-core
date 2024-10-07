@@ -7,24 +7,24 @@ function processAtom(atom:IRTermAtom, data: TranspilerData):string {
     const atomType = atom.atomType.split(".")[0];
 
     const boolFunctions:Record<string, string> = {
-        "IFNFWALL": "frontIsClear",
-        "IFFWALL": "frontIsBlocked",
-        "IFNLWALL": "leftIsClear",
-        "IFLWALL": "leftIsBlocked",
-        "IFNRWALL": "rightIsClear",
-        "IFRWALL": "rightIsBlocked",
-        "IFWBUZZER": "nextToABeeper",
-        "IFNWBUZZER": "notNextToABeeper",
-        "IFBBUZZER": "anyBeepersInBeeperBag",
-        "IFNBBUZZER": "noBeepersInBeeperBag",
-        "IFN": "facingNorth",
-        "IFS": "facingSouth",
-        "IFE": "facingEast",
-        "IFW": "facingWest",
-        "IFNN": "notFacingNorth",
-        "IFNS": "notFacingSouth",
-        "IFNE": "notFacingEast",
-        "IFNW": "notFacingWest",
+        "IFNFWALL": "frente-libre",
+        "IFFWALL": "frente-bloqueado",
+        "IFNLWALL": "izquierda-libre",
+        "IFLWALL": "izquierda-bloqueada",
+        "IFNRWALL": "derecha-libre",
+        "IFRWALL": "derecha-bloqueada",
+        "IFWBUZZER": "junto-a-zumbador",
+        "IFNWBUZZER": "no-junto-a-zumbador",
+        "IFBBUZZER": "algun-zumbador-en-la-mochila",
+        "IFNBBUZZER": "ningun-zumbador-en-la-mochila",
+        "IFN": "orientado-al-norte",
+        "IFS": "orientado-al-sur",
+        "IFE": "orientado-al-este",
+        "IFW": "orientado-al-oeste",
+        "IFNN": "no-orientado-al-norte",
+        "IFNS": "no-orientado-al-sur",
+        "IFNE": "no-orientado-al-este",
+        "IFNW": "no-orientado-al-oeste",
     }
     if (atomType === "IMPLICIT") {
         // Ignore implicit type
@@ -35,7 +35,7 @@ function processAtom(atom:IRTermAtom, data: TranspilerData):string {
             (atom.instructions[0] as IRInstructionTerm)[1],
             data
         );
-        return `iszero(${body})`;
+        return `es-cero(${body})`;
     }
     if (atomType === "NUMBER") {
         const argument = atom.atomType.split(".")[1];
@@ -47,10 +47,10 @@ function processAtom(atom:IRTermAtom, data: TranspilerData):string {
             data
         );
         if (atomType === atom.atomType) {
-            return `succ(${term})`;
+            return `sucede(${term})`;
         }
         const literal = atom.atomType.split(".")[1];        
-        return `succ(${term}, ${literal})`;
+        return `sucede(${term}, ${literal})`;
     }
     if (atomType === "DEC") {
         const term = processTerm((
@@ -58,10 +58,10 @@ function processAtom(atom:IRTermAtom, data: TranspilerData):string {
             data
         );
         if (atomType === atom.atomType) {
-            return `pred(${term})`;
+            return `precede(${term})`;
         }
         const literal = atom.atomType.split(".")[1];        
-        return `pred(${term}, ${literal})`;
+        return `precede(${term}, ${literal})`;
     }
 
     if (atomType === "VAR") {
@@ -78,25 +78,25 @@ function processAtom(atom:IRTermAtom, data: TranspilerData):string {
 
 function translateVars(word: string, data: TranspilerData):string {
     if (data.hasGlobals) {
-        if (word === "zumbadores-del-piso") {
-            return "floorBeepers";
+        if (word === "floorBeepers") {
+            return "zumbadores-del-piso";
         }
-        if (word === "mochila") {
-            return "beeperBag";
+        if (word === "beeperBag") {
+            return "mochila";
         }
-        if (word === "verdadero") {
-            return "true";
+        if (word === "true") {
+            return "verdadero";
         }
-        if (word === "falso") {
-            return "false";
+        if (word === "false") {
+            return "falso";
         }
     }
     return word;
 }
 
 function translatePackages(packName:string):string {
-    if (packName === "rekarel.globales") {
-        return "rekarel.globals";
+    if (packName === "rekarel.globals") {
+        return "rekarel.globales";
     }
     return packName;
 }
@@ -113,13 +113,13 @@ function processTerm(term:IRTerm, data: TranspilerData):string {
         return `(${processTerm(term.term, data)})`;
     }
     if (term.operation === "AND") {
-        return `${processTerm(term.left, data)} && ${processTerm(term.right, data)}`;
+        return `${processTerm(term.left, data)} y ${processTerm(term.right, data)}`;
     }
     if (term.operation === "OR") {
-        return `${processTerm(term.left, data)} || ${processTerm(term.right, data)}`;
+        return `${processTerm(term.left, data)} o ${processTerm(term.right, data)}`;
     }
     if (term.operation === "NOT") {
-        return `!${processTerm(term.term, data)}`;
+        return `no ${processTerm(term.term, data)}`;
     }
     if (term.operation === "EQ") {
         return `${processTerm(term.left, data)} == ${processTerm(term.right, data)}`;
@@ -135,15 +135,18 @@ function processTerm(term:IRTerm, data: TranspilerData):string {
 function processIf(conditional: IRConditional, indentation: number, data: TranspilerData):string[] {
     let result:string[]=[];
     const condition = processTerm(conditional.condition[1], data);
-    result.push(`${tabs(indentation)}if (${condition}) {`);
+    result.push(`${tabs(indentation)}si ${condition} entonces`);
+    result.push(`${tabs(indentation)}inicio`);
     result = result.concat(processInstructions(conditional.trueCase, indentation+1, data));
     if (conditional.skipFalseTag == null) {
-        result.push(`${tabs(indentation)}}`);
+        result.push(`${tabs(indentation)}fin;`);
         return result;
     }
-    result.push(`${tabs(indentation)}} else {`);
+    result.push(`${tabs(indentation)}fin`);
+    result.push(`${tabs(indentation)}sino`);
+    result.push(`${tabs(indentation)}inicio`);
     result = result.concat(processInstructions(conditional.falseCase!, indentation+1, data));    
-    result.push(`${tabs(indentation)}}`);
+    result.push(`${tabs(indentation)}fin;`);
     return result;
 
 }
@@ -151,9 +154,10 @@ function processIf(conditional: IRConditional, indentation: number, data: Transp
 function processRepeat(conditional: IRRepeat, indentation: number, data: TranspilerData):string[] {
     let result:string[]=[];
     const iterations = processTerm(conditional.loopCount[1], data);
-    result.push(`${tabs(indentation)}iterate (${iterations}) {`);
+    result.push(`${tabs(indentation)}repetir ${iterations} veces`);
+    result.push(`${tabs(indentation)}inicio`);
     result = result.concat(processInstructions(conditional.instructions, indentation+1, data));  
-    result.push(`${tabs(indentation)}}`);
+    result.push(`${tabs(indentation)}fin;`);
     return result;
 
 }
@@ -161,9 +165,10 @@ function processRepeat(conditional: IRRepeat, indentation: number, data: Transpi
 function processWhile(conditional: IRWhile, indentation: number, data: TranspilerData):string[] {
     let result:string[]=[];
     const condition = processTerm(conditional.condition[1], data);
-    result.push(`${tabs(indentation)}while (${condition}) {`);
+    result.push(`${tabs(indentation)}mientras ${condition} hacer`);
+    result.push(`${tabs(indentation)}inicio`);
     result = result.concat(processInstructions(conditional.instructions, indentation+1, data));  
-    result.push(`${tabs(indentation)}}`);
+    result.push(`${tabs(indentation)}fin;`);
     return result;
 }
 
@@ -175,31 +180,35 @@ function processInstructions(instructions: IRInstruction[], indentation:number, 
             continue;
         }
         if (instruction[0]==="HALT") {
-            result.push(`${tabs(indentation)}turnoff();`);
+            result.push(`${tabs(indentation)}apagate;`);
             continue;
         }
         if (instruction[0] === "LEFT") {
-            result.push(`${tabs(indentation)}turnleft();`);
+            result.push(`${tabs(indentation)}gira-izquierda;`);
             continue;
         }
         if (instruction[0] === "FORWARD") {
-            result.push(`${tabs(indentation)}move();`);
+            result.push(`${tabs(indentation)}avanza;`);
             continue;
         }
         if (instruction[0] === "PICKBUZZER") {
-            result.push(`${tabs(indentation)}pickbeeper();`);
+            result.push(`${tabs(indentation)}coge-zumbador;`);
             continue;
         }
         if (instruction[0] === "LEAVEBUZZER") {
-            result.push(`${tabs(indentation)}putbeeper();`);
+            result.push(`${tabs(indentation)}deja-zumbador;`);
             continue;
         }
         if (instruction[0]==="CALL") {
             const data = instruction[1];
-            const params = data.params.map(
-                (param)=>processTerm(param, transpilerData)
-            ).join(", ");
-            result.push(`${tabs(indentation)}${data.target}(${params});`)
+            if (data.params.length > 0) {
+                const params = data.params.map(
+                    (param)=>processTerm(param, transpilerData)
+                ).join(", ");
+                result.push(`${tabs(indentation)}${data.target}(${params});`);
+            } else {
+                result.push(`${tabs(indentation)}${data.target};`);
+            }
             continue;
         }
         if (instruction[0]==="RET" ) {
@@ -209,9 +218,9 @@ function processInstructions(instructions: IRInstruction[], indentation:number, 
             const data = instruction[1];
             const term = processTerm(data.term, transpilerData);
             if (term === "") {
-                result.push(`${tabs(indentation)}return;`)
+                result.push(`${tabs(indentation)}regresa;`)
             } else {
-                result.push(`${tabs(indentation)}return ${term};`)
+                result.push(`${tabs(indentation)}regresa ${term};`)
             }
             continue;
         }
@@ -239,14 +248,14 @@ function processInstructions(instructions: IRInstruction[], indentation:number, 
             continue;
         }
         if (instruction[0]==="CONTINUE") {
-            result.push(`${tabs(indentation)}continue;`);
+            result.push(`${tabs(indentation)}continua;`);
             break;
         }
         if (instruction[0]==="BREAK") {
-            result.push(`${tabs(indentation)}break;`);
+            result.push(`${tabs(indentation)}rompe;`);
             break;
         }
-        result.push(`${tabs(indentation)}/** @PARSER Unknown intruction ${instruction[0]}*/`)
+        result.push(`${tabs(indentation)}/** @PARSER Instruccion desconocida ${instruction[0]}*/`)
         
     }
     return result;
@@ -256,25 +265,30 @@ function processFunction(func: IRFunction, transpilerData: TranspilerData):strin
     let body:string = processInstructions(func.code, 2, transpilerData).join("\n");
     let func_type = "define";
     if (func.returnType === "INT") {
-        func_type = "int";
+        func_type = "define-calculo";
     } else if (func.returnType === "BOOL") {
-        func_type = "bool";
+        func_type = "define-condicion";
     }
-    let params = func.params.map(
-        (param)=> param.name
-    ).join(", ");
+    let head = `${func_type} ${func.name}`;
+    if (func.params.length > 0) {
+        let params = func.params.map(
+            (param)=> param.name
+        ).join(", ");
+        head+= ` (${params})`;
+    }
 
-    return `\t${func_type} ${func.name} (${params}) {
+    return `\t${head} como
+\tinicio
 ${body}
-\t}
+\tfin;
 `;
 }
 
-export function generateJavaFromIR(data: IRObject): string {
+export function generatePascalFromIR(data: IRObject): string {
     let transpilerData: TranspilerData = {
         hasGlobals: 
             data.packages.findIndex(
-                (val)=>translatePackages(val[0])==="rekarel.globals"
+                (val)=>translatePackages(val[0])==="rekarel.globales"
             ) !== -1
     }
     let functions:string = 
@@ -287,12 +301,12 @@ export function generateJavaFromIR(data: IRObject): string {
         processInstructions(program, 2, transpilerData).join("\n");
     let packageData = data.packages.map(
         (packImport) => 
-            `import ${translatePackages(packImport[0])};\n`
+            `usa ${translatePackages(packImport[0])};\n`
     ).join();
-return `${packageData}class program {
+return `${packageData}iniciar-programa
 ${functions}
-\tprogram() {
+\tinicia-ejecucion
 ${mainBody}
-\t}   
-\n}`;
+\ttermina-ejecucion   
+finalizar-programa`;
 }
