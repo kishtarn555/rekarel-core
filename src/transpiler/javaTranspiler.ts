@@ -166,6 +166,9 @@ function processInstructions(instructions: IRInstruction[], indentation:number):
 
     let result:string[]= [];
     for (const instruction of instructions) {
+        if (instruction[0]=== "LINE") {
+            continue;
+        }
         if (instruction[0]==="HALT") {
             result.push(`${tabs(indentation)}turnoff();`);
             continue;
@@ -194,7 +197,10 @@ function processInstructions(instructions: IRInstruction[], indentation:number):
             result.push(`${tabs(indentation)}${data.target}(${params});`)
             continue;
         }
-        if (instruction[0]==="RET" && instruction[1] !== "__DEFAULT") {
+        if (instruction[0]==="RET" ) {
+            if (instruction[1] === "__DEFAULT") {
+                continue;
+            }
             const data = instruction[1];
             const term = processTerm(data.term);
             if (term === "") {
