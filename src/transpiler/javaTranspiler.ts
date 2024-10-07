@@ -92,7 +92,11 @@ function processInstructions(instructions: IRInstruction[], indentation:number):
         if (instruction[0]==="RET" && instruction[1] !== "__DEFAULT") {
             const data = instruction[1];
             const term = processTerm(data.term);
-            result.push(`${tabs(indentation)}return ${term};`)
+            if (term === "") {
+                result.push(`${tabs(indentation)}return;`)
+            } else {
+                result.push(`${tabs(indentation)}return ${term};`)
+            }
             continue;
         }
     }
