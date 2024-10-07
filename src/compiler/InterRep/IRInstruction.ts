@@ -64,6 +64,7 @@ export type IRTerm =
     } 
     | {
         operation: "ATOM",
+        atomType: string
         instructions: IRInstruction[],
         dataType: string,
         loc: YYLoc,
