@@ -66,10 +66,34 @@ function processAtom(atom:IRTermAtom):string {
         const literal = atom.atomType.split(".")[1];        
         return `pred(${term}, ${literal})`;
     }
+
+    if (atomType === "VAR") {
+        const variable = atom.atomType.split(".")[1];
+        return translateVars(variable);
+    }
+
     if (atomType in boolFunctions) {
         return boolFunctions[atomType];
     }
     return `/* UNKNOWN ATOM TYPE ${atomType }*/`;
+}
+
+
+function translateVars(word: string):string {
+    if (word === "zumbador-del-piso") {
+        return "floorBeepers";
+    }
+    if (word === "mochila") {
+        return "beeperBag";
+    }
+    return word;
+}
+
+function translatePackages(packName:string):string {
+    if (packName === "rekarel.globales") {
+        return "rekarek.globals";
+    }
+    return packName;
 }
 
 
@@ -230,7 +254,11 @@ export function generateJavaFromIR(data: IRObject): string {
     // remove extra turnoff
     const program:IRInstruction[] = data.program.slice(0, -1); 
     let mainBody:string = processInstructions(program, 2).join("\n");
-return `class program {
+    let packageData = data.packages.map(
+        (packImport) => 
+            `import ${translatePackages(packImport[0])};\n`
+    ).join();
+return `${packageData}class program {
 ${functions}
 \tprogram() {
 ${mainBody}
