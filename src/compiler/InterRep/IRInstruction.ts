@@ -79,6 +79,13 @@ export type IRTerm =
         loc: YYLoc,
         totalLoc: YYLoc,
     }
+    | {
+        operation: "PARENTHESIS",
+        term: IRTerm,
+        dataType: string,
+        loc: YYLoc,
+        totalLoc: YYLoc,
+    }
 ;
 
 /**
