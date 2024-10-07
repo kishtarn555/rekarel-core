@@ -80,7 +80,7 @@ function processAtom(atom:IRTermAtom):string {
 
 
 function translateVars(word: string):string {
-    if (word === "zumbador-del-piso") {
+    if (word === "zumbadores-del-piso") {
         return "floorBeepers";
     }
     if (word === "mochila") {
@@ -91,7 +91,7 @@ function translateVars(word: string):string {
 
 function translatePackages(packName:string):string {
     if (packName === "rekarel.globales") {
-        return "rekarek.globals";
+        return "rekarel.globals";
     }
     return packName;
 }
