@@ -1,6 +1,10 @@
 import { IRComplexInstruction, IRConditional, IRFunction, IRInstruction, IRInstructionTerm, IRRepeat, IRTerm, IRTermAtom, IRWhile } from "../compiler/InterRep/IRInstruction";
 import { IRObject } from "../compiler/InterRep/IRProcessor"
 
+interface TranspilerData {
+    hasGlobals: boolean
+}
+
 function tabs(indentation:number):string{
     let result="";
     for (let i=0; i < indentation; i++) {
@@ -9,7 +13,7 @@ function tabs(indentation:number):string{
     return result;
 }
 
-function processAtom(atom:IRTermAtom):string {
+function processAtom(atom:IRTermAtom, data: TranspilerData):string {
     const atomType = atom.atomType.split(".")[0];
 
     const boolFunctions:Record<string, string> = {
@@ -38,7 +42,8 @@ function processAtom(atom:IRTermAtom):string {
     }
     if (atomType === "IS_ZERO") {
         const body = processTerm(
-            (atom.instructions[0] as IRInstructionTerm)[1]
+            (atom.instructions[0] as IRInstructionTerm)[1],
+            data
         );
         return `iszero(${body})`;
     }
@@ -48,7 +53,8 @@ function processAtom(atom:IRTermAtom):string {
     }
     if (atomType === "INC") {
         const term = processTerm((
-            atom.instructions[0] as IRInstructionTerm)[1]
+            atom.instructions[0] as IRInstructionTerm)[1],
+            data
         );
         if (atomType === atom.atomType) {
             return `succ(${term})`;
@@ -58,7 +64,8 @@ function processAtom(atom:IRTermAtom):string {
     }
     if (atomType === "DEC") {
         const term = processTerm((
-            atom.instructions[0] as IRInstructionTerm)[1]
+            atom.instructions[0] as IRInstructionTerm)[1],
+            data
         );
         if (atomType === atom.atomType) {
             return `pred(${term})`;
@@ -66,6 +73,12 @@ function processAtom(atom:IRTermAtom):string {
         const literal = atom.atomType.split(".")[1];        
         return `pred(${term}, ${literal})`;
     }
+
+    if (atomType === "VAR") {
+        const variable = atom.atomType.split(".")[1];
+        return translateVars(variable, data);
+    }
+
     if (atomType in boolFunctions) {
         return boolFunctions[atomType];
     }
@@ -73,72 +86,104 @@ function processAtom(atom:IRTermAtom):string {
 }
 
 
-function processTerm(term:IRTerm):string {
+function translateVars(word: string, data: TranspilerData):string {
+    if (data.hasGlobals) {
+        if (word === "zumbadores-del-piso") {
+            return "floorBeepers";
+        }
+        if (word === "mochila") {
+            return "beeperBag";
+        }
+        if (word === "verdadero") {
+            return "true";
+        }
+        if (word === "falso") {
+            return "false";
+        }
+    }
+    return word;
+}
+
+function translatePackages(packName:string):string {
+    if (packName === "rekarel.globales") {
+        return "rekarel.globals";
+    }
+    return packName;
+}
+
+
+function processTerm(term:IRTerm, data: TranspilerData):string {
     if (term.operation === "ATOM") {
-        return processAtom(term);
+        return processAtom(term, data);
     }
     if (term.operation === "PASS") {
-        return processTerm(term.term);
+        return processTerm(term.term, data);
+    }
+    if (term.operation === "PARENTHESIS") {
+        return `(${processTerm(term.term, data)})`;
     }
     if (term.operation === "AND") {
-        return `${processTerm(term.left)} && ${processTerm(term.right)}`;
+        return `${processTerm(term.left, data)} && ${processTerm(term.right, data)}`;
     }
     if (term.operation === "OR") {
-        return `${processTerm(term.left)} || ${processTerm(term.right)}`;
+        return `${processTerm(term.left, data)} || ${processTerm(term.right, data)}`;
     }
     if (term.operation === "NOT") {
-        return `!${processTerm(term.term)}`;
+        return `!${processTerm(term.term, data)}`;
     }
     if (term.operation === "EQ") {
-        return `${processTerm(term.left)} == ${processTerm(term.right)}`;
+        return `${processTerm(term.left, data)} == ${processTerm(term.right, data)}`;
     }
     if (term.operation === "LT") {
-        return `${processTerm(term.left)} < ${processTerm(term.right)}`;
+        return `${processTerm(term.left, data)} < ${processTerm(term.right, data)}`;
     }
     if (term.operation === "LTE") {
-        return `${processTerm(term.left)} <= ${processTerm(term.right)}`;
+        return `${processTerm(term.left, data)} <= ${processTerm(term.right, data)}`;
     }
 }
 
-function processIf(conditional: IRConditional, indentation: number):string[] {
+function processIf(conditional: IRConditional, indentation: number, data: TranspilerData):string[] {
     let result:string[]=[];
-    const condition = processTerm(conditional.condition[1]);
+    const condition = processTerm(conditional.condition[1], data);
     result.push(`${tabs(indentation)}if (${condition}) {`);
-    result = result.concat(processInstructions(conditional.trueCase, indentation+1));
+    result = result.concat(processInstructions(conditional.trueCase, indentation+1, data));
     if (conditional.skipFalseTag == null) {
         result.push(`${tabs(indentation)}}`);
         return result;
     }
     result.push(`${tabs(indentation)}} else {`);
-    result = result.concat(processInstructions(conditional.falseCase!, indentation+1));    
+    result = result.concat(processInstructions(conditional.falseCase!, indentation+1, data));    
     result.push(`${tabs(indentation)}}`);
     return result;
 
 }
 
-function processRepeat(conditional: IRRepeat, indentation: number):string[] {
+function processRepeat(conditional: IRRepeat, indentation: number, data: TranspilerData):string[] {
     let result:string[]=[];
-    const iterations = processTerm(conditional.loopCount[1]);
+    const iterations = processTerm(conditional.loopCount[1], data);
     result.push(`${tabs(indentation)}iterate (${iterations}) {`);
-    result = result.concat(processInstructions(conditional.instructions, indentation+1));  
+    result = result.concat(processInstructions(conditional.instructions, indentation+1, data));  
     result.push(`${tabs(indentation)}}`);
     return result;
 
 }
 
-function processWhile(conditional: IRWhile, indentation: number):string[] {
+function processWhile(conditional: IRWhile, indentation: number, data: TranspilerData):string[] {
     let result:string[]=[];
-    const condition = processTerm(conditional.condition[1]);
+    const condition = processTerm(conditional.condition[1], data);
     result.push(`${tabs(indentation)}while (${condition}) {`);
-    result = result.concat(processInstructions(conditional.instructions, indentation+1));  
+    result = result.concat(processInstructions(conditional.instructions, indentation+1, data));  
     result.push(`${tabs(indentation)}}`);
     return result;
 }
 
-function processInstructions(instructions: IRInstruction[], indentation:number): string[] {
+function processInstructions(instructions: IRInstruction[], indentation:number, transpilerData: TranspilerData): string[] {
 
     let result:string[]= [];
     for (const instruction of instructions) {
+        if (instruction[0]=== "LINE") {
+            continue;
+        }
         if (instruction[0]==="HALT") {
             result.push(`${tabs(indentation)}turnoff();`);
             continue;
@@ -162,14 +207,17 @@ function processInstructions(instructions: IRInstruction[], indentation:number):
         if (instruction[0]==="CALL") {
             const data = instruction[1];
             const params = data.params.map(
-                (param)=>processTerm(param)
+                (param)=>processTerm(param, transpilerData)
             ).join(", ");
             result.push(`${tabs(indentation)}${data.target}(${params});`)
             continue;
         }
-        if (instruction[0]==="RET" && instruction[1] !== "__DEFAULT") {
+        if (instruction[0]==="RET" ) {
+            if (instruction[1] === "__DEFAULT") {
+                continue;
+            }
             const data = instruction[1];
-            const term = processTerm(data.term);
+            const term = processTerm(data.term, transpilerData);
             if (term === "") {
                 result.push(`${tabs(indentation)}return;`)
             } else {
@@ -179,20 +227,34 @@ function processInstructions(instructions: IRInstruction[], indentation:number):
         }
         
         if (instruction[0]==="IF") {
-            result = result.concat(processIf(instruction[1], indentation));
+            result = result.concat(
+                processIf(instruction[1], indentation, transpilerData)
+            );
             
             continue;
         }
         
         if (instruction[0]==="REPEAT") {
-            result = result.concat(processRepeat(instruction[1], indentation));
+            result = result.concat(
+                processRepeat(instruction[1], indentation, transpilerData)
+            );
             
             continue;
         }
         
         if (instruction[0]==="WHILE") {
-            result = result.concat(processWhile(instruction[1], indentation));            
+            result = result.concat(
+                processWhile(instruction[1], indentation, transpilerData)
+            );            
             continue;
+        }
+        if (instruction[0]==="CONTINUE") {
+            result.push(`${tabs(indentation)}continue;`);
+            break;
+        }
+        if (instruction[0]==="BREAK") {
+            result.push(`${tabs(indentation)}break;`);
+            break;
         }
         result.push(`${tabs(indentation)}/** @PARSER Unknown intruction ${instruction[0]}*/`)
         
@@ -200,8 +262,8 @@ function processInstructions(instructions: IRInstruction[], indentation:number):
     return result;
 }
 
-function processFunction(func: IRFunction):string {
-    let body:string = processInstructions(func.code, 2).join("\n");
+function processFunction(func: IRFunction, transpilerData: TranspilerData):string {
+    let body:string = processInstructions(func.code, 2, transpilerData).join("\n");
     let func_type = "define";
     if (func.returnType === "INT") {
         func_type = "int";
@@ -219,15 +281,25 @@ ${body}
 }
 
 export function generateJavaFromIR(data: IRObject): string {
-
+    let transpilerData: TranspilerData = {
+        hasGlobals: 
+            data.packages.findIndex(
+                (val)=>translatePackages(val[0])==="rekarel.globals"
+            ) !== -1
+    }
     let functions:string = 
         data.functions.map(
-            (func)=> processFunction(func)
+            (func)=> processFunction(func, transpilerData)
         ).join("\n");
     // remove extra turnoff
     const program:IRInstruction[] = data.program.slice(0, -1); 
-    let mainBody:string = processInstructions(program, 2).join("\n");
-return `class program {
+    let mainBody:string = 
+        processInstructions(program, 2, transpilerData).join("\n");
+    let packageData = data.packages.map(
+        (packImport) => 
+            `import ${translatePackages(packImport[0])};\n`
+    ).join();
+return `${packageData}class program {
 ${functions}
 \tprogram() {
 ${mainBody}
