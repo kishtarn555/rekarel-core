@@ -11,10 +11,10 @@ export type Compiler = (
     | ( (code: string, exportDebug: boolean) => [RawProgram, DebugData])
 )
 
-type Parser = (code: string) => IRObject
+export type Parser = (code: string) => IRObject
 
-const javaParser: Parser = importedJava as unknown as Parser;
-const pascalParser: Parser = importedPascal as unknown as Parser;
+export const javaParser: Parser = importedJava as unknown as Parser;
+export const pascalParser: Parser = importedPascal as unknown as Parser;
 
 
 /**

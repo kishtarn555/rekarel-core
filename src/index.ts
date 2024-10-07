@@ -4,6 +4,7 @@ import { Runtime } from "./runtime";
 import { java2PascalTranspiler, pascal2JavaTranspiler } from "./transpiler";
 import { CompilationError } from "./compiler/InterRep/compileErrors";
 import { DebugData } from "./compiler/debugData";
+import { transpileCode } from "./transpiler/transpiler";
 
 export {
   compile,
@@ -12,6 +13,7 @@ export {
   java2PascalTranspiler,
   pascalCompiler,
   pascal2JavaTranspiler,
+  transpileCode,
   Runtime,
   World,
   DumpTypes,
