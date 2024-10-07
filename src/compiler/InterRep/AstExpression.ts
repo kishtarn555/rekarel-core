@@ -149,7 +149,7 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
         target.push([tree.operation]);
         return tree.dataType;
     }
-    if (tree.operation === "PASS") {
+    if (tree.operation === "PASS" || tree.operation === "PARENTHESIS") {
         const termType = resolveTerm(tree.term, definitions, scope, target, tags, yy);
         if (termType !== tree.dataType) {
             yy.parser.parseError(`Expected a term of type ${tree.dataType}, but got ${termType}`, {
