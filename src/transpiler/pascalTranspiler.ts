@@ -299,8 +299,12 @@ export function generatePascalFromIR(data: IRObject): string {
                 (val)=>translatePackages(val[0])==="rekarel.globales"
             ) !== -1
     }
-    let functions:string = 
-        data.functions.map(
+    let functions:string =
+        data.functions
+        .filter((func)=> //Remove deprecated prototypes
+            func.code != null
+        )
+        .map(
             (func)=> processFunction(func, transpilerData)
         ).join("\n");
     // remove extra turnoff

@@ -288,7 +288,11 @@ export function generateJavaFromIR(data: IRObject): string {
             ) !== -1
     }
     let functions:string = 
-        data.functions.map(
+        data.functions
+        .filter((func)=> //Remove deprecated prototypes
+            func.code != null
+        )
+        .map(
             (func)=> processFunction(func, transpilerData)
         ).join("\n");
     // remove extra turnoff
