@@ -1,0 +1,188 @@
+usa rekarel.globales;
+iniciar-programa
+	define-prototipo-instruccion f3;
+	define-prototipo-calculo n1(a);
+	define-prototipo-cálculo n2(otroNombre);
+	define-prototipo-condicion l1(a,b);
+	define-prototipo-condición l2(c,d);
+	
+	define-nueva-instruccion f1 como
+	inicio
+		regresa;
+	fin;
+
+	define-nueva-instrucción f2 como
+	inicio
+		f1;
+		sal-de-instruccion;
+	fin;
+	define f3 como
+	inicio
+		f1;
+		sal-de-instrucción;
+	fin;
+
+	define-calculo n1 (a) como
+	inicio
+		regresa a;
+	fin;
+
+	define-condición l2 (a, b) como
+	inicio
+		regresa a < b;
+	fin;
+	define-cálculo n2 (a) como
+	inicio
+		regresa a;
+	fin;
+
+	define-condicion l1 (a, b) como
+	inicio
+		regresa a < b;
+	fin;
+	
+
+	inicia-ejecucion
+		avanza;
+		gira-izquierda;
+		deja-zumbador;
+		coge-zumbador;
+		f1;
+		si frente-libre entonces
+		inicio
+		fin;
+		si frente-bloqueado entonces
+		inicio
+		fin;
+		si izquierda-libre entonces
+		inicio
+		fin;
+		si izquierda-bloqueada entonces
+		inicio
+		fin;
+		si derecha-libre entonces
+		inicio
+		fin;
+		si derecha-bloqueada entonces
+		inicio
+		fin;
+		si junto-a-zumbador entonces
+		inicio
+		fin;
+		si no-junto-a-zumbador entonces
+		inicio
+		fin;
+		si algun-zumbador-en-la-mochila entonces
+		inicio
+		fin;
+		si ningun-zumbador-en-la-mochila entonces
+		inicio
+		fin;
+		si orientado-al-norte entonces
+		inicio
+		fin;
+		si orientado-al-sur entonces
+		inicio
+		fin;
+		si orientado-al-este entonces
+		inicio
+		fin;
+		si orientado-al-oeste entonces
+		inicio
+		fin;
+		si no-orientado-al-norte entonces
+		inicio
+		fin;
+		si no-orientado-al-sur entonces
+		inicio
+		fin;
+		si no-orientado-al-este entonces
+		inicio
+		fin;
+		si no-orientado-al-oeste entonces
+		inicio
+		fin;
+		si verdadero entonces
+		inicio
+		fin;
+		si falso entonces
+		inicio
+		fin;
+		si mochila == 0 entonces
+		inicio
+		fin;
+		si zumbadores-del-piso == 0 entonces
+		inicio
+		fin;
+		si verdadero y verdadero entonces
+		inicio
+		fin;
+		si verdadero o verdadero entonces
+		inicio
+		fin;
+		si verdadero == verdadero entonces
+		inicio
+		fin;
+		si no falso entonces
+		inicio
+		fin;
+		si no (verdadero o ((falso) y ((((verdadero)))))) == falso entonces
+		inicio
+		fin;
+		si 3 < 5 entonces
+		inicio
+		fin;
+		si 3 <= 5 entonces
+		inicio
+		fin;
+		si 3 == 5 entonces
+		inicio
+		fin;
+		repetir sucede(4) veces
+		inicio
+		fin;
+		repetir sucede(0, 10) veces
+		inicio
+		fin;
+		repetir sucede(mochila, 10) veces
+		inicio
+		fin;
+		repetir precede(4) veces
+		inicio
+		fin;
+		repetir precede(3, 10) veces
+		inicio
+		fin;
+		repetir precede(mochila, 10) veces
+		inicio
+		fin;
+		mientras falso hacer
+		inicio
+		fin;
+		repetir n1(10) veces
+		inicio
+			deja-zumbador;
+		fin;
+		si l1(3, 5) entonces
+		inicio
+		fin;
+		mientras verdadero hacer
+		inicio
+			rompe;
+		fin;
+		mientras falso hacer
+		inicio
+			continua;
+		fin;
+		mientras verdadero hacer
+		inicio
+			continúa;
+		fin;
+		mientras falso hacer
+		inicio
+			rompe;
+		fin;
+		apagate;
+		apágate;
+	termina-ejecucion   
+finalizar-programa

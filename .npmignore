@@ -1,5 +1,7 @@
 gramaticas/
 src/
 rollup.config.js
+tsconfig.json
+jest.config.cjs
 gulpfile.js
 dist/built/

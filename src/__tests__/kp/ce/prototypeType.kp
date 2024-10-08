@@ -1,0 +1,12 @@
+iniciar-programa
+	define-prototipo-condicion pasos;
+
+	define-calculo pasos como
+	inicio
+		avanza;
+	fin;
+
+	inicia-ejecucion
+		pasos;
+	termina-ejecucion
+finalizar-programa

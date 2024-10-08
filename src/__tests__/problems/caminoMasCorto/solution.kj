@@ -1,0 +1,57 @@
+class program {
+	define girar (n) {
+		iterate (n) {
+			turnleft();
+		}
+	}
+
+	define intentar (n) {
+		if (!iszero(n)) {
+			putbeeper();
+			if (frontIsClear) {
+				move();
+				intentar(pred(n));
+				girar(2);
+				move();
+				girar(2);
+			}
+			else {
+				turnleft();
+				if (frontIsClear) {
+					move();
+					intentar(pred(n));
+					girar(2);
+					move();
+					turnleft();
+				}
+				else {
+					girar(2);
+					move();
+					intentar(pred(n));
+					girar(2);
+					move();
+					girar(3);
+				}
+			}
+			pickbeeper();
+		}
+		else {
+			if (nextToABeeper) {
+				turnoff();
+			}
+		}
+	}
+
+	define incrementar (n) {
+		iterate (4) {
+			turnleft();
+			intentar(n);
+		}
+		incrementar(succ(n));
+	}
+
+	program() {
+		pickbeeper();
+		incrementar(1);
+	}
+}

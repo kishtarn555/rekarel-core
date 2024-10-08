@@ -1,0 +1,8 @@
+class program {
+    int pasos() {
+        move();
+    }
+    program() {
+        pasos();
+    }
+}

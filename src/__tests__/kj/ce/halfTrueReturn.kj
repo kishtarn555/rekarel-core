@@ -1,0 +1,13 @@
+class program {
+    int pasos() {
+        if (frontIsClear) {
+            move();
+            return 5;
+        } else {
+            turnleft();
+        }
+    }
+    program() {
+        pasos();
+    }
+}

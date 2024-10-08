@@ -1,0 +1,27 @@
+iniciar-programa
+    define-calculo func como
+    inicio
+        regresa 5;
+    fin;
+
+    define-calculo otro-func(n) como
+    inicio
+        si si-es-cero(n) entonces
+        inicio
+            regresa 40;
+        fin;
+        regresa sucede(n, 2);
+
+    fin;
+	inicia-ejecucion
+        repetir func veces
+            deja-zumbador;
+        repetir otro-func(7) veces
+            avanza;
+        repetir otro-func(0) veces
+            deja-zumbador;
+
+        otro-func(3);
+		apagate;
+	termina-ejecucion
+finalizar-programa

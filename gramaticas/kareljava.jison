@@ -3,135 +3,204 @@
 %lex
 %%
 
-\s+                             {/* ignore */}
-\/\/[^\n]*			{/* ignore */}
-\/\*(?:[^*]|\*(?!\/))*\*\/	{/* ignore */}
-"class"				{ return 'CLASS'; }
-"program"		        { return 'PROG'; }
-"define"			{ return 'DEF'; }
-"void"				{ return 'DEF'; }
-"return"      { return 'RET'; }
-"turnoff"                       { return 'HALT'; }
-"turnleft"	                { return 'LEFT'; }
-"move" 		                { return 'FORWARD'; }
-"pickbeeper"	                { return 'PICKBUZZER'; }
-"putbeeper"                     { return 'LEAVEBUZZER'; }
-"while"                         { return 'WHILE'; }
-"iterate"                       { return 'REPEAT'; }
-"pred" 		                { return 'DEC'; }
-"succ"          	        { return 'INC'; }
-"iszero" 	                { return 'IFZ'; }
-"frontIsClear"                  { return 'IFNFWALL'; }
-"frontIsBlocked"                { return 'IFFWALL'; }
-"leftIsClear"	                { return 'IFNLWALL'; }
-"leftIsBlocked"                 { return 'IFLWALL'; }
-"rightIsClear"                  { return 'IFNRWALL'; }
-"rightIsBlocked"                { return 'IFRWALL'; }
-"nextToABeeper"                 { return 'IFWBUZZER'; }
-"notNextToABeeper"   	        { return 'IFNWBUZZER'; }
-"anyBeepersInBeeperBag" 	{ return 'IFBBUZZER'; }
-"noBeepersInBeeperBag"		{ return 'IFNBBUZZER'; }
-"facingNorth"		        { return 'IFN'; }
-"facingSouth"	                { return 'IFS'; }
-"facingEast"		        { return 'IFE'; }
-"facingWest"	                { return 'IFW'; }
-"notFacingNorth"	        { return 'IFNN'; }
-"notFacingSouth"	        { return 'IFNS'; }
-"notFacingEast"		        { return 'IFNE'; }
-"notFacingWest"		        { return 'IFNW'; }
-"else"                          { return 'ELSE'; }
-"if"                            { return 'IF'; }
-"!"                             { return 'NOT'; }
-"||"                            { return 'OR'; }
-"&&"                            { return 'AND'; }
-"&"				{ return 'AND'; }
-"("                             { return '('; }
-")"                             { return ')'; }
-"{"                             { return 'BEGIN'; }
-"}"                             { return 'END'; }
-";"                             { return ';'; }
-[0-9]+                          { return 'NUM'; }
-[A-Za-zÀ-ÖØ-öø-ÿ_][A-Za-zÀ-ÖØ-öø-ÿ0-9_-]*          { return 'VAR'; }
-<<EOF>>                         { return 'EOF'; }
+\s+                                             {/* ignore */}
+\/\/[^\n]*			                                {/* ignore */}
+\/\*(?:[^*]|\*(?!\/))*\*\/	                    {/* ignore */}
+"class"				                                  { return 'CLASS'; }
+"program"		                                    { return 'PROG'; }
+"define"			                                  { return 'DEF'; }
+"import"			                                  { return 'IMPORT'; }
+"void"				                                  { return 'DEF'; }
+"int"				                                    { return 'INT'; }
+"bool"				                                  { return 'BOOL'; }
+"return"                                        { return 'RET'; }
+"turnoff"                                       { return 'HALT'; }
+"turnleft"	                                    { return 'LEFT'; }
+"move" 		                                      { return 'FORWARD'; }
+"pickbeeper"	                                  { return 'PICKBUZZER'; }
+"putbeeper"                                     { return 'LEAVEBUZZER'; }
+"continue"                                      { return 'CONTINUE'; }
+"break"                                         { return 'BREAK'; }
+"while"                                         { return 'WHILE'; }
+"iterate"                                       { return 'REPEAT'; }
+"pred" 		                                      { return 'DEC'; }
+"succ"          	                              { return 'INC'; }
+"iszero" 	                                      { return 'IFZ'; }
+"frontIsClear"                                  { return 'IFNFWALL'; }
+"frontIsBlocked"                                { return 'IFFWALL'; }
+"leftIsClear"	                                  { return 'IFNLWALL'; }
+"leftIsBlocked"                                 { return 'IFLWALL'; }
+"rightIsClear"                                  { return 'IFNRWALL'; }
+"rightIsBlocked"                                { return 'IFRWALL'; }
+"nextToABeeper"                                 { return 'IFWBUZZER'; }
+"notNextToABeeper"   	                          { return 'IFNWBUZZER'; }
+"anyBeepersInBeeperBag" 	                      { return 'IFBBUZZER'; }
+"noBeepersInBeeperBag"		                      { return 'IFNBBUZZER'; }
+"facingNorth"		                                { return 'IFN'; }
+"facingSouth"	                                  { return 'IFS'; }
+"facingEast"		                                { return 'IFE'; }
+"facingWest"	                                  { return 'IFW'; }
+"notFacingNorth"	                              { return 'IFNN'; }
+"notFacingSouth"	                              { return 'IFNS'; }
+"notFacingEast"		                              { return 'IFNE'; }
+"notFacingWest"		                              { return 'IFNW'; }
+"else"                                          { return 'ELSE'; }
+"if"                                            { return 'IF'; }
+"!"                                             { return 'NOT'; }
+"||"                                            { return 'OR'; }
+"&&"                                            { return 'AND'; }
+"&"				                                      { return 'AND'; }
+"("                                             { return '('; }
+")"                                             { return ')'; }
+"{"                                             { return 'BEGIN'; }
+"}"                                             { return 'END'; }
+";"                                             { return ';'; }
+"."                                             { return '.'; }
+"*"                                             { return '*'; }
+","                                             { return ','; }
+"=="                                            { return '=='; }
+"<="                                            { return '<='; }
+"<"                                             { return '<'; }
+[0-9]+                                          { return 'NUM'; }
+[A-Za-zÀ-ÖØ-öø-ÿ_][A-Za-zÀ-ÖØ-öø-ÿ0-9_-]*       { return 'VAR'; }
+<<EOF>>                                         { return 'EOF'; }
 /lex
 
 %nonassoc XIF
 %nonassoc ELSE
 
 %{
-function validate(function_list, program, yy) {
-	var functions = {};
-	var prototypes = {};
 
-	for (var i = 0; i < function_list.length; i++) {
-		if (functions[function_list[i][0]]) {
-			yy.parser.parseError("Function redefinition: " + function_list[i][0], {
-				text: function_list[i][0],
-				line: function_list[i][1][0][1],
-        loc: function_list[i][3]
-			});
-		}
+const COMPILER= "RKJ 1.0.0";
+const LANG = "ReKarel Java";
+const VarsAsFuncs = false;
+const reqsPrototypes = false;
+//Tag counter
+let tagCnt = 1;
 
-		functions[function_list[i][0]] = program.length;
-		prototypes[function_list[i][0]] = function_list[i][2];
-		program = program.concat(function_list[i][1]);
-	}
 
-	var current_line = 1;
-	for (var i = 0; i < program.length; i++) {
-		if (program[i][0] == 'LINE') {
-			current_line = program[i][1];
-		} else if (program[i][0] == 'CALL') {
-			if (!functions[program[i][1]] || !prototypes[program[i][1]]) {
-				yy.parser.parseError("Undefined function: " + program[i][1], {
-					text: program[i][1],
-					line: current_line,
-          loc: program[i][3]
-				});
-			} else if (prototypes[program[i][1]] != program[i][2]) {
-				yy.parser.parseError("Function parameter mismatch: " + program[i][1], {
-					text: program[i][1],
-					line: current_line,
-          loc: program[i][4],
-          parameters: program[i][2],
-				});
-			}
-
-			program[i][2] = program[i][1];
-			program[i][1] = functions[program[i][1]];
-      // Remove loc data which is only for error parsing
-      program[i].pop();
-      program[i].pop(); 
-		} else if (program[i][0] == 'PARAM') {
-      if (program[i][1] != 0) {
-        yy.parser.parseError("Unknown variable: " + program[i][1], {
-          text: program[i][1],
-          line: current_line,
-          loc: program[i][2]
-        });
-      } else {
-        program[i].pop();
-      }
-		}
-	}
-
-	return program;
+function UniqueTag(tag) {
+  return `${tag}.${tagCnt++}`;
 }
+function resetCompiler(tag) {
+  tagCnt = 1;
+}
+
+function mergeLocs(first, second) {
+  return {
+    first_line: first.first_line,
+    first_column: first.first_column,
+    last_line: second.last_line,
+    last_column: second.last_column,
+  }
+}
+
+function locToIR(loc) {
+  return [
+    "LINE",
+    loc.first_line - 1,
+    loc.first_column
+  ]
+}
+
 %}
+
+
+%left OR
+%left AND
+%nonassoc '=='
+%nonassoc '<' '<='
+%right NOT
 
 %%
 
 program
   : CLASS PROG BEGIN def_list PROG '(' ')' block END EOF
-    { return validate($def_list, $block.concat([['LINE', yylineno], ['HALT']]), yy); }
+    %{ 
+      resetCompiler();
+      return {
+        compiler: COMPILER,
+        language: LANG,
+        variablesCanBeFunctions: VarsAsFuncs,
+        requieresFunctionPrototypes: reqsPrototypes,
+        packages: [],
+        functions: $def_list,
+        program: $block.concat([['LINE', yylineno, 0], ['HALT']]),
+        yy:yy,
+      } 
+    %}
   | CLASS PROG BEGIN PROG '(' ')' block END EOF
-    { return validate([], $block.concat([['LINE', yylineno], ['HALT']]), yy); }
+    %{  
+      resetCompiler();
+      return {
+        compiler: COMPILER,
+        language: LANG,
+        requieresFunctionPrototypes: reqsPrototypes,
+        variablesCanBeFunctions: VarsAsFuncs,
+        packages: [],
+        functions: [],
+        program: $block.concat([['LINE', yylineno, 0], ['HALT']]),
+        yy:yy,
+      }
+    %}
+  |  import_list CLASS PROG BEGIN def_list PROG '(' ')' block END EOF
+    %{  
+      resetCompiler();
+      return {
+        compiler: COMPILER,
+        language: LANG,
+        requieresFunctionPrototypes: reqsPrototypes,
+        variablesCanBeFunctions: VarsAsFuncs,
+        packages: $import_list,
+        functions: $def_list,
+        program: $block.concat([['LINE', yylineno, 0], ['HALT']]),
+        yy:yy,
+      }
+    %}
+  | import_list CLASS PROG BEGIN PROG '(' ')' block END EOF
+    %{  
+      resetCompiler();
+      return {
+        compiler: COMPILER,
+        language: LANG,
+        packages: $import_list,
+        requieresFunctionPrototypes: reqsPrototypes,
+        variablesCanBeFunctions: VarsAsFuncs,
+        functions: [],
+        program: $block.concat([['LINE', yylineno, 0], ['HALT']]),
+        yy:yy,
+      }
+    %}
   ;
 
 block
   : BEGIN expr_list END
     { $$ = $expr_list; }
   ;
+
+import_list 
+  : import_list import
+    { $$ = $import_list.concat($import); }
+  | import
+    { $$ = $import; }
+  ;
+
+import
+  : IMPORT package ';'
+  { $$ = [[$package, @2]]; }
+  ;
+
+package
+  : VAR '.' VAR 
+  {
+    $$= $1+"."+$3;
+  }
+  | VAR '.' '*'
+  {
+    $$= $1+".*";
+  }
+  ;
+
 
 def_list
   : def_list def
@@ -141,59 +210,109 @@ def_list
   ;
 
 def
-  : DEF line var '(' ')' block
+  : funct_type var '(' ')' block
     { 
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
-      $$ = [[$var, $line.concat($block).concat([['RET']]), 1, @$]];
-       }
-  | DEF line var '(' var ')' block
+      $$ = [{
+        name: $var, 
+        code: [
+          locToIR(@2),
+          ...$block,
+          ['RET', '__DEFAULT', {
+            first_line: @5.last_line,
+            first_column: @5.last_column-1,
+            last_line: @5.last_line,
+            last_column: @5.last_column
+          }],
+        ],  
+        params: [], 
+        loc: @$, 
+        returnType: $funct_type
+      }];
+    }
+  | funct_type var '(' paramList ')' block
     %{
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
       @$.last_line = @3.last_line;
       @$.last_column = @3.last_column;
-    	var result = $line.concat($block).concat([['RET']]);
-    	for (var i = 0; i < result.length; i++) {
-    		if (result[i][0] == 'PARAM') {
-    			if (result[i][1] == $5) {
-    				result[i][1] = 0;
-    			} else {
-						yy.parser.parseError("Unknown variable: " + $5, {
-							text: result[i][1],
-							line: yylineno,
-              loc:result[i][2]
-						});
-    			}
-    		}
-    	}
-    	$$ = [[$var, result, 2,@$]];
+    	let result = [
+        
+          locToIR(@2),
+          ...$block,
+          ['RET', '__DEFAULT', {
+            first_line: @6.last_line,
+            first_column: @6.last_column-1,
+            last_line: @6.last_line,
+            last_column: @6.last_column
+          }],
+      ];
+      let params = [$5];
+    	$$ = [{
+        name: $var, 
+        code: result, 
+        params: $paramList,
+        loc: @$, 
+        returnType: $funct_type
+      }];
     %}
+  ;
+
+paramList 
+  : param ',' paramList
+   { $$=$param.concat($paramList); }
+  | param
+    { $$ = $param; }
+  ;
+
+param
+  : var
+    { 
+      $$= [{
+        name: $var,
+        loc: @1
+      }];
+    }
+  ;
+
+funct_type
+  : DEF 
+    { $$ = "VOID"; }
+  | INT
+    { $$ = "INT"; }
+  | BOOL
+    { $$ = "BOOL"; }
   ;
 
 
 expr_list
   : expr_list expr
     { $$ = $expr_list.concat($expr); }
-  | expr
-    { $$ = $expr; }
+  | 
+    { $$ = []; }
+
   ;
 
 expr
   : FORWARD '(' ')' ';'
-    { $$ = [['LINE', yylineno], ['WORLDWALLS'], ['ORIENTATION'], ['MASK'], ['AND'], ['NOT'], ['EZ', 'WALL'], ['FORWARD']]; }
+    { $$ = [locToIR(@1), ['FORWARD']]; }
   | LEFT '(' ')' ';'
-    { $$ = [['LINE', yylineno], ['LEFT']]; }
+    { $$ = [locToIR(@1), ['LEFT']]; }
   | PICKBUZZER '(' ')' ';'
-    { $$ = [['LINE', yylineno], ['WORLDBUZZERS'], ['EZ', 'WORLDUNDERFLOW'], ['PICKBUZZER']]; }
+    { $$ = [locToIR(@1), ['PICKBUZZER']]; }
   | LEAVEBUZZER '(' ')' ';'
-    { $$ = [['LINE', yylineno], ['BAGBUZZERS'], ['EZ', 'BAGUNDERFLOW'], ['LEAVEBUZZER']]; }
+    { $$ = [locToIR(@1), ['LEAVEBUZZER']]; }
   | HALT '(' ')' ';'
-    { $$ = [['LINE', yylineno], ['HALT']]; }
-  | RET '(' ')' ';'
-    { $$ = [['LINE', yylineno], ['RET']]; }
+    { $$ = [locToIR(@1), ['HALT']]; }
+  | CONTINUE ';'
+    { $$ = [locToIR(@1), ['CONTINUE', @1]]; }
+  | BREAK ';'
+    { $$ = [locToIR(@1), ['BREAK', @1]]; }
+  | return ';'
+    { $$ = $return; }
   | call ';'
     { $$ = $call; }
   | cond
@@ -208,6 +327,41 @@ expr
     { $$ = []; }
   ;
 
+return
+  : RET '(' ')'
+    { $$ = [
+      ['RET', {
+        term: { 
+          operation: "ATOM",
+          instructions:[["LOAD", 0]],
+          dataType:"VOID",
+          atomType:"IMPLICIT.0"
+        },
+        loc: @1
+      }]
+    ]; }
+  | RET 
+    { $$ = [
+      ['RET', {
+        term: {
+          operation: "ATOM",
+          instructions:[["LOAD", 0]],
+          dataType:"VOID",
+          atomType:"IMPLICIT.0"
+        },
+        loc: @1
+      }]
+    ]; }
+  | RET  term 
+    
+    { $$ = [
+      ['RET', {
+        term: $term,
+        loc: @1
+      }]
+    ]; }
+  ;
+
 call
   : var '(' ')'
     
@@ -219,124 +373,512 @@ call
         last_line: @3.last_line,
         last_column: @3.last_column,
       };
-      $$ = [['LINE', yylineno], ['LOAD', 0], ['CALL', $var, 1, @1, loc], ['LINE', yylineno]]; 
+      $$ = [[
+        'CALL', 
+        {
+          target: $var,
+          params: [],
+          nameLoc: @1, 
+          argLoc: loc,
+        }
+      ]]; 
     %}
-  | var '(' integer ')'
+  | var '(' int_termList ')'
     { 
       @$.first_column = @1.first_column;
       @$.first_line = @1.first_line;
       @$.last_column = @4.last_column;
       @$.last_line = @4.last_line;
-      ;
-      $$ = [['LINE', yylineno]].concat($integer).concat([['CALL', $var, 2, @1, @3], ['LINE', yylineno]]); 
+      $$ = [[
+        'CALL', 
+        {
+          target: $var, 
+          params: $int_termList,
+          nameLoc: @1, 
+          argLoc: loc,
+        }
+      ]];  
+    }
+  ;
+
+int_termList
+  : int_termList ',' term
+    { 
+      $$ = $int_termList.concat([
+        {
+          term:$term, 
+          operation: 'PASS',
+          dataType: 'INT',
+          loc: $term.loc,
+          totalLoc: $term.totalLoc,
+        } 
+      ])
+    }
+  | term 
+    { 
+      $$ = [
+        {
+          term:$term, 
+          operation: 'PASS',
+          dataType: 'INT',
+          loc: $term.loc,
+          totalLoc: $term.totalLoc,
+        } 
+      ]; 
     }
   ;
 
 cond
-  : IF line '(' term ')' expr %prec XIF
-    { $$ = $line.concat($term).concat([['JZ', $expr.length]]).concat($expr); }
-  | IF line '(' term ')' expr ELSE expr
-    { $$ = $line.concat($term).concat([['JZ', 1 + $6.length]]).concat($6).concat([['JMP', $8.length]]).concat($8); }
+
+  : IF '(' bool_term ')' expr %prec XIF
+    %{ 
+      const skipTag = UniqueTag('iskip');
+      $$ = [[
+        "IF",
+        {
+          condition: $bool_term[0],
+          line: locToIR(@1),
+          skipTrueTag: skipTag,
+          trueCase: $expr
+        }
+      ]];
+    %}
+  | IF '(' bool_term ')' expr ELSE expr
+    %{ 
+      const toElse = UniqueTag('ielse');
+      const skipElse = UniqueTag('iskipelse');
+      $$ = [[
+        "IF",
+        {
+          condition: $bool_term[0],
+          line: locToIR(@1),
+          skipTrueTag: toElse,
+          skipFalseTag: skipElse,
+          trueCase: $5,
+          falseCase: $7
+        }
+      ]];
+    %}
   ;
 
 loop
-  : WHILE line '(' term ')' expr
-    { $$ = $line.concat($term).concat([['JZ', 1 + $expr.length]]).concat($expr).concat([['JMP', -1 -($term.length + $expr.length + 2)]]); }
+  : WHILE '(' bool_term ')' expr
+    %{ 
+      const repeatTag = UniqueTag('lrepeat');
+      const endTag = UniqueTag('lend');
+      $$ = [[
+        'WHILE',  
+        {
+          condition:   $bool_term[0],
+          line:         locToIR(@1),
+          repeatTag:    repeatTag,
+          endTag:       endTag,
+          instructions: $expr
+        }
+      ]];
+    %}
   ;
 
 repeat
-  : REPEAT line '(' integer ')' expr
-    { $$ = $line.concat($integer).concat([['DUP'], ['LOAD', 0], ['EQ'], ['NOT'], ['JZ', $expr.length + 2]]).concat($expr).concat([['DEC'], ['JMP', -1 -($expr.length + 6)], ['POP']]); }
+  : REPEAT'(' int_term ')' expr
+    %{ 
+      const repeatEnd = UniqueTag('rend');
+      const repeatLoop = UniqueTag('rloop');
+      const continueLoop = UniqueTag('rcontinue');
+      $$ = [[
+        "REPEAT",
+        {
+          line:       locToIR(@1),
+          loopCount:  $int_term[0],
+          repeatTag:  repeatLoop,
+          continueTag: continueLoop,
+          endTag:     repeatEnd,
+          instructions: $expr
+        }
+      ]]; 
+    %}
   ;
+
+
+
 
 term
-  : term OR and_term
-    { $$ = $term.concat($and_term).concat([['OR']]); }
-  | and_term
-    { $$ = $and_term; }
-  ;
-
-and_term
-  : and_term AND not_term
-    { $$ = $and_term.concat($not_term).concat([['AND']]); }
-  | not_term
-    { $$ = $not_term; }
-  ;
-
-not_term
-  : NOT clause
-    { $$ = $clause.concat([['NOT']]); }
+  : term OR term 
+    %{ 
+      @$ = mergeLocs(@1, @3);
+      $$ = {
+        left: $1, 
+        right: $3, 
+        operation: "OR", 
+        dataType:"BOOL",
+        loc: @2,
+        totalLoc: @$
+      }; 
+    %}
+  | term AND term 
+    %{      
+      @$ = mergeLocs(@1, @3);
+      $$ = {
+        left: $1, 
+        right: $3, 
+        operation: "AND", 
+        dataType:"BOOL",
+        loc: @2,
+        totalLoc: @$
+      };
+    %}
+  | term '==' term 
+    %{ 
+      @$ = mergeLocs(@1, @3);
+      $$ = {
+        left: $1, 
+        right: $3, 
+        operation: "EQ",
+        loc: @2,
+        totalLoc: @$,
+        dataType:"BOOL"
+      };
+    %}
+  | term '<' term 
+    %{
+      @$ = mergeLocs(@1, @3);
+      $$ = {
+        left: $1, 
+        right: $3, 
+        operation: "LT", 
+        dataType:"BOOL",
+        loc: @2,
+        totalLoc: @$
+      };
+    %}
+  | term '<=' term 
+    %{
+      @$ = mergeLocs(@1, @3);
+      $$ = {
+        left: $1, 
+        right: $3, 
+        operation: "LTE", 
+        dataType:"BOOL",
+        loc: @2,
+        totalLoc: @$
+      };
+    %}
+  | NOT term 
+    %{ 
+      @$ = mergeLocs(@1, @2);
+      $$ = {
+        term: $2,       
+        operation: "NOT",
+        dataType:"BOOL",
+        loc: @1,
+        totalLoc: @$
+      };
+    %}
+  | '(' term ')'
+    { 
+      $$ = { 
+        term: $term,
+        operation: "PARENTHESIS",
+        dataType: $term.dataType,
+        loc: $term.loc,
+        totalLoc: @$
+      };
+    }
   | clause
-    { $$ = $clause; }
+    { $$ = $1; }
   ;
+
+bool_term
+  : term 
+    { 
+      $$ = [[
+        'TERM', 
+        {
+          term:$term, 
+          operation: 'PASS',
+          dataType: 'BOOL',
+          loc: $term.loc,
+          totalLoc: $term.totalLoc
+        }    
+      ]];
+    }
+  ;
+
+int_term
+  : term 
+    { 
+      $$ = [[
+        'TERM', 
+        {
+          term:$term, 
+          operation: 'PASS',
+          dataType: 'INT',
+          loc: $term.loc,
+          totalLoc: $term.totalLoc
+        }    
+      ]];
+    }
+  ;
+
 
 clause
-  : IFZ '(' integer ')'
-    { $$ = $integer.concat([['NOT']]); }
+  : IFZ '(' int_term ')'
+    %{ 
+      @$ = mergeLocs(@1, @4)
+      $$ = {
+        operation: "ATOM",
+        instructions: $int_term.concat([['NOT']]),
+        dataType: "BOOL",
+        atomType:"IS_ZERO",
+        loc: @1,
+        totalLoc: @$
+      };
+    %}
   | bool_fun
-    { $$ = $bool_fun; }
+    %{ 
+      @$ = @1;
+      $$ = {
+        operation: "ATOM",
+        instructions: $bool_fun.code,
+        atomType: $bool_fun.name,
+        dataType: "BOOL",
+        loc: @$,
+        totalLoc: @$
+      };
+    %}
   | bool_fun '(' ')'
-    { $$ = $bool_fun; }
-  | '(' term ')'
-    { $$ = $term; }
+    { 
+      @$ = mergeLocs(@1, @3);
+      $$ = {
+        operation: "ATOM",
+        instructions: $bool_fun.code,
+        atomType: $bool_fun.name,
+        dataType: "BOOL",
+        loc: @1,
+        totalLoc: @$
+      };
+    }
+  | integer
+    {
+      @$ = @1;
+      $$ = {
+        operation: "ATOM",
+        instructions: $integer.code,
+        atomType: $integer.data,
+        dataType: "INT",
+        loc: @1,
+        totalLoc: @1
+      };
+    }
+  | call 
+    %{ 
+      const callIR = $call;
+      const callData = callIR[0][1];
+      $$ = {
+        operation: "ATOM",
+        instructions: [...callIR, ['LRET']],
+        dataType: "$"+callData.target,
+        atomType:"CALL",
+        loc: @1,
+        totalLoc: @1
+      }
+    %}
+  | var
+    %{ 
+      const ir = [[
+        'VAR', 
+        {
+          target:$var, 
+          loc: @1,
+          couldBeFunction: false,
+        }
+      ]];        
+      @$=@1;
+      $$ = {
+        operation: "ATOM",
+        instructions: ir,
+        dataType: "$"+$var,
+        atomType: `VAR.${$var}`,
+        loc: @1,
+        totalLoc: @1
+      }; 
+    %}
   ;
 
 bool_fun
   : IFNFWALL
-    { $$ = [['WORLDWALLS'], ['ORIENTATION'], ['MASK'], ['AND'], ['NOT']]; }
+    { 
+      $$ = {
+        name: "IFNFWALL",
+        code: [['WORLDWALLS'], ['ORIENTATION'], ['MASK'], ['AND'], ['NOT']]
+      }; 
+    }
   | IFFWALL
-    { $$ = [['WORLDWALLS'], ['ORIENTATION'], ['MASK'], ['AND']]; }
+    { 
+      $$ = {
+        name: "IFFWALL",
+        code: [['WORLDWALLS'], ['ORIENTATION'], ['MASK'], ['AND']]
+      }; 
+    }
   | IFNLWALL
-    { $$ = [['WORLDWALLS'], ['ORIENTATION'], ['ROTL'], ['MASK'], ['AND'], ['NOT']]; }
+    { 
+      $$ = {
+        name: "IFNLWALL",
+        code: [['WORLDWALLS'], ['ORIENTATION'], ['ROTL'], ['MASK'], ['AND'], ['NOT']]
+      }; 
+    }
   | IFLWALL
-    { $$ = [['WORLDWALLS'], ['ORIENTATION'], ['ROTL'], ['MASK'], ['AND']]; }
+    { 
+      $$ = {
+        name: "IFLWALL",
+        code: [['WORLDWALLS'], ['ORIENTATION'], ['ROTL'], ['MASK'], ['AND']]
+      };
+    }
   | IFNRWALL
-    { $$ = [['WORLDWALLS'], ['ORIENTATION'], ['ROTR'], ['MASK'], ['AND'], ['NOT']]; }
+    { 
+      $$ = {
+        name: "IFNRWALL",
+        code: [['WORLDWALLS'], ['ORIENTATION'], ['ROTR'], ['MASK'], ['AND'], ['NOT']]
+      };
+    }
   | IFRWALL
-    { $$ = [['WORLDWALLS'], ['ORIENTATION'], ['ROTR'], ['MASK'], ['AND']]; }
+    { 
+      $$ = {
+        name: "IFRWALL",
+        code: [['WORLDWALLS'], ['ORIENTATION'], ['ROTR'], ['MASK'], ['AND']]
+      };
+    }
   | IFWBUZZER
-    { $$ = [['WORLDBUZZERS'], ['LOAD', 0], ['EQ'], ['NOT']]; }
+    { 
+      $$ = {
+        name: "IFWBUZZER",
+        code: [['WORLDBUZZERS'], ['LOAD', 0], ['EQ'], ['NOT']]
+      };
+    }
   | IFNWBUZZER
-    { $$ = [['WORLDBUZZERS'], ['NOT']]; }
+    { 
+      $$ = {
+        name: "IFNWBUZZER",
+        code: [['WORLDBUZZERS'], ['NOT']]
+      };
+    }
   | IFBBUZZER
-    { $$ = [['BAGBUZZERS'], ['LOAD', 0], ['EQ'], ['NOT']]; }
+    { 
+      $$ = {
+        name: "IFBBUZZER",
+        code: [['BAGBUZZERS'], ['LOAD', 0], ['EQ'], ['NOT']]
+      };
+    }
   | IFNBBUZZER
-    { $$ = [['BAGBUZZERS'], ['NOT']]; }
+    {
+      $$ = {
+        name: "IFNBBUZZER",
+        code: [['BAGBUZZERS'], ['NOT']]
+      };
+    }
   | IFW
-    { $$ = [['ORIENTATION'], ['LOAD', 0], ['EQ']]; }
+    { 
+      $$ = {
+        name: "IFW",
+        code: [['ORIENTATION'], ['LOAD', 0], ['EQ']]
+      };
+    }
   | IFN
-    { $$ = [['ORIENTATION'], ['LOAD', 1], ['EQ']]; }
+    {
+      $$ = {
+        name: "IFN",
+        code: [['ORIENTATION'], ['LOAD', 1], ['EQ']]
+      };
+    }
   | IFE
-    { $$ = [['ORIENTATION'], ['LOAD', 2], ['EQ']]; }
+    {
+      $$ = {
+        name: "IFE",
+        code: [['ORIENTATION'], ['LOAD', 2], ['EQ']]
+      };
+    }
   | IFS
-    { $$ = [['ORIENTATION'], ['LOAD', 3], ['EQ']]; }
+    {
+      $$ = {
+        name: "IFS",
+        code: [['ORIENTATION'], ['LOAD', 3], ['EQ']]
+      };
+    }
   | IFNW
-    { $$ = [['ORIENTATION'], ['LOAD', 0], ['EQ'], ['NOT']]; }
+    {
+      $$ = {
+        name: "IFNW",
+        code: [['ORIENTATION'], ['LOAD', 0], ['EQ'], ['NOT']]
+      };
+    }
   | IFNN
-    { $$ = [['ORIENTATION'], ['LOAD', 1], ['EQ'], ['NOT']]; }
+    {
+      $$ = {
+        name: "IFNN",
+        code: [['ORIENTATION'], ['LOAD', 1], ['EQ'], ['NOT']]
+      };
+    }
   | IFNE
-    { $$ = [['ORIENTATION'], ['LOAD', 2], ['EQ'], ['NOT']]; }
+    { 
+      $$ = {
+        name: "IFNE",
+        code: [['ORIENTATION'], ['LOAD', 2], ['EQ'], ['NOT']]
+      };
+    }
   | IFNS
-    { $$ = [['ORIENTATION'], ['LOAD', 3], ['EQ'], ['NOT']]; }
+    {
+      $$ = {
+        name: "IFNS",
+        code: [['ORIENTATION'], ['LOAD', 3], ['EQ'], ['NOT']]
+      };
+    }
   ;
 
 integer
-  : var
-    { $$ = [['PARAM', $var, @1]]; }
-  | NUM
-    { $$ = [['LOAD', parseInt(yytext)]]; }
-  | INC '(' integer ')'
-    { $$ = $integer.concat([['INC']]); }
-  | DEC	 '(' integer ')'
-    { $$ = $integer.concat([['DEC']]); }
+  : int_literal
+    { 
+      $$ = {
+        data: `NUMBER.${$int_literal}`, 
+        code: [['LOAD', $int_literal]]
+      };
+    }
+  | INC '(' int_term ')'
+    { 
+      $$ = {
+        data: "INC",
+        code: $int_term.concat([['INC', 1]])
+      };
+    }
+  | DEC	 '(' int_term ')'
+    { 
+      $$ = {
+        data: "DEC",
+        code: $int_term.concat([['DEC', 1]])
+      };
+    }
+  | INC '(' int_term ',' int_literal ')'
+    { 
+      $$ = {
+        data: `INC.${$int_literal}`,
+        code: $int_term.concat([['INC', $int_literal]])
+      }; 
+    }
+  | DEC	 '(' int_term ',' int_literal ')'
+    { 
+      $$ = {
+        data: `DEC.${$int_literal}`,
+        code: $int_term.concat([['DEC', $int_literal]])
+      };
+    }
+  
+  ;
+
+int_literal
+  : NUM
+    { $$ = parseInt(yytext); }
   ;
 
 var
   : VAR
     { $$ = yytext; }
-  ;
-
-line
-  :
-    { $$ = [['LINE', yylineno]]; }
   ;

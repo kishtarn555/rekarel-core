@@ -1,0 +1,11 @@
+
+class program {    
+    void clone(floorBeepers) {
+        iterate(floorBeepers) putbeeper();
+    }
+    program() {
+        clone(4);
+       
+        turnoff();
+    }
+}

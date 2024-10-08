@@ -1,0 +1,28 @@
+iniciar-programa
+	define-prototipo-calculo numerico;
+	define-prototipo-condicion logico;
+	define-prototipo-instruccion metodo;
+
+	define-calculo numerico como
+	inicio
+		avanza;
+		regresa 3;
+	fin;
+
+	define-nueva-instruccion metodo como
+	inicio
+		avanza;
+	fin;
+
+	define-condicion logico como
+	inicio
+		avanza;
+		regresa orientado-al-norte;
+	fin;
+
+	inicia-ejecucion
+		numerico;
+		logico;
+		metodo;
+	termina-ejecucion
+finalizar-programa

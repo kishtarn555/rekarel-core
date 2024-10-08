@@ -1,48 +1,42 @@
 "use strict";
 
 import { KarelRuntimeEventTarget } from './eventTarget';
-import {  getOpCodeID, OpCodeID, OpCodeLiteral, RawProgram } from './opcodes';
+import {  ErrorLiteral, ErrorType, getOpCodeID, OpCodeID, OpCodeLiteral, RawProgram } from './compiler/opcodes';
 import type { World } from './world';
 
 
+
+
 /**
- * A class that holds the state of computation and executes opcodes.
- *
- * The Karel Virtual Machine is a simple, stack-based virtual machine with
- * a small number of opcodes, based loosely on the Java Virtual Machine.
- * All opcodes are represented as an array where the first element is the
- * opcode name, followed by zero or one parameters.
+ * A Karel program Represented as a flattened integer array. 
+ * Each instruction occupies three consecutive elements in the format of
+ * [OpcodeID, Arg1, Arg2]
  */
-
-
-
 type ByteProgram = Int32Array
 
-enum ErrorType {
-  INSTRUCTION = "INSTRUCTION",
-  STACK = "STACK",
-  WALL = "WALL",
-  WORLDUNDERFLOW = "WORLDUNDERFLOW",
-  BAGUNDERFLOW = "BAGUNDERFLOW",
-  INVALIDOPCODE = "INVALIDOPCODE"
-}
-
-type ErrorLiteral = keyof typeof ErrorType;
-
-
+/**
+ * Error instruction type error
+ * Used to report too many instructions
+ */
 type ErrorData = {
   type:ErrorType.INSTRUCTION,
   instruction?: OpCodeLiteral
 }
 
+/**
+ * Stores the registers and memory of an execution
+ */
 type RuntimeState = {
   pc: number
   sp: number
   fp: number
   line: number
+  column: number
   ic: number
+  ret: number
   stack: Int32Array
   stackSize: number
+  stackMemory: number
 
   moveCount: number
   turnLeftCount: number
@@ -57,15 +51,45 @@ type RuntimeState = {
 
 
 
+/**
+ * A class that holds the state of computation and executes opcodes.
+ *
+ * The Karel Virtual Machine is a simple, stack-based virtual machine with
+ * a small number of opcodes, based loosely on the Java Virtual Machine.
+ * All opcodes are represented as an array where the first element is the
+ * opcode name, followed by zero or one parameters.
+ */
 export class Runtime {
   world: World
   debug: boolean
+  /**
+   * If true, it does no fire stack events 
+   */
   disableStackEvents: boolean
+  /**
+   * @deprecated This should not be here, use eventController instead
+   * 
+   */
   events: KarelRuntimeEventTarget
+  /**
+   * Object representing the opcodes as given by the compiler
+   */
   rawOpcodes: RawProgram
+  /**
+   * The program in the numeric machine code representation
+   */
   program: ByteProgram
+  /*
+   * Array containing the functions name in the same order as they are referenced by the ByteProgram
+  */
   functionNames: string[]
+  /**
+   * The current state of the execution. Stores the registers and memory of an execution
+  */
   state: RuntimeState
+  /**
+   * Event controller that fires and notifies the listeners of any event
+   */
   eventController: KarelRuntimeEventTarget
 
   constructor(world: World) {
@@ -78,6 +102,10 @@ export class Runtime {
 
   }
 
+  /**
+   * Loads the runtime with an opcode
+   * @param opcodes The program as given by the compiler
+   */
   load(opcodes: RawProgram) {
 
     let error_mapping: ErrorLiteral[] = ['WALL', 'WORLDUNDERFLOW', 'BAGUNDERFLOW', 'INSTRUCTION'];
@@ -88,30 +116,49 @@ export class Runtime {
     let function_idx = 0;
     this.program = new Int32Array(new ArrayBuffer(opcodes.length * 3 * 4));
     for (let i = 0; i < opcodes.length; i++) {
-      this.program[3 * i] = getOpCodeID(opcodes[i][0]);
-      if (opcodes[i].length > 1) {
-        this.program[3 * i + 1] = opcodes[i][1];
+      const currentOpcode = opcodes[i];
+      this.program[3 * i] = getOpCodeID(currentOpcode[0]);
+      if (currentOpcode.length > 1) {
+        this.program[3 * i + 1] = currentOpcode[1] as number;
       }
-      if (opcodes[i][0] == 'CALL') {
-        if (!function_map.hasOwnProperty(opcodes[i][2])) {
-          function_map[opcodes[i][2]] = function_idx;
-          this.functionNames[function_idx++] = opcodes[i][2];
+      
+      if (currentOpcode[0] == "LINE") {
+        this.program[3 * i + 2] = currentOpcode[2];
+      }
+      if (currentOpcode[0] == 'CALL') {
+        if (!function_map.hasOwnProperty(currentOpcode[2])) {
+          function_map[currentOpcode[2]] = function_idx;
+          this.functionNames[function_idx++] = currentOpcode[2];
         }
-        this.program[3 * i + 2] = function_map[opcodes[i][2]];
-      } else if (opcodes[i][0] == 'EZ') {
-        this.program[3 * i + 1] = error_mapping.indexOf(opcodes[i][1]);
+        this.program[3 * i + 2] = function_map[currentOpcode[2]];
+      } else if (currentOpcode[0] == 'EZ') {
+        this.program[3 * i + 1] = error_mapping.indexOf(currentOpcode[1] as ErrorLiteral);
         if (this.program[3 * i + 1] == -1) {
-          throw new Error('Invalid error: ' + opcodes[i][1]);
+          throw new Error('Invalid error: ' + currentOpcode[1]);
         }
       }
     }
     this.reset();
   }
 
+  /**
+   * Starts the execution
+   */
   start(): void {
-    this.eventController.fireEvent('start', this, { target: this, world: this.world });
+    this.eventController.fireEvent(
+      'start',
+      this,
+      { 
+        type: "start",
+        target: this, 
+        world: this.world 
+      }
+    );
   }
 
+  /**
+   * Resets the state. **Does not** reset the world
+   */
   reset() {
 
     this.state = {
@@ -119,9 +166,12 @@ export class Runtime {
       sp: -1,
       fp: -1,
       line: -1,
+      column: -1,
       ic: 0,
+      ret:0,
       stack: new Int32Array(new ArrayBuffer((0xffff * 16 + 40) * 4)),
       stackSize: 0,
+      stackMemory: 0,
 
       // Instruction counts
       moveCount: 0,
@@ -136,6 +186,7 @@ export class Runtime {
 
     if (this.debug) {
       this.eventController.fireEvent('debug', this, {
+        type: "debug",
         target: this,
         message: JSON.stringify(this.rawOpcodes),
         debugType: 'program',
@@ -143,6 +194,9 @@ export class Runtime {
     }
   }
 
+  /**
+   * Runs the program until the next Line instruction or until it stops running.
+   */
   step(): boolean {
     while (this.state.running) {
       try {
@@ -153,7 +207,15 @@ export class Runtime {
         this.next();
       } finally {
         if (!this.state.running) {
-          this.eventController.fireEvent('stop', this, { target: this, world: this.world });
+          this.eventController.fireEvent(
+            'stop', 
+            this, 
+            { 
+              type: "stop",
+              target: this, 
+              world: this.world,
+            }
+          );
         }
       }
     }
@@ -161,6 +223,9 @@ export class Runtime {
     return this.state.running;
   }
 
+  /**
+   * Executes the instruction at the program counter.
+   */
   next(): boolean {
     if (!this.state.running) return;
 
@@ -181,10 +246,11 @@ export class Runtime {
     let rot;
     let di = [0, 1, 0, -1];
     let dj = [-1, 0, 1, 0];
-    let param, newSP, op1, op2, fname;
+    let paramCount, newSP, op1, op2, fname, params, line, fromFName, npc;
     try {
       if (this.debug) {
         this.eventController.fireEvent('debug', this, {
+          type: "debug",
           target: this,
           message: JSON.stringify(
             this.program[3 * this.state.pc] +
@@ -203,6 +269,7 @@ export class Runtime {
 
         case OpCodeID.LINE: {
           this.state.line = this.program[3 * this.state.pc + 1];
+          this.state.column = this.program[3 * this.state.pc + 2];
           break;
         }
 
@@ -397,39 +464,48 @@ export class Runtime {
         }
 
         case OpCodeID.DEC: {
-          this.state.stack[this.state.sp]--;
+          this.state.stack[this.state.sp] -= this.program[3 * this.state.pc + 1];
           break;
         }
 
         case OpCodeID.INC: {
-          this.state.stack[this.state.sp]++;
+          this.state.stack[this.state.sp] += this.program[3 * this.state.pc + 1];
           break;
         }
 
         case OpCodeID.CALL: {
           this.state.ic++;
           // sp, pc, param
-          param = this.state.stack[this.state.sp--];
-          newSP = this.state.sp;
+          paramCount = this.state.stack[this.state.sp--];
+          newSP = this.state.sp - paramCount;
           fname = this.functionNames[this.program[3 * this.state.pc + 2]];
 
           this.state.stack[++this.state.sp] = this.state.fp;
           this.state.stack[++this.state.sp] = newSP;
           this.state.stack[++this.state.sp] = this.state.pc;
-          this.state.stack[++this.state.sp] = param;
+          this.state.stack[++this.state.sp] = paramCount;
 
-          this.state.fp = newSP + 1;
+          this.state.fp = newSP + 1 + paramCount;
           this.state.pc = this.program[3 * this.state.pc + 1];
           this.state.jumped = true;
           this.state.stackSize++;
+          this.state.stackMemory += Math.max(1, paramCount);
 
           if (this.state.stackSize >= this.world.maxStackSize) {
             this.state.running = false;
             this.state.error = ErrorType.STACK;
+          } else if (this.state.stackMemory >= this.world.maxStackMemory) {
+            this.state.running = false;
+            this.state.error = ErrorType.STACKMEMORY;
+          } else if (paramCount > this.world.maxCallSize) {
+            
+            this.state.running = false;
+            this.state.error = ErrorType.CALLSIZE;
           } else if (!this.disableStackEvents) {
             this.eventController.fireEvent('call', this, {
+              type: "call",
               function: fname,
-              param: param,
+              params: this.state.stack.subarray(this.state.fp - paramCount, this.state.fp),
               line: this.state.line,
               target: this,
             });
@@ -442,27 +518,34 @@ export class Runtime {
             this.state.running = false;
             break;
           }
+          paramCount = this.state.stack[this.state.fp + 3];
           this.state.pc = this.state.stack[this.state.fp + 2];
           this.state.sp = this.state.stack[this.state.fp + 1];
           this.state.fp = this.state.stack[this.state.fp];
           this.state.stackSize--;
+          this.state.stackMemory -= Math.max(1, paramCount);;
           if (!this.disableStackEvents) {
-            let param = this.state.stack[this.state.fp + 3];
+            params = this.state.stack.subarray(0,0);
+            fromFName = this.functionNames[this.program[3 * this.state.pc + 2]];
 
-
-            let fname = "N/A";
-            let line = -2;
+            fname = "N/A";
+            line = -2;
             if (this.state.stackSize >= 1) {
-              let npc = this.state.stack[this.state.fp + 2]; //Get the function name from the function that called me
+              npc = this.state.stack[this.state.fp + 2]; //Get the function name from the function that called me
               fname = this.functionNames[this.program[3 * npc + 2]];
               line = this.program[3 * (npc + 1) + 1]; //Get line. A call always is LINE -> LOAD PARAM -> CALL -> LINE
+              paramCount = this.state.stack[this.state.fp + 3];
+              params = this.state.stack.subarray(this.state.fp - paramCount, this.state.fp);
             }
 
             this.eventController.fireEvent('return', this,  {
+              type: "return",
               target: this,
-              param: param,
+              params: params,
               function: fname,
-              line: line
+              fromFunction: fromFName, 
+              line: line,
+              returnValue: this.state.ret
             });
           }
           break;
@@ -471,8 +554,32 @@ export class Runtime {
         case OpCodeID.PARAM: {
           this.state.stack[++this.state.sp] =
             this.state.stack[
-            this.state.fp + 3 + this.program[3 * this.state.pc + 1]
+            this.state.fp - 1 - this.program[3 * this.state.pc + 1]
             ];
+          break;
+        }
+        
+        case OpCodeID.SRET: {
+          this.state.ret = this.state.stack[this.state.sp--];
+          break;
+        }
+
+        case OpCodeID.LRET: {
+          this.state.stack[++this.state.sp] = this.state.ret;
+          break;
+        }
+
+        case OpCodeID.LT: {
+          op2 = this.state.stack[this.state.sp--];
+          op1 = this.state.stack[this.state.sp--];
+          this.state.stack[++this.state.sp] = op1 < op2 ? 1 : 0;
+          break;
+        }
+
+        case OpCodeID.LTE: {          
+          op2 = this.state.stack[this.state.sp--];
+          op1 = this.state.stack[this.state.sp--];
+          this.state.stack[++this.state.sp] = op1 <= op2 ? 1 : 0;
           break;
         }
 
@@ -480,6 +587,7 @@ export class Runtime {
           this.state.running = false;
           if (this.debug) {
             this.eventController.fireEvent('debug', this, {
+              type: "debug",
               target: this,
               message: 'Missing opcode ' + this.rawOpcodes[this.state.pc][0],
               debugType: 'opcode',
@@ -487,6 +595,10 @@ export class Runtime {
           }
 
           this.state.error = ErrorType.INVALIDOPCODE;
+          this.state.errorData = {
+            type:ErrorType.INSTRUCTION,
+            instruction: OpCodeID[this.program[this.state.pc*3]] as OpCodeLiteral
+          }
           return false;
         }
       }
@@ -509,6 +621,7 @@ export class Runtime {
           running: this.state.running,
         };
         this.eventController.fireEvent('debug', this, {
+          type: "debug",
           target: this,
           message: JSON.stringify(copy),
           debugType: 'state',

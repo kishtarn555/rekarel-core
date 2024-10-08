@@ -1,0 +1,49 @@
+import rekarel.globals;
+class program {
+    bool always() {
+        putbeeper();
+        return true;
+    }
+    bool never() {
+        putbeeper();
+        putbeeper();
+        return false;
+    }
+    program() {
+        if (always() && always()) {
+            iterate(4) putbeeper();
+        }
+        move();
+        if (always() && never()) {
+            iterate(4) putbeeper();
+        }        
+        move();
+        if (never() && always()) {
+            iterate(4) putbeeper();
+        }
+        move();
+        if (never() && never()) {
+            iterate(4) putbeeper();
+        }
+        move();
+        // Or
+        
+        if (always() || always()) {
+            iterate(4) putbeeper();
+        }
+        move();
+        if (always() || never()) {
+            iterate(4) putbeeper();
+        }        
+        move();
+        if (never() || always()) {
+            iterate(4) putbeeper();
+        }
+        move();
+        if (never() || never()) {
+            iterate(4) putbeeper();
+        }
+
+    }
+
+}

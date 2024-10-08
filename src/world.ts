@@ -2,7 +2,10 @@
 
 import { Runtime } from "./runtime";
 
-enum DumpTypes {
+/**
+ * Dump flags, they change what is emitted to the output of an world
+ */
+export enum DumpTypes {
     DUMP_WORLD = 'mundo',
     DUMP_POSITION = 'posicion',
     DUMP_ORIENTATION = 'orientacion',
@@ -23,43 +26,148 @@ type Orientation = 'OESTE' | 'NORTE' | 'ESTE' | 'SUR';
 
 const error_mapping = ['WALL', 'WORLDUNDERFLOW', 'BAGUNDERFLOW', 'INSTRUCTION'];
 
+/**
+ * Maps errors to their output message
+ */
 enum ERROR_MAPPING {
     BAGUNDERFLOW = 'ZUMBADOR INVALIDO',
     WALL = 'MOVIMIENTO INVALIDO',
     WORLDUNDERFLOW = 'ZUMBADOR INVALIDO',
     STACK = 'STACK OVERFLOW',
     INSTRUCTION = 'LIMITE DE INSTRUCCIONES',
-
+    STACKMEMORY = "LIMITE DE MEMORIA DEL STACK",
+    CALLSIZE = "LIMITE DE LONGITUD DE LLAMADA"
 }
+
+/**
+ * Represents a Karel World, it keeps track of both the starting state and the current state
+ * Contains information such as beepers, walls, Karel position, etc.
+ */
 export class World {
+    /**
+     * Width of the world
+     */
     w: number
+    /**
+     * Height of the world
+     */
     h: number
+    /**
+     * Runtime linked to this world
+     */
     runtime: Runtime
+    /**
+     * Stores the initial beepers. -1 Means infinite
+     * 
+     * 
+     */
     map: Int32Array | number[]
+    
+    /**
+     * Stores the current beepers. -1 Means infinite
+     */
     currentMap: Int32Array | number[]
+    /**
+     * Stores the walls of the worlds.
+     * Each cell contains a bitmask representing the cells
+     * - bit 0: West
+     * - bit 1: North
+     * - bit 2: East
+     * - bit 3: South
+     */
     wallMap: Uint8Array | number[]
+    /**
+     * Flag set if the world is modified either by a function or runtime
+     * It is not reset internally, but by an external controller
+     */
     dirty: boolean
+    /**
+     * Array of [row, column] which select which cells are emitted to the output
+     */
     dumpCells: [number, number][]
+    /**
+     * Dump flags, they control what is emitted to the output
+     */
     dumps: DumpData
+    /**
+     * Maximum number of instructions that a program can execute
+     */
     maxInstructions: number
+    /**
+     * Maximum number of moves a program can run
+     */
     maxMove: number
+    /**
+     * Maximum number of turn lefts a program can run
+     */
     maxTurnLeft: number
+    /**
+     * Maximum number of pick buzzers a program can run
+     */
     maxPickBuzzer: number
+    /**
+     * Maximum number of leave buzzers a program can run
+     */
     maxLeaveBuzzer: number
-    maxKarelBeepers: number
-    maxBeepers: number
+    /**
+     * Maximum number of functions in the stack
+     */
     maxStackSize: number
+    /**
+     * Maximum number of parameters a call can have
+     */
+    maxCallSize: number    
+    /**
+     * Maximum stack memory. A call consumes max(1, number of parameters) memory
+     */
+    maxStackMemory: number
+    /**
+     * Name of the world
+     */
     worldName: string
+    /**
+     * Name of the program
+     */
     programName: string
-    preValidators: any[] //FIXME: I Don't know what this are
-    postValidators: any[] //FIXME: I Don't know what this are
-    i: number
+    /**
+     * The current row where Karel is
+     */
+    i: number    
+    /**
+     * The current column where Karel is
+     */
     j: number
+    /**
+     * The current orientation of Karel
+     * - 0 is West
+     * - 1 is North
+     * - 2 is East
+     * - 3 is South
+     */
     orientation: number
+    /**
+     * Current number of beepers in the Bag. -1 if infinite
+     */
     bagBuzzers: number
+    /**
+     * The start row of Karel
+     */
     start_i: number
+    /**
+     * The start column of Karel
+     */
     start_j: number
+    /**
+     * Start orientation of Karel
+     * - 0 is West
+     * - 1 is North
+     * - 2 is East
+     * - 3 is South
+     */
     startOrientation: number
+    /**
+     * Start number of beepers in the Bag. -1 if infinite
+     */
     startBagBuzzers: number
 
 
@@ -76,6 +184,9 @@ export class World {
         this.clear();
     }
 
+    /**
+     * Creates and reserves the memory for the arrays
+     */
     createMaps(): void {
         if (ArrayBuffer) {
             let len = (this.w + 2) * (this.h + 2);
@@ -96,6 +207,11 @@ export class World {
         }
     }
 
+    /**
+     * Changes the size of the world
+     * @param w New width
+     * @param h New Height
+     */
     resize(w: number, h: number): void {
         // Eliminamos las paredes del borde
         for (let i = 1; i <= this.h; i++) {
@@ -149,6 +265,9 @@ export class World {
         this.dirty = true;
     }
 
+    /**
+     * Sets all values to their default. 
+     */
     clear(): void {
         for (let i = 0; i < this.wallMap.length; i++) {
             this.wallMap[i] = 0;
@@ -175,22 +294,37 @@ export class World {
         this.maxTurnLeft = -1;
         this.maxPickBuzzer = -1;
         this.maxLeaveBuzzer = -1;
-        this.maxKarelBeepers = -1;
-        this.maxBeepers = -1;
         this.maxStackSize = 65000;
+        this.maxStackMemory = 65000;
+        this.maxCallSize = 5;
         this.worldName = 'mundo_0';
         this.programName = 'p1';
-        this.preValidators = [];
-        this.postValidators = [];
 
         this.dirty = true;
     }
+    /**
+     * Returns the wall mask at a location
+     * @param i row
+     * @param j column
+     * @returns Wall Mask
+     */
 
     walls(i: number, j: number): number {
         if (0 > i || i > this.h || 0 > j || j > this.w) return 0;
         return this.wallMap[this.w * i + j];
     }
 
+    /**
+     * Sets the current walls at the current position
+     * 
+     * Does not set modifies the neighboring cells, so it allows "one way" walls.
+     * 
+     * It cannot destroy border walls
+     * 
+     * @param i Row
+     * @param j Column
+     * @param wallMask Value of the mask
+     */
     setWallMask = function (i: number, j: number, wallMask: number): void {
         let newMask = wallMask;
         if (
@@ -213,6 +347,13 @@ export class World {
         this.wallMap[this.w * i + j] = newMask;
     }
 
+    /**
+     * Toggles a wall in the specified orientation. It keeps the border walls and toggles the corresponding neighbor wall
+     *
+     * @param i row
+     * @param j column
+     * @param orientation number, they're [west, north, east, south]
+     */
     toggleWall(i: number, j: number, orientation: number): void {
 
         if (
@@ -250,6 +391,9 @@ export class World {
         this.dirty = true;
     }
 
+    /**
+     * Adds the border walls
+     */
     addBorderWalls(): void {
         for (let i = 1; i <= this.h; i++) {
             this.addWall(i, 1, 0);
@@ -262,12 +406,24 @@ export class World {
         }
     }
 
+    /**
+     * Adds the walls set in the wellMask to the specified cell and the corresponding neighbor's wall.
+     * @param i row
+     * @param j column
+     * @param wallMask Walls (lsb to msb is West, North, East, South) 
+     */
     setCellWalls(i: number, j: number, wallMask: number): void {
         for (let pos = 0; pos < 4; pos++) {
             if (wallMask & (1 << pos)) this.addWall(i, j, pos);
         }
     }
 
+    /**
+     * Adds a wall in to the specified cell and the corresponding neighbor's wall
+     * @param i row
+     * @param j column
+     * @param orientation Wall number (0-West, 1-North, 2-East, 3-South)
+     */
     addWall(i: number, j: number, orientation: number): void {
 
 
@@ -297,6 +453,12 @@ export class World {
         this.dirty = true;
     }
 
+    /**
+     * Set the amount of buzzers in a cell in both the **start** and **current** state
+     * @param i row
+     * @param j column
+     * @param count Number of beepers
+     */
     setBuzzers(i: number, j: number, count: number): void {
         if (0 >= i || i > this.h || 0 >= j || j > this.w)
             return;
@@ -330,6 +492,11 @@ export class World {
         return this.map[this.w * i + j];        
     }
 
+    /**
+     * Reduces in one the **current** cell and increases in one the **current** beeperBag. Respects infinite cells and bag.
+     * @param i cell
+     * @param j row
+     */
     pickBuzzer(i: number, j: number): void {
         if (0 >= i || i > this.h || 0 >= j || j > this.w)
             return;
@@ -342,6 +509,11 @@ export class World {
         this.dirty = true;
     }
 
+    /**
+     * Increases in one the **current** cell and reduces  in one the **current** beeperBag. Respects infinite cells and bag
+     * @param i cell
+     * @param j row
+     */
     leaveBuzzer(i: number, j: number): void {
         if (0 >= i || i > this.h || 0 >= j || j > this.w)
             return;
@@ -354,6 +526,12 @@ export class World {
         this.dirty = true;
     }
 
+    /**
+     * Adds or removes a cell to the dump list
+     * @param i row
+     * @param j column
+     * @param dumpState True if it should be added, false if not
+     */
     setDumpCell(i: number, j: number, dumpState: boolean): void {
         let dumpPos = -1;
 
@@ -379,6 +557,11 @@ export class World {
         this.dumps[DumpTypes.DUMP_WORLD] = this.dumpCells.length !== 0;
     }
 
+    /**
+     * Alternates a cell if it is dumped or not
+     * @param i row
+     * @param j column
+     */
     toggleDumpCell(i: number, j: number): void {
         let dumpPos = 0;
 
@@ -399,6 +582,12 @@ export class World {
         this.dumps[DumpTypes.DUMP_WORLD] = this.dumpCells.length !== 0;
     }
 
+    /**
+     * Returns if a cell is in the dumped list
+     * @param i row
+     * @param j column
+     */
+
     getDumpCell(i: number, j: number): boolean {
         let dumpPos = -1;
 
@@ -411,21 +600,38 @@ export class World {
         return false;
     }
 
+    /**
+     * Returns if a dump flag is set or not
+     * @param dumpFlag Flag to get
+     */
     getDumps(dumpFlag: DumpTypes): boolean {
         return this.dumps.hasOwnProperty(dumpFlag.toLowerCase()) && this.dumps[dumpFlag];
     }
 
+    /**
+     * Sets or disables a dump flag
+     * @param dumpFlag Flag to set
+     * @param flagValue True if it dumps, false if not
+     */
     setDumps(dumpFlag: DumpTypes, flagValue: boolean) {
         this.dumps[dumpFlag] = flagValue;
     }
 
+    /**
+     * Toggles a dump flag
+     * @param dumpFlag Flag to toggle
+     */
     toggleDumps(dumpFlag: DumpTypes) {
         this.setDumps(dumpFlag, !this.getDumps(dumpFlag));
     }
 
+    /**
+     * Loads a world data into the this object
+     * @param doc XML document that represents the world
+     */
     load(doc: Document) {
-
-        this.clear();
+        const self = this;
+        self.clear();
 
         let rules = {
             mundo: function (mundo) {
@@ -441,17 +647,21 @@ export class World {
                     return;
                 }
 
-                this.resize(ancho, alto);
+                self.resize(ancho, alto);
             },
 
             condiciones: function (condiciones) {
-                this.maxInstructions =
+                self.maxInstructions =
                     parseInt(
                         condiciones.getAttribute('instruccionesMaximasAEjecutar'),
                         10,
                     ) || 10000000;
-                this.maxStackSize =
+                self.maxStackSize =
                     parseInt(condiciones.getAttribute('longitudStack'), 10) || 65000;
+                self.maxStackMemory =
+                    parseInt(condiciones.getAttribute('memoriaStack'), 10) || 65000;                    
+                self.maxCallSize  =
+                    parseInt(condiciones.getAttribute('llamadaMaxima'), 10) || 5;
             },
 
             comando: function (comando) {
@@ -463,13 +673,13 @@ export class World {
                 }
 
                 if (name == 'AVANZA') {
-                    this.maxMove = val;
+                    self.maxMove = val;
                 } else if (name == 'GIRA_IZQUIERDA') {
-                    this.maxTurnLeft = val;
+                    self.maxTurnLeft = val;
                 } else if (name == 'COGE_ZUMBADOR') {
-                    this.maxPickBuzzer = val;
+                    self.maxPickBuzzer = val;
                 } else if (name == 'DEJA_ZUMBADOR') {
-                    this.maxLeaveBuzzer = val;
+                    self.maxLeaveBuzzer = val;
                 }
             },
 
@@ -483,7 +693,7 @@ export class World {
                     zumbadores = parseInt(zumbadores, 10);
                     if (isNaN(zumbadores)) zumbadores = 0;
                 }
-                this.setBuzzers(i, j, zumbadores);
+                self.setBuzzers(i, j, zumbadores);
             },
 
             pared: function (pared) {
@@ -494,51 +704,31 @@ export class World {
                     let j2 = parseInt(pared.getAttribute('x2'), 10) + 1;
 
                     if (j2 > j) {
-                        this.addWall(i, j, 3);
+                        self.addWall(i, j, 3);
                     } else {
-                        this.addWall(i, j2, 3);
+                        self.addWall(i, j2, 3);
                     }
                 } else if (pared.getAttribute('y2')) {
                     let i2 = parseInt(pared.getAttribute('y2'), 10) + 1;
 
                     if (i2 > i) {
-                        this.addWall(i, j, 0);
+                        self.addWall(i, j, 0);
                     } else {
-                        this.addWall(i2, j, 0);
+                        self.addWall(i2, j, 0);
                     }
                 }
             },
 
             despliega: function (despliega) {
-                this.dumps[despliega.getAttribute('tipo').toLowerCase()] = true;
+                self.dumps[despliega.getAttribute('tipo').toLowerCase()] = true;
             },
 
             posicionDump: function (dump) {
-                this.dumpCells.push([
+                self.dumpCells.push([
                     parseInt(dump.getAttribute('y'), 10),
                     parseInt(dump.getAttribute('x'), 10),
                 ]);
-            },
-
-            validador: function (validador) {
-                //FIXME: What is a validator
-
-                // let src = null;
-                // if (validador.getAttribute('src')) {
-                //     src = $.ajax({
-                //         type: 'GET',
-                //         url: validador.getAttribute('src'),
-                //         async: false,
-                //     }).responseText;
-                // } else {
-                //     src = validador.firstChild.nodeValue;
-                // }
-                // if (validador.getAttribute('tipo') == 'post') {
-                //     this.postValidators.push(src);
-                // } else {
-                //     this.preValidators.push(src);
-                // }
-            },
+            },            
 
             programa: function (programa) {
                 let xKarel = parseInt(
@@ -549,25 +739,23 @@ export class World {
                     programa.getAttribute('yKarel') || programa.getAttribute('ykarel'),
                     10,
                 );
-                this.di = this.h / 2 - yKarel;
-                this.dj = this.w / 2 - xKarel;
-                this.rotate(
+                self.rotate(
                     programa.getAttribute('direccionKarel') ||
                     programa.getAttribute('direccionkarel'),
                 );
-                this.worldName =
+                self.worldName =
                     programa.getAttribute('mundoDeEjecucion') ||
                     programa.getAttribute('mundodeejecucion');
-                this.programName = programa.getAttribute('nombre');
-                this.move(yKarel, xKarel);
+                self.programName = programa.getAttribute('nombre');
+                self.move(yKarel, xKarel);
                 let bagBuzzers =
                     programa.getAttribute('mochilaKarel') ||
                     programa.getAttribute('mochilakarel') ||
                     0;
                 if (bagBuzzers == 'INFINITO') {
-                    this.setBagBuzzers(-1);
+                    self.setBagBuzzers(-1);
                 } else {
-                    this.setBagBuzzers(parseInt(bagBuzzers));
+                    self.setBagBuzzers(parseInt(bagBuzzers));
                 }
             },
         };
@@ -590,7 +778,7 @@ export class World {
 
         traverse(doc);
 
-        this.reset();
+        self.reset();
     }
 
     /**
@@ -660,6 +848,7 @@ export class World {
 
     /**
      * Generates the XML representation of the input
+     * @param targetState if "current", it saves the current state. If "start" it saves the start state
      * @returns XML string representing the input
      */
     save(targetState:"current"|"start"): string {
@@ -668,7 +857,10 @@ export class World {
                 '#attributes': {
                     instruccionesMaximasAEjecutar: this.maxInstructions,
                     longitudStack: this.maxStackSize,
+                    memoriaStack: this.maxStackMemory,
+                    llamadaMaxima: this.maxCallSize,
                 },
+                comando: []
             },
             mundos: {
                 mundo: {
@@ -689,8 +881,8 @@ export class World {
                         nombre: this.programName,
                         ruta: '{$2$}',
                         mundoDeEjecucion: this.worldName,
-                        xKarel: targetState === "start" ? this.start_i:this.j,
-                        yKarel: targetState === "start" ? this.start_j:this.i,
+                        xKarel: targetState === "start" ? this.start_j:this.j,
+                        yKarel: targetState === "start" ? this.start_i:this.i,
                         direccionKarel: ['OESTE', 'NORTE', 'ESTE', 'SUR'][targetState === "start" ? this.startOrientation: this.orientation],
                         mochilaKarel: this.bagBuzzers == -1 ? 'INFINITO' :( targetState === "start" ? this.startBagBuzzers: this.bagBuzzers),
                     },
@@ -712,6 +904,39 @@ export class World {
                     });
                 }
             }
+        }
+
+        if (this.maxMove !== -1) {
+            result.condiciones.comando.push({
+                '#attributes': {
+                    nombre: "AVANZA",
+                    maximoNumeroDeEjecuciones: this.maxMove
+                }
+            });
+        }
+        if (this.maxTurnLeft !== -1) {
+            result.condiciones.comando.push({
+                '#attributes': {
+                    nombre: "GIRA_IZQUIERDA",
+                    maximoNumeroDeEjecuciones: this.maxTurnLeft
+                }
+            });
+        }
+        if (this.maxLeaveBuzzer !== -1) {
+            result.condiciones.comando.push({
+                '#attributes': {
+                    nombre: "DEJA_ZUMBADOR",
+                    maximoNumeroDeEjecuciones: this.maxLeaveBuzzer
+                }
+            });
+        }
+        if (this.maxPickBuzzer !== -1) {
+            result.condiciones.comando.push({
+                '#attributes': {
+                    nombre: "COGE_ZUMBADOR",
+                    maximoNumeroDeEjecuciones: this.maxPickBuzzer
+                }
+            });
         }
 
         for (let i = 1; i <= this.h; i++) {
@@ -746,26 +971,6 @@ export class World {
             if (this.dumps.hasOwnProperty(p) && this.dumps[p]) {
                 result.programas.programa.despliega.push({
                     '#attributes': { tipo: p.toUpperCase() },
-                });
-            }
-        }
-
-        if (this.preValidators || this.postValidators) {
-            result.validadores = [];
-            for (let i = 0; i < this.preValidators.length; i++) {
-                result.validadores.push({
-                    validador: {
-                        '#attributes': { tipo: 'pre' },
-                        '#text': '<![CDATA[' + this.preValidators[i] + ']]>',
-                    },
-                });
-            }
-            for (let i = 0; i < this.postValidators.length; i++) {
-                result.validadores.push({
-                    validador: {
-                        '#attributes': { tipo: 'post' },
-                        '#text': '<![CDATA[' + this.postValidators[i] + ']]>',
-                    },
                 });
             }
         }
@@ -888,17 +1093,26 @@ export class World {
         return this.serialize(result, 'resultados', 0);
     }
 
+    /**
+     * Moves Karel both at the **start** and **current** state to a cell
+     * @param i row
+     * @param j column
+     */
     move(i: number, j: number): void {
         this.i = this.start_i = i;
         this.j = this.start_j = j;
         this.dirty = true;
     }
 
+    /**
+     * Rotates Karel both at the **start** and **current**
+     * @param orientation If set, it rotates to the specified rotation, otherwise it rotates to the left.
+     */
     rotate(orientation?: Orientation): void {
-        let orientations: Orientation[] = ['ESTE', 'NORTE', 'OESTE', 'SUR'];
+        let orientations: Orientation[] = ['OESTE', 'NORTE', 'ESTE', 'SUR'];
 
         if (!orientation) {
-            orientation = orientations[(this.orientation + 1) % 4];
+            orientation = orientations[(this.orientation + 3) % 4]; // +3 to make the turn to the left
         }
         this.orientation = this.startOrientation = Math.max(
             0,
@@ -907,12 +1121,19 @@ export class World {
         this.dirty = true;
     }
 
+    /**
+     * Sets both the **start** and **current** state buzzer bag
+     * @param buzzers 
+     */
     setBagBuzzers(buzzers: number): void {
         if (isNaN(buzzers)) buzzers = 0;
         this.bagBuzzers = this.startBagBuzzers = buzzers == 0xffff ? -1 : buzzers;
         this.dirty = true;
     }
 
+    /**
+     * Restores the current state to the start state
+     */
     reset () {
       
         this.orientation = this.startOrientation;
@@ -928,6 +1149,11 @@ export class World {
         this.dirty = true;
       }
     
+    /**
+     * Converts an error to an string output
+     * @param s error, if not set, it is understood there was no error
+     * @returns The program output
+     */
     errorMap(s: string | null): string {
         if (!s) return 'FIN PROGRAMA';
         if (ERROR_MAPPING.hasOwnProperty(s)) {

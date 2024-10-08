@@ -1,0 +1,10 @@
+iniciar-programa
+    define-calculo test(n) como
+    inicio
+        regresa;
+    fin;
+	inicia-ejecucion
+		test(5);
+		apagate;
+	termina-ejecucion
+finalizar-programa
