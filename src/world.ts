@@ -330,9 +330,9 @@ export class World {
         if (
             wallMask < 0 ||
             wallMask >= 16 ||
-            0 > i ||
+            1 > i ||
             i > this.h ||
-            0 > j ||
+            1 > j ||
             j > this.w
         ) {
             return;
@@ -367,9 +367,9 @@ export class World {
         if (
             orientation < 0 ||
             orientation >= 4 ||
-            0 > i ||
+            1 > i ||
             i > this.h ||
-            0 > j ||
+            1 > j ||
             j > this.w
         ) {
             return;
@@ -430,9 +430,9 @@ export class World {
         if (
             orientation < 0 ||
             orientation >= 4 ||
-            0 > i ||
+            1 > i ||
             i > this.h ||
-            0 > j ||
+            1 > j ||
             j > this.w
         )
             return;
@@ -498,7 +498,7 @@ export class World {
      * @param j row
      */
     pickBuzzer(i: number, j: number): void {
-        if (0 > i || i > this.h || 0 > j || j > this.w)
+        if (0 >= i || i > this.h || 0 >= j || j > this.w)
             return;
         if (this.currentMap[this.w * i + j] != -1) {
             this.currentMap[this.w * i + j]--;
@@ -515,7 +515,7 @@ export class World {
      * @param j row
      */
     leaveBuzzer(i: number, j: number): void {
-        if (0 > i || i > this.h || 0 > j || j > this.w)
+        if (0 >= i || i > this.h || 0 >= j || j > this.w)
             return;
         if (this.currentMap[this.w * i + j] != -1) {
             this.currentMap[this.w * i + j]++;
@@ -535,7 +535,7 @@ export class World {
     setDumpCell(i: number, j: number, dumpState: boolean): void {
         let dumpPos = -1;
 
-        if (0 > i || i > this.h || 0 > j || j > this.w)
+        if (0 >= i || i > this.h || 0 >= j || j > this.w)
             return;
 
         for (dumpPos = 0; dumpPos < this.dumpCells.length; dumpPos++) {
@@ -565,7 +565,7 @@ export class World {
     toggleDumpCell(i: number, j: number): void {
         let dumpPos = 0;
 
-        if (0 > i || i > this.h || 0 > j || j > this.w) return;
+        if (0 >= i || i >= this.h || 0 >= j || j >= this.w) return;
 
         for (; dumpPos < this.dumpCells.length; dumpPos++) {
             if (this.dumpCells[dumpPos][0] == i && this.dumpCells[dumpPos][1] == j) {
