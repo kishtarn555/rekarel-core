@@ -8,6 +8,9 @@ This library includes a Compiler for both ReKarel Java and ReKarel Pascal, and a
 
 The library can be seen in two parts. The compiler and the Virtual Machine.
 
+
+> **Notice**: Below there's a extract of the docs, read the full docs [here](https://github.com/kishtarn555/rekarel-core/wiki)! 
+
 # Compiler
 
 First let's check the compiler:
