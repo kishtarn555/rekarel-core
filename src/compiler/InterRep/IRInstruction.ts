@@ -203,7 +203,9 @@ export type IRSimpleInstruction =
     [instruction: "SRET"] |
     [instruction: "LRET"] | 
     [instruction: "LT"]  |
-    [instruction: "LTE"] 
+    [instruction: "LTE"] |
+    [instruction: "COLUMN"]  |
+    [instruction: "ROW"] 
     ;
 
 

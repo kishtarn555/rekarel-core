@@ -7,7 +7,6 @@ describe("Transpiler tests ", ()=> {
         const allPascal = fs.readFileSync(__dirname +"/kp/allCode.kp").toString();
 
         const java_java = transpileCode(allJava, "java");
-        console.log(java_java)
         const java_java_java = transpileCode(java_java, "java");
         //The transpiler should be stable
         expect(java_java).toBe(java_java_java);

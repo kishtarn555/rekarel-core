@@ -35,7 +35,9 @@ export enum OpCodeID {
   SRET,
   LRET,
   LT,
-  LTE
+  LTE,
+  COLUMN,
+  ROW
 };
 
 /**
@@ -107,7 +109,9 @@ export type OpCode =
   [instruction: "SRET"] |
   [instruction: "LRET"] | 
   [instruction: "LT"]  |
-  [instruction: "LTE"] 
+  [instruction: "LTE"] |
+  [instruction: "COLUMN"]  |
+  [instruction: "ROW"] 
   ;
 
 

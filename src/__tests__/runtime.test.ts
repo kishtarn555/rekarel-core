@@ -168,6 +168,55 @@ describe("Test runtime", () => {
         expect(runtime.state.error).toBeUndefined();  
     });
 
+    test("Test COLUMN", ()=> {
+        const world = new World(10, 10);
+        world.orientation = 2;
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+
+        runtime.load([
+            ["COLUMN"],
+            ["FORWARD"],
+            ["COLUMN"],
+            ["LEFT"],
+            ["FORWARD"],
+            ["COLUMN"],
+        ]);
+        for (let i =0; i < 6; i++) {
+            runtime.next();
+            expect(runtime.state.error).toBeUndefined();
+        }
+        expect(runtime.state.stack[0]).toBe(1);
+        expect(runtime.state.stack[1]).toBe(2); 
+        expect(runtime.state.stack[2]).toBe(2); 
+    });
+
+    test("Test ROW", ()=> {
+        const world = new World(10, 10);
+        world.orientation = 2;
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+
+        runtime.load([
+            ["ROW"],
+            ["FORWARD"],
+            ["ROW"],
+            ["LEFT"],
+            ["FORWARD"],
+            ["ROW"],
+            ["FORWARD"],
+            ["ROW"],
+        ]);
+        for (let i =0; i < 8; i++) {
+            runtime.next();
+            expect(runtime.state.error).toBeUndefined();
+        }
+        expect(runtime.state.stack[0]).toBe(1);
+        expect(runtime.state.stack[1]).toBe(1); 
+        expect(runtime.state.stack[2]).toBe(2); 
+        expect(runtime.state.stack[3]).toBe(3); 
+    });
+
     test("Test function events",() => {
         const world = new World(10,10)
         const runtime = new Runtime(world);
