@@ -1,0 +1,7 @@
+usa rekarel.globales;
+iniciar-programa
+    inicia-ejecucion
+        repetir columna veces
+            deja-zumbador;
+    termina-ejecucion
+finalizar-programa

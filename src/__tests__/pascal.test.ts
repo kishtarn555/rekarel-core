@@ -16,7 +16,9 @@ const sourceFiles = [
     "testInc.kp", 
     "testDec.kp",
     "ifReturn.kp",
-    "protoTypeTest.kp"
+    "protoTypeTest.kp",
+    "simpleRow.kp",
+    "simpleColumn.kp"
 ]
 
 
@@ -141,6 +143,30 @@ describe("Pascal globals test ", () => {
         expect(world.bagBuzzers).toBe(0);
 
     });
+    test("Test row variable", () => {
+        const backpackSrc = fs.readFileSync(__dirname + "/kp/simpleRow.kp").toString();
+        const opcodes = compile(backpackSrc);
+        expect(opcodes).toBeDefined()
+        const world = new World(25, 25);
+        world.move(11, 15);
+        world.setBagBuzzers(100);
+        runAll(world, opcodes[0]);
+        expect(world.buzzers(11, 15)).toBe(11);
+        expect(world.bagBuzzers).toBe(89);
+    });
+    test("Test column variable", () => {
+        const backpackSrc = fs.readFileSync(__dirname + "/kp/simpleColumn.kp").toString();
+        const opcodes = compile(backpackSrc);
+        expect(opcodes).toBeDefined()
+        const world = new World(25, 25);
+        world.move(11, 15);
+        world.setBagBuzzers(100);
+        runAll(world, opcodes[0]);
+        expect(world.buzzers(11, 15)).toBe(15);
+        expect(world.bagBuzzers).toBe(85);
+    });
+
+    
 
     test("Test shadowing compilation error", () => {
         const backpackSrc = fs.readFileSync(__dirname + "/kp/globals.ce.kp").toString();
