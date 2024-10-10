@@ -583,6 +583,14 @@ export class Runtime {
           break;
         }
 
+        case OpCodeID.ROW: 
+          this.state.stack[++this.state.sp] = this.world.i
+          break;
+        
+        case OpCodeID.COLUMN:
+          this.state.stack[++this.state.sp] = this.world.j
+          break;
+
         default: {
           this.state.running = false;
           if (this.debug) {
