@@ -1,0 +1,8 @@
+import rekarel.globals;
+class program {
+    program() {
+        iterate(column) {
+            putbeeper();
+        }
+    }
+}

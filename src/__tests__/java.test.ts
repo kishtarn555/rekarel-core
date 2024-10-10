@@ -132,6 +132,29 @@ describe("Java globals test ", ()=> {
         expect(world.bagBuzzers).toBe(0);
         
     });
+    
+    test("Test row variable", () => {
+        const source = fs.readFileSync(__dirname + "/kj/simpleRow.kj").toString();
+        const opcodes = compile(source);
+        expect(opcodes).toBeDefined()
+        const world = new World(25, 25);
+        world.move(11, 15);
+        world.setBagBuzzers(100);
+        runAll(world, opcodes[0]);
+        expect(world.buzzers(11, 15)).toBe(11);
+        expect(world.bagBuzzers).toBe(89);
+    });
+    test("Test column variable", () => {
+        const source = fs.readFileSync(__dirname + "/kj/simpleColumn.kj").toString();
+        const opcodes = compile(source);
+        expect(opcodes).toBeDefined()
+        const world = new World(25, 25);
+        world.move(11, 15);
+        world.setBagBuzzers(100);
+        runAll(world, opcodes[0]);
+        expect(world.buzzers(11, 15)).toBe(15);
+        expect(world.bagBuzzers).toBe(85);
+    });
     test("Test shadowing compilation error", ()=> {
         const backpackSrc = fs.readFileSync(__dirname +"/kj/globals.ce.kj").toString();
         expect(()=>compile (backpackSrc)).toThrow(
