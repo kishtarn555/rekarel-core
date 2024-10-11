@@ -52,6 +52,8 @@ class program {
 		if (false) {}
 		if (beeperBag == 0) {}
 		if (floorBeepers == 0) {}
+		if (row == 0) {}
+		if (column == 0) {}
 		//Test all logical operator
 		if (true && true) {}
 		if (true || true) {}
