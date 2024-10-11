@@ -114,6 +114,12 @@ iniciar-programa
 		si zumbadores-del-piso == 0 entonces
 		inicio
 		fin;
+		si fila == 0 entonces
+		inicio
+		fin;
+		si columna == 0 entonces
+		inicio
+		fin;
 		si verdadero y verdadero entonces
 		inicio
 		fin;

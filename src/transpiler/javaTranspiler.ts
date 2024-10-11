@@ -103,6 +103,12 @@ function translateVars(word: string, data: TranspilerData):string {
         if (word === "falso") {
             return "false";
         }
+        if (word === "fila") {
+            return "row";
+        }
+        if (word === "columna") {
+            return "column";
+        }
     }
     return word;
 }
