@@ -1,7 +1,7 @@
 usa rekarel.globales;
 iniciar-programa
     inicia-ejecucion
-        repetir fila veces
+        repetir fila-actual veces
             deja-zumbador;
     termina-ejecucion
 finalizar-programa

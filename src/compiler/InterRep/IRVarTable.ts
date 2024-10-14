@@ -26,7 +26,7 @@ export type VarData = {
      * The instructions to which a variable parses to
      * 
      * @example
-     * beeperBag compiles to ['BAGBUZZERS']
+     *  compiles to ['BAGBUZZERS']
      */
     instructions: IRSemiSimpleInstruction[]
     /**

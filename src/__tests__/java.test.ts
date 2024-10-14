@@ -133,7 +133,7 @@ describe("Java globals test ", ()=> {
         
     });
     
-    test("Test row variable", () => {
+    test("Test currentRow variable", () => {
         const source = fs.readFileSync(__dirname + "/kj/simpleRow.kj").toString();
         const opcodes = compile(source);
         expect(opcodes).toBeDefined()
@@ -144,7 +144,7 @@ describe("Java globals test ", ()=> {
         expect(world.buzzers(11, 15)).toBe(11);
         expect(world.bagBuzzers).toBe(89);
     });
-    test("Test column variable", () => {
+    test("Test currentColumn variable", () => {
         const source = fs.readFileSync(__dirname + "/kj/simpleColumn.kj").toString();
         const opcodes = compile(source);
         expect(opcodes).toBeDefined()
