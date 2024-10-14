@@ -143,7 +143,7 @@ describe("Pascal globals test ", () => {
         expect(world.bagBuzzers).toBe(0);
 
     });
-    test("Test row variable", () => {
+    test("Test currentRow variable", () => {
         const backpackSrc = fs.readFileSync(__dirname + "/kp/simpleRow.kp").toString();
         const opcodes = compile(backpackSrc);
         expect(opcodes).toBeDefined()
@@ -154,7 +154,7 @@ describe("Pascal globals test ", () => {
         expect(world.buzzers(11, 15)).toBe(11);
         expect(world.bagBuzzers).toBe(89);
     });
-    test("Test column variable", () => {
+    test("Test currentColumn variable", () => {
         const backpackSrc = fs.readFileSync(__dirname + "/kp/simpleColumn.kp").toString();
         const opcodes = compile(backpackSrc);
         expect(opcodes).toBeDefined()

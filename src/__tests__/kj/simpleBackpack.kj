@@ -2,13 +2,13 @@ import rekarel.globals;
 
 class program {    
     program() {
-        iterate(beeperBag) {
+        iterate(beepersInBag) {
             move();
         }
-        while (!iszero(beeperBag)) 
+        while (!iszero(beepersInBag)) 
             putbeeper();
             
-        iterate(beeperBag) {
+        iterate(beepersInBag) {
             move();
         }
         turnoff();

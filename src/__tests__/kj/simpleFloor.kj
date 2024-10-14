@@ -6,10 +6,10 @@ class program {
         iterate(n) putbeeper();
     }
     program() {
-        clone(floorBeepers);
+        clone(beepersOnFloor);
         move();
         //Same as while nextToABeeper
-        while (!iszero(floorBeepers)) {
+        while (!iszero(beepersOnFloor)) {
             pickbeeper();
         }
         turnoff();

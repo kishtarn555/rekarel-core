@@ -23,7 +23,7 @@ class program {
 			turnleft();
 		}
 		iterate(2) turnleft();
-		return floorBeepers;
+		return beepersOnFloor;
 	}
 	program () {
 		dfs();

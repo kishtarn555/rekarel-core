@@ -1,7 +1,7 @@
 
 class program {    
-    void clone(floorBeepers) {
-        iterate(floorBeepers) putbeeper();
+    void clone(beepersOnFloor) {
+        iterate(beepersOnFloor) putbeeper();
     }
     program() {
         clone(4);
