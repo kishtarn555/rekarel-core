@@ -97,7 +97,7 @@ function translateVars(word: string, data: TranspilerData):string {
             return "zumbadores-del-piso";
         }
         if (word === "beepersInBeeperBag") {
-            return "mochila";
+            return "zumbadores-en-la-mochila";
         }
         if (word === "true") {
             return "verdadero";
