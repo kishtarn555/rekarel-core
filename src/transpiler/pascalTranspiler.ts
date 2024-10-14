@@ -93,10 +93,10 @@ function processAtom(atom:IRTermAtom, data: TranspilerData):string {
 
 function translateVars(word: string, data: TranspilerData):string {
     if (data.hasGlobals) {
-        if (word === "floorBeepers") {
+        if (word === "beepersOnFloor") {
             return "zumbadores-del-piso";
         }
-        if (word === "beeperBag") {
+        if (word === "beepersInBag") {
             return "mochila";
         }
         if (word === "true") {
@@ -105,11 +105,11 @@ function translateVars(word: string, data: TranspilerData):string {
         if (word === "false") {
             return "falso";
         }
-        if (word === "row") {
-            return "fila";
+        if (word === "currentRow") {
+            return "fila-actual";
         }
-        if (word === "column") {
-            return "columna";
+        if (word === "currentColumn") {
+            return "columna-actual";
         }
     }
     return word;
