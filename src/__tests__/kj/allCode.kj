@@ -50,7 +50,7 @@ class program {
 		//test globals
 		if (true) {}
 		if (false) {}
-		if (beepersInBag == 0) {}
+		if (beepersInBeeperBag == 0) {}
 		if (beepersOnFloor == 0) {}
 		if (currentRow == 0) {}
 		if (currentColumn == 0) {}
@@ -67,10 +67,10 @@ class program {
 		//Test succ and pred
 		iterate(succ(4)) {}
 		iterate(succ(0, 10)) {}
-		iterate(succ(beepersInBag, 10)) {}
+		iterate(succ(beepersInBeeperBag, 10)) {}
 		iterate(pred(4)) {}
 		iterate(pred(3, 10)) {}
-		iterate(pred(beepersInBag, 10)) {}
+		iterate(pred(beepersInBeeperBag, 10)) {}
 		// Test while
 		while (false) {}
 		//Test params

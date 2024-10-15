@@ -2,13 +2,13 @@ usa rekarel.globales;
 
 iniciar-programa
 	inicia-ejecucion
-		repetir mochila veces
+		repetir zumbadores-en-la-mochila veces
 		inicio
 			avanza;
 		fin;
-		mientras no si-es-cero(mochila) hacer
+		mientras no si-es-cero(zumbadores-en-la-mochila) hacer
 			deja-zumbador;
-		repetir mochila veces
+		repetir zumbadores-en-la-mochila veces
 		inicio
 			avanza;
 		fin;

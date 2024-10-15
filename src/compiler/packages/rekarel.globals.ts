@@ -1,7 +1,7 @@
 import { CompilerPackage, replaceMap } from "./package";
 const javaNumbers: replaceMap = new Map();
 const javaBooleans: replaceMap = new Map();
-javaNumbers.set("beepersInBag", [["BAGBUZZERS"]]);
+javaNumbers.set("beepersInBeeperBag", [["BAGBUZZERS"]]);
 javaNumbers.set("beepersOnFloor", [["WORLDBUZZERS"]]);
 javaNumbers.set("currentRow", [["ROW"]]);
 javaNumbers.set("currentColumn", [["COLUMN"]]);
@@ -16,7 +16,7 @@ export const rekarelGlobalsJava: CompilerPackage = {
 
 const pascalNumbers: replaceMap = new Map();
 const pascalBooleans: replaceMap = new Map();
-pascalNumbers.set("mochila", [["BAGBUZZERS"]]);
+pascalNumbers.set("zumbadores-en-la-mochila", [["BAGBUZZERS"]]);
 pascalNumbers.set("zumbadores-del-piso", [["WORLDBUZZERS"]]);
 pascalNumbers.set("columna-actual", [["COLUMN"]]);
 pascalNumbers.set("fila-actual", [["ROW"]]);

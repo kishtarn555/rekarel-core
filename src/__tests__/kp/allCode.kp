@@ -108,7 +108,7 @@ iniciar-programa
 		si falso entonces
 		inicio
 		fin;
-		si mochila == 0 entonces
+		si zumbadores-en-la-mochila == 0 entonces
 		inicio
 		fin;
 		si zumbadores-del-piso == 0 entonces
@@ -150,7 +150,7 @@ iniciar-programa
 		repetir sucede(0, 10) veces
 		inicio
 		fin;
-		repetir sucede(mochila, 10) veces
+		repetir sucede(zumbadores-en-la-mochila, 10) veces
 		inicio
 		fin;
 		repetir precede(4) veces
@@ -159,7 +159,7 @@ iniciar-programa
 		repetir precede(3, 10) veces
 		inicio
 		fin;
-		repetir precede(mochila, 10) veces
+		repetir precede(zumbadores-en-la-mochila, 10) veces
 		inicio
 		fin;
 		mientras falso hacer
