@@ -292,4 +292,29 @@ describe("Test runtime", () => {
             runtime.next();
         expect(events).toMatchObject(expectedEvents);
     });
+
+    test("Test function events",() => {
+        const world = new World(10,10)
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+        runtime.load([
+            ["LINE",0,0],
+            ["LOAD", 1],
+            ["LOAD", 2],
+            ["LOAD", 3],
+            ["LOAD", 4],
+            ["LOAD", 5],
+            ["LOAD", 6],
+            ["LOAD", 6],
+            ["CALL", 10, "_"],
+            ["LINE",0,0],
+            ["HALT"]
+        ])
+        while (runtime.step()) {
+            //step
+        }
+        expect(runtime.state.error).toBeDefined()
+        expect(runtime.state.error).toBe("CALLSIZE")
+
+    });
 });
