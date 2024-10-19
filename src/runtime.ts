@@ -286,7 +286,7 @@ export class Runtime {
             this.state.turnLeftCount > this.world.maxTurnLeft
           ) {
             this.state.running = false;
-            this.state.error = ErrorType.INSTRUCTION;
+            this.state.error = ErrorType.INSTRUCTION_LEFT;
             this.state.errorData = {
               type: ErrorType.INSTRUCTION,
               instruction: 'LEFT'
@@ -390,7 +390,7 @@ export class Runtime {
             this.state.moveCount > this.world.maxMove
           ) {
             this.state.running = false;
-            this.state.error = ErrorType.INSTRUCTION;
+            this.state.error = ErrorType.INSTRUCTION_FORWARD;
             this.state.errorData = {
               type: ErrorType.INSTRUCTION,
               instruction: 'FORWARD'
@@ -421,7 +421,7 @@ export class Runtime {
             this.state.pickBuzzerCount > this.world.maxPickBuzzer
           ) {
             this.state.running = false;
-            this.state.error = ErrorType.INSTRUCTION;
+            this.state.error = ErrorType.INSTRUCTION_PICKBUZZER;
             this.state.errorData = {
               type: ErrorType.INSTRUCTION,
               instruction: 'PICKBUZZER'
@@ -439,7 +439,7 @@ export class Runtime {
             this.state.leaveBuzzerCount > this.world.maxLeaveBuzzer
           ) {
             this.state.running = false;
-            this.state.error = ErrorType.INSTRUCTION
+            this.state.error = ErrorType.INSTRUCTION_PUTBUZZER
             this.state.errorData = {
               type: ErrorType.INSTRUCTION,
               instruction: 'LEAVEBUZZER'
