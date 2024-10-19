@@ -439,7 +439,7 @@ export class Runtime {
             this.state.leaveBuzzerCount > this.world.maxLeaveBuzzer
           ) {
             this.state.running = false;
-            this.state.error = ErrorType.INSTRUCTION_PUTBUZZER
+            this.state.error = ErrorType.INSTRUCTION_LEAVEBUZZER
             this.state.errorData = {
               type: ErrorType.INSTRUCTION,
               instruction: 'LEAVEBUZZER'
