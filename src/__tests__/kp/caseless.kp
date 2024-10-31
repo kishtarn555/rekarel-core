@@ -11,11 +11,11 @@ inicIar-prOgrama
 
 	inicia-ejecuCion
 		clONE(zumbAdOres-del-piso);
-		avanza;
-		mientras no si-es-cero(zumbadores-del-piso) hacer
+		avAnzA;
+		mientRas No si-Es-ceRo(zuMbadores-dEl-pIso) hAcer
 		inicio
-			coge-zumbador;
+			coge-zumbadOr;
 		fin;
-		apagate;
-	termina-ejecucion
-finalizar-programa
+		apagAte;
+	termina-EJEcucion
+finalizar-PROGRAMA
