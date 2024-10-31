@@ -18,7 +18,8 @@ const sourceFiles = [
     "ifReturn.kp",
     "protoTypeTest.kp",
     "simpleRow.kp",
-    "simpleColumn.kp"
+    "simpleColumn.kp",
+    "caseless.kp",
 ]
 
 

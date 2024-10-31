@@ -1,0 +1,21 @@
+UsA  rEkArEl.glObaLeS;
+
+inicIar-prOgrama
+
+	define-nueva-instrucciOn CLone(nUmero) como
+	INICIO
+		AvaNza;
+		repetir NuMero veces
+			deja-zumbador;
+	FiN;
+
+	inicia-ejecuCion
+		clONE(zumbAdOres-del-piso);
+		avanza;
+		mientras no si-es-cero(zumbadores-del-piso) hacer
+		inicio
+			coge-zumbador;
+		fin;
+		apagate;
+	termina-ejecucion
+finalizar-programa
