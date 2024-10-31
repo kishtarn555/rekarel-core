@@ -205,11 +205,11 @@ import
   ;
 
 package
-  : VAR '.' VAR 
+  : var '.' var 
   {
     $$= $1+"."+$3;
   }
-  | VAR '.' '*'
+  | var '.' '*'
   {
     $$= $1+".*";
   }
@@ -230,7 +230,7 @@ def
       @$.last_line = @2.last_line;
       @$.last_column = @2.last_column;
       $$ = [{
-        name: $var.toLowerCase(), 
+        name: $var, 
         code: null, 
         params: [],  
         loc: @$,
@@ -244,7 +244,7 @@ def
       @$.last_line = @5.last_line;
       @$.last_column = @5.last_column;
       $$ = [{
-        name: $var.toLowerCase(), 
+        name: $var, 
         code: null, 
         params: $paramList,  
         loc: @$,
@@ -259,7 +259,7 @@ def
       @$.last_column = @2.last_column;
 
       $$ = [{
-        name: $var.toLowerCase(),  
+        name: $var,  
         code: [
           locToIR(@2),
           ...$expr,
@@ -284,7 +284,7 @@ def
       @$.last_column = @2.last_column;
 
     	$$ = [{
-        name: $2.toLowerCase(),
+        name: $2,
         code: [
           locToIR(@2),
           ...$expr,
@@ -411,7 +411,7 @@ call
         [
           'CALL', 
           {
-            target:$var.toLowerCase(), 
+            target:$var, 
             params: [],
             nameLoc: @1, 
             argLoc: @1
@@ -431,7 +431,7 @@ parameteredCall
         [
           'CALL', 
           {
-            target: $var.toLowerCase(),
+            target: $var,
             params: $int_termList,
             nameLoc: @1, 
             argLoc: @3,
@@ -690,7 +690,7 @@ clause
         const ir = [[
           'VAR',
           {
-            target: $var.toLowerCase(), 
+            target: $var, 
             loc: @1, 
             couldBeFunction: true
           }
@@ -698,8 +698,8 @@ clause
         $$ = {
           operation: "ATOM",
           instructions: ir,
-          dataType: "$"+$var.toLowerCase(),
-          atomType: `VAR.${$var.toLowerCase()}`,
+          dataType: "$"+$var,
+          atomType: `VAR.${$var}`,
           loc: @1,
           totalLoc: @1
         }; 
@@ -893,5 +893,5 @@ int_literal
 
 var
   : VAR
-    { $$ = yytext; }
+    { $$ = yytext.toLowerCase(); }
   ;
