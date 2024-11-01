@@ -312,7 +312,8 @@ export function generatePascalFromIR(data: IRObject): string {
         hasGlobals: 
             data.packages.findIndex(
                 (val)=>translatePackages(val[0])==="rekarel.globales"
-            ) !== -1
+            ) !== -1,            
+        functions: new Set(data.functions.map((func) => func.name))
     }
     let functions:string =
         data.functions

@@ -110,6 +110,9 @@ function translateVars(word: string, data: TranspilerData):string {
             return "currentColumn";
         }
     }
+    if (data.functions.has(word)) {
+        return `${word} ()`;
+    }
     return word;
 }
 
@@ -299,7 +302,8 @@ export function generateJavaFromIR(data: IRObject): string {
         hasGlobals: 
             data.packages.findIndex(
                 (val)=>translatePackages(val[0])==="rekarel.globals"
-            ) !== -1
+            ) !== -1,
+        functions: new Set(data.functions.map((func) => func.name))
     }
     let functions:string = 
         data.functions

@@ -7,4 +7,5 @@ export function tabs(indentation:number):string{
 }
 export interface TranspilerData {
     hasGlobals: boolean
+    functions: Set<string>
 }
