@@ -1,0 +1,13 @@
+iniciar-programa
+	define-calculo función como
+	inicio
+		regresa 5;
+	fin;
+
+	inicia-ejecucion
+		repetir función veces
+		inicio
+			avanza;
+		fin;
+	termina-ejecucion   
+finalizar-programa

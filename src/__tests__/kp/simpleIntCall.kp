@@ -1,0 +1,11 @@
+class program {
+    int función() {
+        return 5;
+    }
+
+    program() {
+        iterate(función()) {
+            move();
+        }
+    }
+}
