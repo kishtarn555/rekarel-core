@@ -20,12 +20,13 @@ describe("Transpiler tests ", ()=> {
     
 });
 
-describe("", ()=> {    
+describe("Test transpiler between languages", ()=> {    
     const codes:Record<string,[string,string]> = {
         rowVar:["kp/simpleRow.kp", "kj/simpleRow.kj"],
         columnVar:["kp/simpleColumn.kp", "kj/simpleColumn.kj"],
         backpackVar:["kp/simpleBackpack.kp", "kj/simpleBackpack.kj"],
         floorVar:["kp/simpleFloor.kp", "kj/simpleFloor.kj"],
+        intCall:["kp/simpleIntCall.kp", "kj/simpleIntCall.kj"],
     }
     for (const [caseName, sources] of Object.entries(codes)) {
         const [pascalCode, javaCode] = sources;
