@@ -1,5 +1,6 @@
 "use strict";
 
+import { KarelNumbers } from "./constants";
 import { Runtime } from "./runtime";
 
 /**
@@ -61,14 +62,14 @@ export class World {
      */
     runtime: Runtime
     /**
-     * Stores the initial beepers. -1 Means infinite
+     * Stores the initial beepers. Any number over KarelNumbers.maximum is considered infinite
      * 
      * 
      */
     map: Int32Array | number[]
     
     /**
-     * Stores the current beepers. -1 Means infinite
+     * Stores the current beepers. Any number over KarelNumbers.maximum is considered infinite
      */
     currentMap: Int32Array | number[]
     /**
@@ -150,7 +151,7 @@ export class World {
      */
     orientation: number
     /**
-     * Current number of beepers in the Bag. -1 if infinite
+     * Current number of beepers in the Bag. Any number over KarelNumbers.maximum is considered infinite
      */
     bagBuzzers: number
     /**
@@ -170,7 +171,7 @@ export class World {
      */
     startOrientation: number
     /**
-     * Start number of beepers in the Bag. -1 if infinite
+     * Start number of beepers in the Bag. Any number over KarelNumbers.maximum is considered infinite
      */
     startBagBuzzers: number
 
@@ -468,7 +469,7 @@ export class World {
             return;
         this.map[this.w * i + j] =
             this.currentMap[this.w * i + j] =
-            count == 0xffff ? -1 : count;
+            count > KarelNumbers.maximum ? KarelNumbers.a_infinite : count;
         this.dirty = true;
     }
 
@@ -504,10 +505,10 @@ export class World {
     pickBuzzer(i: number, j: number): void {
         if (0 >= i || i > this.h || 0 >= j || j > this.w)
             return;
-        if (this.currentMap[this.w * i + j] != -1) {
+        if (!KarelNumbers.isInfinite(this.currentMap[this.w * i + j])) {
             this.currentMap[this.w * i + j]--;
         }
-        if (this.bagBuzzers != -1) {
+        if (!KarelNumbers.isInfinite(this.bagBuzzers)) {
             this.bagBuzzers++;
         }
         this.dirty = true;
@@ -521,10 +522,10 @@ export class World {
     leaveBuzzer(i: number, j: number): void {
         if (0 >= i || i > this.h || 0 >= j || j > this.w)
             return;
-        if (this.currentMap[this.w * i + j] != -1) {
+        if (!KarelNumbers.isInfinite(this.currentMap[this.w * i + j])) {
             this.currentMap[this.w * i + j]++;
         }
-        if (this.bagBuzzers != -1) {
+        if (!KarelNumbers.isInfinite(this.bagBuzzers)) {
             this.bagBuzzers--;
         }
         this.dirty = true;
@@ -692,7 +693,7 @@ export class World {
                 let j = parseInt(monton.getAttribute('x'), 10);
                 let zumbadores = monton.getAttribute('zumbadores');
                 if (zumbadores == 'INFINITO') {
-                    zumbadores = -1;
+                    zumbadores = KarelNumbers.a_infinite;
                 } else {
                     zumbadores = parseInt(zumbadores, 10);
                     if (isNaN(zumbadores)) zumbadores = 0;
@@ -757,7 +758,7 @@ export class World {
                     programa.getAttribute('mochilakarel') ||
                     0;
                 if (bagBuzzers == 'INFINITO') {
-                    self.setBagBuzzers(-1);
+                    self.setBagBuzzers(KarelNumbers.a_infinite);
                 } else {
                     self.setBagBuzzers(parseInt(bagBuzzers));
                 }
@@ -888,7 +889,7 @@ export class World {
                         xKarel: targetState === "start" ? this.start_j:this.j,
                         yKarel: targetState === "start" ? this.start_i:this.i,
                         direccionKarel: ['OESTE', 'NORTE', 'ESTE', 'SUR'][targetState === "start" ? this.startOrientation: this.orientation],
-                        mochilaKarel: this.bagBuzzers == -1 ? 'INFINITO' :( targetState === "start" ? this.startBagBuzzers: this.bagBuzzers),
+                        mochilaKarel: KarelNumbers.isInfinite(this.bagBuzzers)  ? 'INFINITO' :( targetState === "start" ? this.startBagBuzzers: this.bagBuzzers),
                     },
                     despliega: [],
                 },
@@ -903,7 +904,7 @@ export class World {
                         '#attributes': {
                             x: j,
                             y: i,
-                            zumbadores: buzzers == -1 ? 'INFINITO' : buzzers,
+                            zumbadores: KarelNumbers.isInfinite(buzzers) ? 'INFINITO' : buzzers,
                         },
                     });
                 }
@@ -1063,7 +1064,7 @@ export class World {
                 '#attributes': {},
             };
             result.programas.programa.karel['#attributes'].mochila =
-                this.bagBuzzers == -1 ? 'INFINITO' : this.bagBuzzers;
+                KarelNumbers.isInfinite(this.bagBuzzers) ? 'INFINITO' : this.bagBuzzers;
         }
 
         if (this.dumps[DumpTypes.DUMP_MOVE]) {
@@ -1131,7 +1132,7 @@ export class World {
      */
     setBagBuzzers(buzzers: number): void {
         if (isNaN(buzzers)) buzzers = 0;
-        this.bagBuzzers = this.startBagBuzzers = buzzers == 0xffff ? -1 : buzzers;
+        this.bagBuzzers = this.startBagBuzzers = buzzers > KarelNumbers.maximum ? KarelNumbers.a_infinite : buzzers;
         this.dirty = true;
     }
 
