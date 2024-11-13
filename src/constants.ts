@@ -9,7 +9,9 @@ export namespace KarelNumbers {
      */
     export const maximum = 999_999_999;
     /**
-     * This is a number that is considered infinite by the runtime, any number above the maximum is considered infinite
+     * This is a number that is considered infinite by the runtime. The exact value of this constant is not guaranteed to remain stable
+     * 
+     * To check if a number is infinite you should not check against this value ever, but rather check with the KarelNumbers.isInfinite method
      */
     export const a_infinite = 1_000_000_005;
 

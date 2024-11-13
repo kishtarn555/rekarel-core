@@ -2,6 +2,8 @@ import { run } from "jest";
 import { KarelRuntimeEventDetails } from "../eventTarget";
 import { Runtime } from "../runtime";
 import { World } from "../world";
+import { KarelNumbers } from "../constants";
+import { OpCode, RawProgram } from "../compiler/opcodes";
 
 
 describe("Test runtime", () => {
@@ -316,5 +318,46 @@ describe("Test runtime", () => {
         expect(runtime.state.error).toBeDefined()
         expect(runtime.state.error).toBe("CALLSIZE")
 
+    });
+
+    test("Test infinite bag", ()=> {        
+        const world = new World(10,10)
+        world.setBagBuzzers(KarelNumbers.a_infinite);
+
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+
+        let program:RawProgram = []
+        for (let i =1; i < world.maxInstructions; i++)
+            program.push(["LEAVEBUZZER"]);
+        program.push(["HALT"]);
+        runtime.load(program);
+
+        while (runtime.step());  
+
+        expect(runtime.state.error).toBeUndefined();
+        expect(KarelNumbers.isInfinite(world.bagBuzzers)).toBe(true);
+    });
+
+    
+
+    test("Test infinite cell", ()=> {        
+        const world = new World(10,10)
+        world.setBuzzers(1, 1, KarelNumbers.a_infinite);
+
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+
+        let program:RawProgram = []
+        for (let i =1; i < world.maxInstructions; i++)
+            program.push(["PICKBUZZER"]);
+        program.push(["HALT"]);
+        runtime.load(program);
+
+        while (runtime.step());       
+
+        expect(runtime.state.error).toBeUndefined();
+        expect(KarelNumbers.isInfinite(world.buzzers(1,1))).toBe(true);
+        expect(world.bagBuzzers).toBe(world.maxInstructions-1);
     });
 });
