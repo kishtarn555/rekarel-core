@@ -338,7 +338,7 @@ function resolveRepeat(data: IRRepeat, definitions: DefinitionTable, scope:Scope
             ['TAG', data.repeatTag],
             ['DUP'],
             ['LOAD', 0], 
-            ['EQ'], 
+            ['LTE'], 
             ['NOT'], 
             ['TJZ', data.endTag]
         ],
