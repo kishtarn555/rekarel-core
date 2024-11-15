@@ -1,0 +1,18 @@
+import rekarel.globals;
+
+class program {
+    program() {
+        iterate(5) {
+            putbeeper();
+        }
+        move();
+        iterate(0) {
+            putbeeper();
+        }
+        move();
+        iterate(pred(0,5)) {
+            putbeeper();
+        }
+        turnoff();
+    }
+}

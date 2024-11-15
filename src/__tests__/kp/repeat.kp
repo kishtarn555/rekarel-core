@@ -1,0 +1,13 @@
+usa rekarel.globales;
+iniciar-programa
+    inicia-ejecucion
+        repetir 5 veces
+            deja-zumbador;
+        avanza;
+        repetir 0 veces
+            deja-zumbador;
+        avanza;
+        repetir precede(0, 5) veces
+            deja-zumbador;
+	termina-ejecucion
+finalizar-programa
