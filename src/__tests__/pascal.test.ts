@@ -224,3 +224,22 @@ test("Pascal short circuit", ()=> {
     expect(world.buzzers(7, 1)).toBe(7);
     expect(world.buzzers(8, 1)).toBe(4);
 });
+
+
+
+test("Test repetir", () => {
+    const source = fs.readFileSync(__dirname + "/kj/repeat.kj").toString();
+    const opcodes = compile(source);
+    expect(opcodes).toBeDefined()
+    const world = new World(10, 10);
+    world.setBagBuzzers(20);
+    world.maxInstructions = 100;
+
+    runAll(world, opcodes[0]);
+    
+    expect(world.runtime.state.error).toBeUndefined();
+    expect(world.buzzers(1, 1)).toBe(5);
+    expect(world.buzzers(2, 1)).toBe(0);
+    expect(world.buzzers(3, 1)).toBe(0);
+    expect(world.bagBuzzers).toBe(15);
+});

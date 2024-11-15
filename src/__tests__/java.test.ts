@@ -81,6 +81,23 @@ describe("Java compilation tests ", ()=> {
         expect(world.j).toBe(1);
         
     });
+
+    test("Test iterate", () => {
+        const source = fs.readFileSync(__dirname + "/kj/repeat.kj").toString();
+        const opcodes = compile(source);
+        expect(opcodes).toBeDefined()
+        const world = new World(10, 10);
+        world.setBagBuzzers(20);
+        world.maxInstructions = 100;
+
+        runAll(world, opcodes[0]);
+        
+        expect(world.runtime.state.error).toBeUndefined();
+        expect(world.buzzers(1, 1)).toBe(5);
+        expect(world.buzzers(2, 1)).toBe(0);
+        expect(world.buzzers(3, 1)).toBe(0);
+        expect(world.bagBuzzers).toBe(15);
+    });
 });
 
 test("Test continue statement", () => {
