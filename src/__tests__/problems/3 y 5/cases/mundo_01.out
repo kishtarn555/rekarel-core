@@ -1,8 +1,0 @@
-<resultados>
-	<mundos>
-		<mundo nombre="mundo_0"/>
-	</mundos>
-	<programas>
-		<programa nombre="p1" resultadoEjecucion="FIN PROGRAMA"/>
-	</programas>
-</resultados>
