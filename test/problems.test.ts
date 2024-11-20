@@ -1,6 +1,6 @@
 import { RawProgram } from "../src/compiler/opcodes";
 import { compile, World } from "../src/index";
-import { runAll } from "./util";
+import { runAll, validateOutput } from "./util";
 import { DOMParser } from '@xmldom/xmldom';
 
 import fs from 'fs'
@@ -11,16 +11,6 @@ export function RunWorld(doc: Document, opcode: RawProgram) {
     world.load(doc);
     runAll(world, opcode);
     return world.output();
-}
-
-function processWorld(xml: string): string[] {
-    const ans = xml.split(/\s+/g).filter(x => x);
-    return ans;
-}
-
-export function validateOutput(real: string, expected: string) {
-    expect(processWorld(real))
-        .toEqual(processWorld(expected));
 }
 
 export function simpleProblemTest (dirname:string) {
@@ -62,7 +52,7 @@ function processProblemDirs() {
 
     problemDirs.forEach(problemDir => {
         const problemPath = path.join(problemsDir, problemDir);
-        simpleProblemTest(problemPath)
+        describe(`Problem ${problemDir}`,()=>simpleProblemTest(problemPath));
     });
 }
 
