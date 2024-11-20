@@ -3,6 +3,7 @@
 import { KarelRuntimeEventTarget } from './eventTarget';
 import {  ErrorLiteral, ErrorType, getOpCodeID, OpCodeID, OpCodeLiteral, RawProgram } from './compiler/opcodes';
 import type { World } from './world';
+import { KarelNumbers } from './constants';
 
 
 
@@ -463,13 +464,19 @@ export class Runtime {
           break;
         }
 
-        case OpCodeID.DEC: {
-          this.state.stack[this.state.sp] -= this.program[3 * this.state.pc + 1];
+        case OpCodeID.DEC: {          
+          if (!KarelNumbers.isInfinite(this.state.stack[this.state.sp])) {
+            this.state.stack[this.state.sp] -= this.program[3 * this.state.pc + 1];
+            this.validateNumber(this.state.stack[this.state.sp]); 
+          }
           break;
         }
 
         case OpCodeID.INC: {
-          this.state.stack[this.state.sp] += this.program[3 * this.state.pc + 1];
+          if (!KarelNumbers.isInfinite(this.state.stack[this.state.sp])) {
+            this.state.stack[this.state.sp] += this.program[3 * this.state.pc + 1];
+            this.validateNumber(this.state.stack[this.state.sp]);
+          }
           break;
         }
 
@@ -643,5 +650,23 @@ export class Runtime {
     }
 
     return true;
+  }
+
+  /**
+   * Validates a number and if it is over the top, then it stops it
+   * @param number Number to validate
+   * @returns 
+   */
+  private validateNumber(number:number) {
+    if (number < KarelNumbers.minimum) {
+      this.state.running = false;
+      this.state.error = ErrorType.INTEGERUNDERFLOW;
+      return;
+    }
+    if (number > KarelNumbers.maximum) {
+      this.state.running = false;
+      this.state.error = ErrorType.INTEGEROVERFLOW;
+      return;
+    }
   }
 }
