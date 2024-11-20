@@ -4,6 +4,7 @@ import { Runtime } from "../runtime";
 import { World } from "../world";
 import { KarelNumbers } from "../constants";
 import { OpCode, RawProgram } from "../compiler/opcodes";
+import { kareljava } from "../kareljava";
 
 
 describe("Test runtime", () => {
@@ -361,3 +362,48 @@ describe("Test runtime", () => {
         expect(world.bagBuzzers).toBe(world.maxInstructions-1);
     });
 });
+
+describe("Test numeric values", ()=> {
+    test.each([
+        [KarelNumbers.maximum, 1],
+        [5, KarelNumbers.maximum]
+    ])(
+        "Test overflow", (start, delta)=> {
+            const world = new World(10,10)
+            
+
+            const runtime = new Runtime(world);
+            world.runtime = runtime;
+
+            let program:RawProgram = [
+                ["LOAD", start],
+                ["INC", delta]
+            ]
+            
+            runtime.load(program);
+            while (runtime.step());
+            expect(runtime.state.error).toBe("INTEGEROVERFLOW");
+        }
+    );
+    test.each([
+        [KarelNumbers.minimum, 1],
+        [KarelNumbers.minimum+5, 100]
+    ])(
+        "Test underflow", (start, delta)=> {
+            const world = new World(10,10)
+            
+
+            const runtime = new Runtime(world);
+            world.runtime = runtime;
+
+            let program:RawProgram = [
+                ["LOAD", start],
+                ["DEC", delta]
+            ]
+            
+            runtime.load(program);
+            while (runtime.step());
+            expect(runtime.state.error).toBe("INTEGERUNDERFLOW");
+        }
+    );
+})
