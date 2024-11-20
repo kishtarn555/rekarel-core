@@ -406,4 +406,31 @@ describe("Test numeric values", ()=> {
             expect(runtime.state.error).toBe("INTEGERUNDERFLOW");
         }
     );
+
+    test("Test negative comparison", ()=> {
+        const world = new World(10,10)           
+
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+
+        let program:RawProgram = [
+            ["LOAD", 0],
+            ["DEC", 1],            
+            ["DUP"],
+            ["LOAD", 0],
+            ["LT"],
+            ["JZ", 1],
+            ["FORWARD"],
+            ["HALT"],
+            ["HALT"],
+        ]
+        
+        runtime.load(program);
+        while (runtime.step());
+        expect(runtime.state.error).toBeUndefined();
+        expect(runtime.state.moveCount).toBe(1);
+        expect(world.i).toBe(2);
+        expect(runtime.state.stack[0]).toBe(-1);
+    })
+
 })
