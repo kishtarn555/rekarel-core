@@ -433,4 +433,36 @@ describe("Test numeric values", ()=> {
         expect(runtime.state.stack[0]).toBe(-1);
     })
 
+    
+
+    test.each([
+        [KarelNumbers.a_infinite, KarelNumbers.a_infinite, "LT", 0],
+        [KarelNumbers.a_infinite, KarelNumbers.a_infinite, "LTE", 1],
+        [KarelNumbers.a_infinite, KarelNumbers.a_infinite, "EQ", 1],
+        [KarelNumbers.a_infinite+2, KarelNumbers.a_infinite, "LT", 0],
+        [KarelNumbers.a_infinite+2, KarelNumbers.a_infinite, "LTE", 1],
+        [KarelNumbers.a_infinite+2, KarelNumbers.a_infinite, "EQ", 1],
+        [KarelNumbers.maximum, KarelNumbers.a_infinite, "LT", 1],
+        [KarelNumbers.maximum, KarelNumbers.a_infinite, "LTE", 1],
+        [KarelNumbers.a_infinite+2, KarelNumbers.maximum, "LT", 0],
+        [KarelNumbers.a_infinite+2, KarelNumbers.maximum, "LTE", 0],
+    ])("Test infinite comparison", (first, second, op, expected)=> {
+        const world = new World(10,10)           
+
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+
+        let program:RawProgram = [
+            ["LOAD",first],
+            ["LOAD", second],            
+            [op as "LT" | "LTE" | "EQ" ],
+            ["HALT"]
+        ]
+        
+        runtime.load(program);
+        while (runtime.step());
+        expect(runtime.state.error).toBeUndefined();
+        expect(runtime.state.stack[0]).toBe(expected);
+    })
+
 })
