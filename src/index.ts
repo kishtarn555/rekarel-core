@@ -7,6 +7,7 @@ import { transpileCode } from "./transpiler/transpiler";
 import { generateOpcodesFromIR } from "./compiler/InterRep/IRProcessor";
 import { generateJavaFromIR } from "./transpiler/javaTranspiler";
 import { generatePascalFromIR } from "./transpiler/pascalTranspiler";
+import { KarelNumbers } from "./constants";
 
 export {
   compile,
@@ -21,5 +22,6 @@ export {
   DebugData,
   generateJavaFromIR,
   generateOpcodesFromIR,
-  generatePascalFromIR
+  generatePascalFromIR,
+  KarelNumbers
 };
