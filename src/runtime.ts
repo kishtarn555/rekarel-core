@@ -352,7 +352,13 @@ export class Runtime {
         case OpCodeID.EQ: {
           op2 = this.state.stack[this.state.sp--];
           op1 = this.state.stack[this.state.sp--];
-          this.state.stack[++this.state.sp] = op1 == op2 ? 1 : 0;
+          if (KarelNumbers.isInfinite(op1)) {
+            this.state.stack[++this.state.sp] = KarelNumbers.isInfinite(op2)?1:0;
+          } else if (KarelNumbers.isInfinite(op2)) {
+            this.state.stack[++this.state.sp] = 0;
+          }else {
+            this.state.stack[++this.state.sp] = op1 == op2 ? 1 : 0;
+          }
           break;
         }
 
@@ -579,14 +585,26 @@ export class Runtime {
         case OpCodeID.LT: {
           op2 = this.state.stack[this.state.sp--];
           op1 = this.state.stack[this.state.sp--];
-          this.state.stack[++this.state.sp] = op1 < op2 ? 1 : 0;
+          if (KarelNumbers.isInfinite(op1)) {
+            this.state.stack[++this.state.sp] = 0;
+          } else if (KarelNumbers.isInfinite(op2)) {
+            this.state.stack[++this.state.sp] = 1;
+          }else {
+            this.state.stack[++this.state.sp] = op1 < op2 ? 1 : 0;
+          }
           break;
         }
 
         case OpCodeID.LTE: {          
           op2 = this.state.stack[this.state.sp--];
           op1 = this.state.stack[this.state.sp--];
-          this.state.stack[++this.state.sp] = op1 <= op2 ? 1 : 0;
+          if (KarelNumbers.isInfinite(op1)) {
+            this.state.stack[++this.state.sp] = KarelNumbers.isInfinite(op2)?1:0;
+          } else if (KarelNumbers.isInfinite(op2)) {
+            this.state.stack[++this.state.sp] = 1;
+          }else {
+            this.state.stack[++this.state.sp] = op1 <= op2 ? 1 : 0;
+          }
           break;
         }
 
