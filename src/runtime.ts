@@ -439,11 +439,18 @@ export class Runtime {
 
         case OpCodeID.LEAVEBUZZER: {
           this.state.ic++;
-          this.world.leaveBuzzer(this.world.i, this.world.j);
+          if (!KarelNumbers.isInfinite(this.world.buzzers(this.world.i, this.world.j))) {
+            this.world.leaveBuzzer(this.world.i, this.world.j);
+            if (this.world.buzzers(this.world.i, this.world.j) > KarelNumbers.maximum) {
+              this.state.running = false;
+              this.state.error = ErrorType.WORLDOVERFLOW;
+            }
+          }
           this.state.leaveBuzzerCount++;
           if (
             this.world.maxLeaveBuzzer >= 0 &&
-            this.state.leaveBuzzerCount > this.world.maxLeaveBuzzer
+            this.state.leaveBuzzerCount > this.world.maxLeaveBuzzer &&
+            this.state.running // If world overflow flag was rised, that takes priority over this error.
           ) {
             this.state.running = false;
             this.state.error = ErrorType.INSTRUCTION_LEAVEBUZZER
