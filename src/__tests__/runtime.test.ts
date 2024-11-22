@@ -485,4 +485,63 @@ describe("Test beepers", ()=> {
         while (runtime.step());
         expect(runtime.state.error).toBe("WORLDOVERFLOW");
     })
+    
+    test("Test almost overflow", ()=> {
+        const world = new World(10,10)           
+        world.setBuzzers(1,1, KarelNumbers.maximum-1);
+
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+
+        let program:RawProgram = [
+            ["LEAVEBUZZER"],
+            ["HALT"]
+        ]
+        
+        runtime.load(program);
+        while (runtime.step());
+        expect(runtime.state.error).toBeUndefined();
+    });
+
+    test("Test almost overflow", ()=> {
+        const world = new World(10,10)           
+        world.setBuzzers(1,1, KarelNumbers.maximum-1);
+
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+
+        let program:RawProgram = [
+            ["LEAVEBUZZER"],
+            ["HALT"]
+        ]
+        
+        runtime.load(program);
+        while (runtime.step());
+        expect(runtime.state.error).toBeUndefined();
+    });
+
+    
+
+    test("Test infinite", ()=> {
+        const world = new World(10,10)           
+        world.setBuzzers(1,1, KarelNumbers.a_infinite);
+
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+
+        let program:RawProgram = [
+            ["LOAD", 10000],
+            ["DUP"],
+            ["JZ", 3],
+            ["LEAVEBUZZER"],
+            ["DEC", 1],
+            ["JMP",-5],
+            ["HALT"]
+        ]
+        
+        runtime.load(program);
+        while (runtime.step());
+        expect(runtime.state.error).toBeUndefined();
+        expect(KarelNumbers.isInfinite(world.buzzers(1,1))).toBe(true);
+    });
 });
