@@ -581,3 +581,89 @@ describe("Test beepers", ()=> {
         expect(runtime.state.error).toBe("WORLDOVERFLOW");
     });
 });
+
+describe("Test bag", ()=> {
+    test("Test bag overflow", ()=> {
+        const world = new World(10,10)           
+        world.maxLeaveBuzzer = 0;
+        world.setBagBuzzers(KarelNumbers.maximum);
+
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+
+        let program:RawProgram = [
+            ["PICKBUZZER"],
+            ["HALT"]
+        ]
+        
+        runtime.load(program);
+        while (runtime.step());
+        //World overflow has priority over IL
+        expect(runtime.state.error).toBe("BAGOVERFLOW");
+    });
+    
+    test("Test almost bag overflow", ()=> {
+        const world = new World(10,10)           
+        world.maxLeaveBuzzer = 0;
+        world.setBagBuzzers(KarelNumbers.maximum-1);
+
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+
+        let program:RawProgram = [
+            ["PICKBUZZER"],
+            ["HALT"]
+        ]
+        
+        runtime.load(program);
+        while (runtime.step());
+        //World overflow has priority over IL
+        expect(runtime.state.error).toBeUndefined();
+    });
+
+    test("Test infinite bag leave", ()=> {
+        const world = new World(10,10)           
+        world.setBagBuzzers(KarelNumbers.a_infinite);
+
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+
+        let program:RawProgram = [
+            ["LOAD", 10000],
+            ["DUP"],
+            ["JZ", 3],
+            ["LEAVEBUZZER"],
+            ["DEC", 1],
+            ["JMP",-5],
+            ["HALT"]
+        ]
+        
+        runtime.load(program);
+        while (runtime.step());
+        expect(runtime.state.error).toBeUndefined();
+        expect(KarelNumbers.isInfinite(world.bagBuzzers)).toBe(true);
+    });
+    test("Test infinite bag pick", ()=> {
+        const world = new World(10,10)           
+        world.setBagBuzzers(KarelNumbers.a_infinite);
+        world.setBuzzers(1, 1, KarelNumbers.a_infinite);
+
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+
+        let program:RawProgram = [
+            ["LOAD", 10000],
+            ["DUP"],
+            ["JZ", 3],
+            ["PICKBUZZER"],
+            ["DEC", 1],
+            ["JMP",-5],
+            ["HALT"]
+        ]
+        
+        runtime.load(program);
+        while (runtime.step());
+        expect(runtime.state.error).toBeUndefined();
+        expect(KarelNumbers.isInfinite(world.bagBuzzers)).toBe(true);
+    });
+})

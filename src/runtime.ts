@@ -421,11 +421,18 @@ export class Runtime {
 
         case OpCodeID.PICKBUZZER: {
           this.state.ic++;
-          this.world.pickBuzzer(this.world.i, this.world.j);
+          if (!KarelNumbers.isInfinite(this.world.bagBuzzers)) {
+            this.world.pickBuzzer(this.world.i, this.world.j);
+            if (this.world.bagBuzzers > KarelNumbers.maximum) {
+              this.state.running = false;
+              this.state.error = ErrorType.BAGOVERFLOW;
+            }
+          }
           this.state.pickBuzzerCount++;
           if (
             this.world.maxPickBuzzer >= 0 &&
-            this.state.pickBuzzerCount > this.world.maxPickBuzzer
+            this.state.pickBuzzerCount > this.world.maxPickBuzzer &&
+            this.state.running // Gives priority to bag overflow
           ) {
             this.state.running = false;
             this.state.error = ErrorType.INSTRUCTION_PICKBUZZER;
