@@ -1,4 +1,4 @@
-import { ErrorLiteral } from "../opcodes";
+import { ErrorLiteral } from "../../runtimeErrors";
 import { YYLoc } from "./IRParserTypes";
 
 /**

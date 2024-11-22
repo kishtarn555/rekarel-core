@@ -1,10 +1,10 @@
 "use strict";
 
 import { KarelRuntimeEventTarget } from './eventTarget';
-import {  ErrorLiteral, ErrorType, getOpCodeID, OpCodeID, OpCodeLiteral, RawProgram } from './compiler/opcodes';
+import {  getOpCodeID, OpCodeID, OpCodeLiteral, RawProgram } from './compiler/opcodes';
 import type { World } from './world';
 import { KarelNumbers } from './constants';
-
+import { ErrorLiteral, ErrorType } from './runtimeErrors';
 
 
 
