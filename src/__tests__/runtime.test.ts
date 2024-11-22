@@ -544,4 +544,40 @@ describe("Test beepers", ()=> {
         expect(runtime.state.error).toBeUndefined();
         expect(KarelNumbers.isInfinite(world.buzzers(1,1))).toBe(true);
     });
+
+    test("Test too many leave buzzers", ()=> {
+        const world = new World(10,10)           
+        world.maxLeaveBuzzer = 0;
+
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+
+        let program:RawProgram = [
+            ["LEAVEBUZZER"],
+            ["HALT"]
+        ]
+        
+        runtime.load(program);
+        while (runtime.step());
+        expect(runtime.state.error).toBe("INSTRUCTION_LEAVEBUZZER");
+    });
+
+    test("Test priority too many leave vs overflow", ()=> {
+        const world = new World(10,10)           
+        world.maxLeaveBuzzer = 0;
+        world.setBuzzers(1, 1, KarelNumbers.maximum);
+
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+
+        let program:RawProgram = [
+            ["LEAVEBUZZER"],
+            ["HALT"]
+        ]
+        
+        runtime.load(program);
+        while (runtime.step());
+        //World overflow has priority over IL
+        expect(runtime.state.error).toBe("WORLDOVERFLOW");
+    });
 });
