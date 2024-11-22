@@ -1,5 +1,5 @@
 import { RawProgram } from "../src/compiler/opcodes";
-import { compile, World } from "../src/index";
+import { compile, RuntimeErrorCodes, World } from "../src/index";
 import { runAll, validateOutput } from "./util";
 import { DOMParser } from '@xmldom/xmldom';
 
@@ -26,12 +26,16 @@ export function testRTE (dirname:string) {
             // Check if the file has a .in extension
             if (path.extname(file) === '.in') {
                 const outFilePath = path.join(dirPath, `${path.basename(file, '.in')}.out`);
+                const signalFilePath = path.join(dirPath, `${path.basename(file, '.in')}.signal`);
                 const XMLIn = fs.readFileSync(inFilePath).toString();
                 const XMLOut = fs.readFileSync(outFilePath).toString();
+                const signal = Number.parseInt(fs.readFileSync(signalFilePath).toString());
                 const inputDocument = new DOMParser().parseFromString(XMLIn, 'text/xml') as unknown as Document;
                 const outputWorld = RunWorld(inputDocument, opcode[0]);
                 const outputRuntimeState = outputWorld.runtime.state;
-                expect(outputRuntimeState.error).toBeDefined();                
+                expect(outputRuntimeState.error).toBeDefined();
+                const outputSignal = RuntimeErrorCodes[outputRuntimeState.error!];
+                expect(outputSignal).toBe(signal);        
                 const result = outputWorld.output();                
                 validateOutput(result, XMLOut);
 

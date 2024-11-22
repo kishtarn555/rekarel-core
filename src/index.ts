@@ -8,6 +8,7 @@ import { generateOpcodesFromIR } from "./compiler/InterRep/IRProcessor";
 import { generateJavaFromIR } from "./transpiler/javaTranspiler";
 import { generatePascalFromIR } from "./transpiler/pascalTranspiler";
 import { KarelNumbers } from "./constants";
+import { RuntimeErrorCodes } from "./runtimeErrors";
 
 export {
   compile,
@@ -23,5 +24,6 @@ export {
   generateJavaFromIR,
   generateOpcodesFromIR,
   generatePascalFromIR,
-  KarelNumbers
+  KarelNumbers,
+  RuntimeErrorCodes
 };

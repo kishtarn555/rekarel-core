@@ -1,5 +1,7 @@
 "use strict";
 
+import { ErrorLiteral } from "../runtimeErrors";
+
 /**
  * The Opcodes that conform the instruction set of Karel
  */
@@ -57,30 +59,7 @@ export function getOpCodeID(literal: string): number {
   return -1;
 }
 
-/**
- * Runtime Errors types
- */
-export enum ErrorType {
-  INSTRUCTION = "INSTRUCTION",
-  INSTRUCTION_LEFT = "INSTRUCTION_LEFT",
-  INSTRUCTION_FORWARD = "INSTRUCTION_FORWARD",
-  INSTRUCTION_PICKBUZZER = "INSTRUCTION_PICKBUZZER",
-  INSTRUCTION_LEAVEBUZZER = "INSTRUCTION_LEAVEBUZZER",
-  STACK = "STACK",
-  WALL = "WALL",
-  WORLDUNDERFLOW = "WORLDUNDERFLOW",
-  WORLDOVERFLOW = "WORLDOVERFLOW",
-  BAGUNDERFLOW = "BAGUNDERFLOW",
-  BAGOVERFLOW = "BAGOVERFLOW",
-  INVALIDOPCODE = "INVALIDOPCODE",
-  STACKMEMORY = "STACKMEMORY",
-  CALLSIZE = "CALLSIZE",
-  INTEGEROVERFLOW = "INTEGEROVERFLOW",
-  INTEGERUNDERFLOW = "INTEGERUNDERFLOW",
-}
 
-
-export type ErrorLiteral = keyof typeof ErrorType;
 
 /**
  * An instruction the Runtime can run
