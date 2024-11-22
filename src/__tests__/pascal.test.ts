@@ -32,6 +32,7 @@ const compilationError:[string,string | RegExp][] = [
     ["halfFalseReturn.kp", "Explicit return is required in function pasos"],
     ["prototypeType.kp", "Prototype type mismatch: pasos"],
     ["undefinedCallInTerm.kp", "Undefined function: prueba"],
+    ["numberTooLarge.kp", "The number is to large. It must not exceed 999999999, but it is 1000000000"],
 ]
 
 

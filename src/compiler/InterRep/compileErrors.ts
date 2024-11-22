@@ -17,6 +17,7 @@ export namespace CompilationError {
         ILLEGAL_BREAK,
         ILLEGAL_CONTINUE,
         NO_EXPLICIT_RETURN,
+        NUMBER_TOO_LARGE,
         PARAMETER_ILLEGAL_NAME,
         PARAMETER_REDEFINITION,
         PROTOTYPE_PARAMETERS_MISS_MATCH,
@@ -97,7 +98,12 @@ export namespace CompilationError {
         returnType: string
     }
     
-    
+    type NumberTooLargeErrorStatus = {
+        error: Errors.NUMBER_TOO_LARGE,
+        loc: YYLoc,
+        line: number
+    }
+
     type IllegalParameterNameErrorStatus = {
         error: Errors.PARAMETER_ILLEGAL_NAME,
         loc: YYLoc,
@@ -244,6 +250,7 @@ export namespace CompilationError {
         | IllegalContinueErrorStatus
         | IllegalParameterNameErrorStatus
         | NoExplicitReturnErrorStatus
+        | NumberTooLargeErrorStatus
         | ParameterRedefinitionErrorStatus
         | PrototypeRedefinitionErrorStatus
         | PrototypeParametersMissMatchRedefinitionErrorStatus

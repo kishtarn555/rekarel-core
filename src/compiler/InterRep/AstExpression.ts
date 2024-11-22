@@ -1,3 +1,4 @@
+import { KarelNumbers } from "../../constants";
 import { CompilationError } from "./compileErrors";
 import type { IRTerm, IRInstruction, IRTagRecord, IRVar, IRCall, IRRet, IRParam, IRSemiSimpleInstruction, IRRepeat, IRWhile, IRConditional } from "./IRInstruction";
 import { YY } from "./IRParserTypes";
@@ -27,6 +28,26 @@ type ASTInfo = {
 function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY): string {
     if (tree.operation === "ATOM") {
         resolveListWithASTs(tree.instructions, definitions, scope, target, tags, yy);
+        const atomData = tree.atomType.split(".");
+        if (
+            atomData.length > 1 &&
+            (
+                atomData[0] === "NUMBER"
+                || atomData[0] === "INC"
+                || atomData[0] === "DEC"
+            ) 
+        ) {
+            const literal = atomData[1];
+            if (literal.length > KarelNumbers.maximum.toString().length
+                || Number(literal) > KarelNumbers.maximum
+            ) {
+                yy.parser.parseError(`The number is to large. It must not exceed ${KarelNumbers.maximum}, but it is ${literal}`, {
+                    error: CompilationError.Errors.NUMBER_TOO_LARGE,
+                    line: tree.loc.first_line - 1,
+                    loc: tree.loc
+                })
+            }
+        }
         if (tree.dataType.startsWith("$")) {
             const termType = tree.dataType.substring(1);
             if (scope.parameters.some(e =>  e.name === termType)) {
