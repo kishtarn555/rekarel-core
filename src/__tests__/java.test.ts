@@ -24,6 +24,7 @@ const compilationError:[string,string | RegExp][] = [
     ["halfTrueReturn.kj", "Explicit return is required in function pasos"],
     ["halfFalseReturn.kj", "Explicit return is required in function pasos"],
     ["undefinedCallInTerm.kj", "Undefined function: prueba"],
+    ["numberTooLarge.kj", "The number is to large. It must not exceed 999999999, but it is 1000000000"],
 ]
 
 

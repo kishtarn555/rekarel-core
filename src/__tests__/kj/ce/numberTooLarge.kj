@@ -1,0 +1,9 @@
+import rekarel.globals;
+class program {
+	program () {
+		iterate (1000000000) {
+			putbeeper();
+		}
+		turnoff();
+	}
+}
