@@ -466,3 +466,23 @@ describe("Test numeric values", ()=> {
     })
 
 })
+
+
+describe("Test beepers", ()=> {
+    test("Test world overflow", ()=> {
+        const world = new World(10,10)           
+        world.setBuzzers(1,1, KarelNumbers.maximum);
+
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+
+        let program:RawProgram = [
+            ["LEAVEBUZZER"],
+            ["HALT"]
+        ]
+        
+        runtime.load(program);
+        while (runtime.step());
+        expect(runtime.state.error).toBe("WORLDOVERFLOW");
+    })
+});
