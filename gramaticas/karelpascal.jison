@@ -51,6 +51,7 @@
 "sucede"                                    { return 'INC'; }
 "si-es-cero"                                { return 'IFZ'; }
 "es-cero"                                   { return 'IFZ'; }
+"es-infinito" 	                            { return 'IFINF'; }
 "frente-libre"                              { return 'IFNFWALL'; }
 "frente-bloqueado"                          { return 'IFFWALL'; }
 "izquierda-libre"                           { return 'IFNLWALL'; }
@@ -661,6 +662,26 @@ clause
         totalLoc: @$
       };
     }
+  | IFINF '(' int_term ')'
+    %{        
+      @$.first_line = @1.first_line;
+      @$.first_column = @1.first_column;
+      @$.last_line = @4.last_line;
+      @$.last_column = @4.last_column;
+
+      $$ = {
+        operation: "ATOM",
+        instructions: [
+          ['LOAD', 999999999],
+          ...$int_term,
+          ["LT"]
+        ],
+        dataType: "BOOL",
+        atomType:"IS_INFINITE",
+        loc: @1,
+        totalLoc: @$
+      };
+    %}
   | bool_fun
     { 
       $$ = {

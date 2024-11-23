@@ -26,6 +26,7 @@
 "pred" 		                                      { return 'DEC'; }
 "succ"          	                              { return 'INC'; }
 "iszero" 	                                      { return 'IFZ'; }
+"isinfinite" 	                                  { return 'IFINF'; }
 "frontIsClear"                                  { return 'IFNFWALL'; }
 "frontIsBlocked"                                { return 'IFFWALL'; }
 "leftIsClear"	                                  { return 'IFNLWALL'; }
@@ -630,6 +631,22 @@ clause
         instructions: $int_term.concat([['NOT']]),
         dataType: "BOOL",
         atomType:"IS_ZERO",
+        loc: @1,
+        totalLoc: @$
+      };
+    %}
+  | IFINF '(' int_term ')'
+    %{ 
+      @$ = mergeLocs(@1, @4)
+      $$ = {
+        operation: "ATOM",
+        instructions: [
+          ['LOAD', 999999999],
+          ...$int_term,
+          ["LT"]
+        ],
+        dataType: "BOOL",
+        atomType:"IS_INFINITE",
         loc: @1,
         totalLoc: @$
       };
