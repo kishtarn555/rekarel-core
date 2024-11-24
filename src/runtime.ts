@@ -247,7 +247,7 @@ export class Runtime {
     let rot;
     let di = [0, 1, 0, -1];
     let dj = [-1, 0, 1, 0];
-    let paramCount, newSP, op1, op2, fname, params, line, fromFName, npc;
+    let paramCount, newSP, op1, op2, fname, params, line, fromFName, npc, tmp;
     try {
       if (this.debug) {
         this.eventController.fireEvent('debug', this, {
@@ -421,8 +421,9 @@ export class Runtime {
 
         case OpCodeID.PICKBUZZER: {
           this.state.ic++;
-          if (!KarelNumbers.isInfinite(this.world.bagBuzzers)) {
-            this.world.pickBuzzer(this.world.i, this.world.j);
+          tmp = this.world.bagBuzzers
+          this.world.pickBuzzer(this.world.i, this.world.j);
+          if (!KarelNumbers.isInfinite(tmp)) {
             if (this.world.bagBuzzers > KarelNumbers.maximum) {
               this.state.running = false;
               this.state.error = ErrorType.BAGOVERFLOW;
@@ -446,8 +447,9 @@ export class Runtime {
 
         case OpCodeID.LEAVEBUZZER: {
           this.state.ic++;
-          if (!KarelNumbers.isInfinite(this.world.buzzers(this.world.i, this.world.j))) {
-            this.world.leaveBuzzer(this.world.i, this.world.j);
+          tmp = this.world.buzzers(this.world.i, this.world.j)
+          this.world.leaveBuzzer(this.world.i, this.world.j);
+          if (!KarelNumbers.isInfinite(tmp)) {
             if (this.world.buzzers(this.world.i, this.world.j) > KarelNumbers.maximum) {
               this.state.running = false;
               this.state.error = ErrorType.WORLDOVERFLOW;
