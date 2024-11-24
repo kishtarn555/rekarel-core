@@ -81,6 +81,24 @@ describe("Test runtime", () => {
         expect(KarelNumbers.isInfinite(world.bagBuzzers)).toBe(true);
     })
 
+    test("Test LEAVEBUZZER with infinite cell", ()=> {
+        const world = new World(10,10)
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+        world.setBuzzers(1,1,KarelNumbers.a_infinite);
+        world.setBagBuzzers(4);
+        runtime.load([
+            ["LEAVEBUZZER"],
+            ["LEAVEBUZZER"],
+        ]);
+        runtime.next();
+        expect(runtime.state.error).toBeUndefined(); 
+        runtime.next();
+        expect(runtime.state.error).toBeUndefined(); 
+        expect(KarelNumbers.isInfinite(world.buzzers(1,1))).toBe(12);
+        expect(world.bagBuzzers).toBe(2);
+    })
+
     test("Test SRET", () => {
         const world = new World(10,10)
         const runtime = new Runtime(world);
