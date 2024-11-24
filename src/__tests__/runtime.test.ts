@@ -9,6 +9,78 @@ import { kareljava } from "../kareljava";
 
 describe("Test runtime", () => {
 
+    test("Test PICKBUZZER", ()=> {
+        const world = new World(10,10)
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+        world.setBuzzers(1,1,10);
+        runtime.load([
+            ["PICKBUZZER"],
+            ["PICKBUZZER"],
+        ]);
+        runtime.next();
+        expect(runtime.state.error).toBeUndefined(); 
+        runtime.next();
+        expect(runtime.state.error).toBeUndefined(); 
+        expect(world.buzzers(1,1)).toBe(8);
+        expect(world.bagBuzzers).toBe(2);
+    })
+
+    test("Test PICKBUZZER with infinite BAG", ()=> {
+        const world = new World(10,10)
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+        world.setBuzzers(1,1,10);
+        world.setBagBuzzers(KarelNumbers.a_infinite);
+        runtime.load([
+            ["PICKBUZZER"],
+            ["PICKBUZZER"],
+        ]);
+        runtime.next();
+        expect(runtime.state.error).toBeUndefined(); 
+        runtime.next();
+        expect(runtime.state.error).toBeUndefined(); 
+        expect(world.buzzers(1,1)).toBe(8);
+        expect(KarelNumbers.isInfinite(world.bagBuzzers)).toBe(true);
+    })
+
+    
+    test("Test LEAVEBUZZER", ()=> {
+        const world = new World(10,10)
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+        world.setBuzzers(1,1,10);
+        world.setBagBuzzers(4);
+        runtime.load([
+            ["LEAVEBUZZER"],
+            ["LEAVEBUZZER"],
+        ]);
+        runtime.next();
+        expect(runtime.state.error).toBeUndefined(); 
+        runtime.next();
+        expect(runtime.state.error).toBeUndefined(); 
+        expect(world.buzzers(1,1)).toBe(12);
+        expect(world.bagBuzzers).toBe(2);
+    })
+
+    test("Test LEAVEBUZZER with infinite BAG", ()=> {
+        const world = new World(10,10)
+        const runtime = new Runtime(world);
+        world.runtime = runtime;
+        world.setBuzzers(1,1,10);
+        world.setBagBuzzers(KarelNumbers.a_infinite);
+        runtime.load([
+            ["LEAVEBUZZER"],
+            ["LEAVEBUZZER"],
+        ]);
+        runtime.next();
+        expect(runtime.state.error).toBeUndefined(); 
+        runtime.next();
+        expect(runtime.state.error).toBeUndefined(); 
+        expect(world.buzzers(1,1)).toBe(12);
+        expect(KarelNumbers.isInfinite(world.bagBuzzers)).toBe(true);
+    })
+
     test("Test SRET", () => {
         const world = new World(10,10)
         const runtime = new Runtime(world);
