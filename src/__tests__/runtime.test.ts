@@ -95,7 +95,7 @@ describe("Test runtime", () => {
         expect(runtime.state.error).toBeUndefined(); 
         runtime.next();
         expect(runtime.state.error).toBeUndefined(); 
-        expect(KarelNumbers.isInfinite(world.buzzers(1,1))).toBe(12);
+        expect(KarelNumbers.isInfinite(world.buzzers(1,1))).toBe(true);
         expect(world.bagBuzzers).toBe(2);
     })
 
