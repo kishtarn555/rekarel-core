@@ -71,6 +71,10 @@ class program {
 		iterate(pred(4)) {}
 		iterate(pred(3, 10)) {}
 		iterate(pred(beepersInBeeperBag, 10)) {}
+		//Test if iszero
+		if (iszero(3)) {}
+		//Test if isinfinite
+		if (isinfinite(3)) {}
 		// Test while
 		while (false) {}
 		//Test params

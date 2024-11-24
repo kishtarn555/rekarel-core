@@ -46,6 +46,13 @@ function processAtom(atom:IRTermAtom, data: TranspilerData):string {
         );
         return `es-cero(${body})`;
     }
+    if (atomType === "IS_INFINITE") {
+        const body = processTerm(
+            (atom.instructions[1] as IRInstructionTerm)[1],
+            data
+        );
+        return `es-infinito(${body})`;
+    }
     if (atomType === "NUMBER") {
         const argument = atom.atomType.split(".")[1];
         return argument;
