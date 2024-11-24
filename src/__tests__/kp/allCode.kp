@@ -162,6 +162,15 @@ iniciar-programa
 		repetir precede(zumbadores-en-la-mochila, 10) veces
 		inicio
 		fin;
+		si es-cero(3) entonces
+		inicio
+		fin;
+		si si-es-cero(3) entonces
+		inicio
+		fin;
+		si es-infinito(3) entonces
+		inicio
+		fin;
 		mientras falso hacer
 		inicio
 		fin;
