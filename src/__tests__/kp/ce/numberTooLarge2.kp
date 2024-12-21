@@ -1,0 +1,7 @@
+usa rekarel.globales;
+iniciar-programa
+	inicia-ejecucion
+		repetir 1000000000100000000010 veces avanza;
+		apagate;
+	termina-ejecucion
+finalizar-programa

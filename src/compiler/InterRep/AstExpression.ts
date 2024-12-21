@@ -28,7 +28,7 @@ type ASTInfo = {
 function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, target: IRSemiSimpleInstruction[], tags: IRTagRecord, yy: YY): string {
     if (tree.operation === "ATOM") {
         resolveListWithASTs(tree.instructions, definitions, scope, target, tags, yy);
-        const atomData = tree.atomType.split(".");
+        const atomData = tree.atomType.split("#");
         if (
             atomData.length > 1 &&
             (

@@ -389,7 +389,7 @@ return
         term: { 
           operation: "ATOM", 
           instructions:[["LOAD", 0]],
-          atomType: "IMPLICIT.0",
+          atomType: "IMPLICIT#0",
           dataType:"VOID"
         },
         loc: @1
@@ -720,7 +720,7 @@ clause
           operation: "ATOM",
           instructions: ir,
           dataType: "$"+$var,
-          atomType: `VAR.${$var}`,
+          atomType: `VAR#${$var}`,
           loc: @1,
           totalLoc: @1
         }; 
@@ -873,7 +873,7 @@ integer
   : int_literal
     { 
       $$ = {
-        data: `NUMBER.${$int_literal}`,
+        data: `NUMBER#${$int_literal}`,
         code: [['LOAD',  $int_literal]]
       }; 
     }
@@ -894,14 +894,14 @@ integer
   | INC '(' int_term ',' int_literal ')'
     { 
       $$ = {
-        data: `INC.${$int_literal}`,
+        data: `INC#${$int_literal}`,
         code: $int_term.concat([['INC', $int_literal]])
       };
     }
   | DEC	 '(' int_term ',' int_literal ')'
     { 
       $$ = {
-        data: `DEC.${$int_literal}`,
+        data: `DEC#${$int_literal}`,
         code: $int_term.concat([['DEC', $int_literal]])
       };
     }

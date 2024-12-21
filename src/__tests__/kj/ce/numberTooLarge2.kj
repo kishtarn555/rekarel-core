@@ -1,0 +1,11 @@
+import rekarel.globals;
+class program {
+
+	program() {
+		iterate (1000000000100000000010) {
+			move();
+		}
+		turnoff();
+	}   
+
+}
