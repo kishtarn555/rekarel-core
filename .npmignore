@@ -5,3 +5,4 @@ tsconfig.json
 jest.config.cjs
 gulpfile.js
 dist/built/
+test/
