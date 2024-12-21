@@ -13,7 +13,7 @@ function resolveCall(data:IRCall, transpilerData: TranspilerData) {
 }
 
 function processAtom(atom:IRTermAtom, data: TranspilerData):string {
-    const atomType = atom.atomType.split(".")[0];
+    const atomType = atom.atomType.split("#")[0];
 
     const boolFunctions:Record<string, string> = {
         "IFNFWALL": "frente-libre",
@@ -54,7 +54,7 @@ function processAtom(atom:IRTermAtom, data: TranspilerData):string {
         return `es-infinito(${body})`;
     }
     if (atomType === "NUMBER") {
-        const argument = atom.atomType.split(".")[1];
+        const argument = atom.atomType.split("#")[1];
         return argument;
     }
     if (atomType === "INC") {
@@ -65,7 +65,7 @@ function processAtom(atom:IRTermAtom, data: TranspilerData):string {
         if (atomType === atom.atomType) {
             return `sucede(${term})`;
         }
-        const literal = atom.atomType.split(".")[1];        
+        const literal = atom.atomType.split("#")[1];        
         return `sucede(${term}, ${literal})`;
     }
     if (atomType === "DEC") {
@@ -76,12 +76,12 @@ function processAtom(atom:IRTermAtom, data: TranspilerData):string {
         if (atomType === atom.atomType) {
             return `precede(${term})`;
         }
-        const literal = atom.atomType.split(".")[1];        
+        const literal = atom.atomType.split("#")[1];        
         return `precede(${term}, ${literal})`;
     }
 
     if (atomType === "VAR") {
-        const variable = atom.atomType.split(".")[1];
+        const variable = atom.atomType.split("#")[1];
         return translateVars(variable, data);
     }
     if (atomType === "CALL") {
