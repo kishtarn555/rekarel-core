@@ -733,9 +733,14 @@ export class World {
             },
 
             posicionDump: function (dump) {
+                let i = parseInt(dump.getAttribute('y'), 10)
+                let j = parseInt(dump.getAttribute('x'), 10)
+                if (i <= 0 || j <=0 || i > self.h || j > self.w) {
+                    return;
+                }
                 self.dumpCells.push([
-                    parseInt(dump.getAttribute('y'), 10),
-                    parseInt(dump.getAttribute('x'), 10),
+                    i,
+                    j,
                 ]);
             },            
 
