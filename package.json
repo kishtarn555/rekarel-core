@@ -41,5 +41,8 @@
     "tslib": "^2.7.0",
     "typescript": "^5.5.4"
   },
-  "repository": "github:kishtarn555/rekarel-core"
+  "repository": "github:kishtarn555/rekarel-core",
+  "rekarel": {
+    "language": "2.3"
+  }
 }
