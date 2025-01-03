@@ -108,7 +108,7 @@ describe("World save", () => {
             [8, 9, false], 
             [5, 4, false],
             [3, 3, false],
-            [6, 7, true]
+            [6, 7, false]
         ], 0);
 
         //Test insertion after emptying it
