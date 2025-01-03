@@ -496,7 +496,7 @@ export class World {
      * @param j Column
      * @param wallMask Value of the mask
      */
-    setWallMask = function (i: number, j: number, wallMask: number): void {
+    setWallMask(i: number, j: number, wallMask: number): void {
         let newMask = wallMask;
         if (
             wallMask < 0 ||
@@ -515,7 +515,7 @@ export class World {
         if (i == this.h) newMask |= 1 << 1;
         if (j == this.w) newMask |= 1 << 2;
 
-        this.wallMap[this.w * i + j] = newMask;
+        this._wallMap[this.w * i + j] = newMask;
     }
 
     /**
