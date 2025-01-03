@@ -55,27 +55,30 @@ enum ERROR_MAPPING {
 export class World {
     /**
      * Width of the world
+     * @private
      */
-    w: number
+    private _w: number
     /**
      * Height of the world
+     * @private
      */
-    h: number
+    private _h: number
     /**
      * Runtime linked to this world
+     * @private
      */
-    runtime: Runtime
+    private _runtime: Runtime
     /**
      * Stores the initial beepers. Any number over KarelNumbers.maximum is considered infinite
-     * 
-     * 
+     * @private
      */
-    map: Int32Array | number[]
+    private _map: Int32Array | number[]
     
     /**
      * Stores the current beepers. Any number over KarelNumbers.maximum is considered infinite
+     * @private
      */
-    currentMap: Int32Array | number[]
+    private _currentMap: Int32Array | number[]
     /**
      * Stores the walls of the worlds.
      * Each cell contains a bitmask representing the cells
@@ -83,53 +86,65 @@ export class World {
      * - bit 1: North
      * - bit 2: East
      * - bit 3: South
+     * @private
      */
-    wallMap: Uint8Array | number[]
+    private _wallMap: Uint8Array | number[]
     /**
      * Flag set if the world is modified either by a function or runtime
      * It is not reset internally, but by an external controller
+     * @private
      */
     dirty: boolean
     /**
      * Array of [row, column] which select which cells are emitted to the output
+     * @private
      */
-    dumpCells: [number, number][]
+    private _dumpCells: [number, number][]
     /**
      * Dump flags, they control what is emitted to the output
+     * @private
      */
-    dumps: DumpData
+    private _dumps: DumpData
     /**
      * Maximum number of instructions that a program can execute
+     * @private
      */
-    maxInstructions: number
+    private _maxInstructions: number
     /**
      * Maximum number of moves a program can run
+     * @private
      */
-    maxMove: number
+    private _maxMove: number
     /**
      * Maximum number of turn lefts a program can run
+     * @private
      */
-    maxTurnLeft: number
+    private _maxTurnLeft: number
     /**
      * Maximum number of pick buzzers a program can run
+     * @private
      */
-    maxPickBuzzer: number
+    private _maxPickBuzzer: number
     /**
      * Maximum number of leave buzzers a program can run
+     * @private
      */
-    maxLeaveBuzzer: number
+    private _maxLeaveBuzzer: number
     /**
      * Maximum number of functions in the stack
+     * @private
      */
-    maxStackSize: number
+    private _maxStackSize: number
     /**
      * Maximum number of parameters a call can have
+     * @private
      */
-    maxCallSize: number    
+    private _maxCallSize: number    
     /**
      * Maximum stack memory. A call consumes max(1, number of parameters) memory
+     * @private
      */
-    maxStackMemory: number
+    private _maxStackMemory: number
     /**
      * Name of the world
      */
@@ -184,33 +199,183 @@ export class World {
         this.init(w, h);
     }
 
-    init(w: number, h: number): void {
-        this.w = w;
-        this.h = h;
-        this.runtime = new Runtime(this);
-        this.createMaps();
+    /**
+     *  Height of the world
+     * @readonly
+     */
+    get h() {
+        return this._h;
+    }
+
+    /**
+     *  Width of the world
+     * @readonly
+     */
+    get w() {
+        return this._w;
+    }
+
+    /**
+     * Runtime linked to this world
+     * @readonly
+     */
+    get runtime () {
+        return this._runtime;
+    }
+
+    /**
+     * Maximum number of instructions that a program can execute.
+     * @throws {Error} If modified while the runtime is running.
+     */
+    get maxInstructions() {
+        return this._maxInstructions;
+    }
+    
+    set maxInstructions(value:number) {
+        if (this._runtime.state.running) {
+            throw new Error("Cannot modify maxInstructions while the runtime is running");
+        }
+        this._maxInstructions = value;
+    }
+
+    /**
+     * Maximum number of moves that a program can execute.
+     * @throws {Error} If modified while the runtime is running.
+     */
+    get maxMove() {
+        return this._maxMove;
+    }
+    
+    set maxMove(value:number) {
+        if (this._runtime.state.running) {
+            throw new Error("Cannot modify maxMove while the runtime is running");
+        }
+        this._maxMove = value;
+    }
+
+    /**
+     * Maximum number of turn left that a program can execute.
+     * @throws {Error} If modified while the runtime is running.
+     */
+    get maxTurnLeft() {
+        return this._maxTurnLeft;
+    }
+    
+    set maxTurnLeft(value:number) {
+        if (this._runtime.state.running) {
+            throw new Error("Cannot modify maxTurnLeft while the runtime is running");
+        }
+        this._maxTurnLeft = value;
+    }
+
+    /**
+     * Maximum number of pick buzzer that a program can execute.
+     * @throws {Error} If modified while the runtime is running.
+     */
+    get maxPickBuzzer() {
+        return this._maxPickBuzzer;
+    }
+    
+    set maxPickBuzzer(value:number) {
+        if (this._runtime.state.running) {
+            throw new Error("Cannot modify maxPickBuzzer while the runtime is running");
+        }
+        this._maxPickBuzzer = value;
+    }
+
+    /**
+     * Maximum number of leave buzzer that a program can execute.
+     * @throws {Error} If modified while the runtime is running.
+     */
+    get maxLeaveBuzzer() {
+        return this._maxLeaveBuzzer;
+    }
+    
+    set maxLeaveBuzzer(value:number) {
+        if (this._runtime.state.running) {
+            throw new Error("Cannot modify maxLeaveBuzzer while the runtime is running");
+        }
+        this._maxLeaveBuzzer = value;
+    }
+
+    /**
+     *  Maximum number of functions allowed to be simultaneously in the stack
+     * @throws {Error} If modified while the runtime is running.
+     */
+    get maxStackSize() {
+        return this._maxStackSize;
+    }
+    
+    set maxStackSize(value:number) {
+        if (this._runtime.state.running) {
+            throw new Error("Cannot modify maxStackSize while the runtime is running");
+        }
+        this._maxStackSize = value;
+    }
+
+    /**
+     * Maximum stack memory. A call consumes max(1, number of parameters) memory
+     * @throws {Error} If modified while the runtime is running.
+     */
+    get maxStackMemory() {
+        return this._maxStackMemory;
+    }
+    
+    set maxStackMemory(value:number) {
+        if (this._runtime.state.running) {
+            throw new Error("Cannot modify maxStackMemory while the runtime is running");
+        }
+        this._maxStackMemory = value;
+    }
+
+    /**
+     * Maximum number of parameters a call can have
+     * @throws {Error} If modified while the runtime is running.
+     */
+    get maxCallSize() {
+        return this._maxCallSize;
+    }
+    
+    set maxCallSize(value:number) {
+        if (this._runtime.state.running) {
+            throw new Error("Cannot modify maxCallSize while the runtime is running");
+        }
+        this._maxCallSize = value;
+    }
+
+    /**
+     * Starts all internal variables
+     * @param w width of the world
+     * @param h height of the world
+     */
+    private init(w: number, h: number): void {
+        this._w = w;
+        this._h = h;
+        this._runtime = new Runtime(this);
+        this._createMaps();
 
         this.clear();
     }
 
     /**
      * Creates and reserves the memory for the arrays
+     * @private
      */
-    createMaps(): void {
+    _createMaps(): void {
         if (ArrayBuffer) {
-            let len = (this.w + 2) * (this.h + 2);
-            this.map = new Int32Array(new ArrayBuffer(len * 4));
-            this.currentMap = new Int32Array(new ArrayBuffer(len * 4));
-            this.wallMap = new Uint8Array(new ArrayBuffer(len));
+            let len = (this._w + 2) * (this._h + 2);
+            this._map = new Int32Array(new ArrayBuffer(len * 4));
+            this._currentMap = new Int32Array(new ArrayBuffer(len * 4));
+            this._wallMap = new Uint8Array(new ArrayBuffer(len));
         } else {
-            this.map = [];
-            this.currentMap = [];
-            this.wallMap = [];
-            for (let i = 0; i <= this.h; i++) {
-                for (let j = 0; j <= this.w; j++) {
-                    this.map.push(0);
-                    this.currentMap.push(0);
-                    this.wallMap.push(0);
+            this._map = [];
+            this._currentMap = [];
+            this._wallMap = [];
+            for (let i = 0; i <= this._h; i++) {
+                for (let j = 0; j <= this._w; j++) {
+                    this._map.push(0);
+                    this._currentMap.push(0);
+                    this._wallMap.push(0);
                 }
             }
         }
@@ -223,25 +388,25 @@ export class World {
      */
     resize(w: number, h: number): void {
         // Eliminamos las paredes del borde
-        for (let i = 1; i <= this.h; i++) {
-            this.wallMap[this.w * i + 1] &= ~(1 << 0);
-            this.wallMap[this.w * (i + 1)] &= ~(1 << 2);
+        for (let i = 1; i <= this._h; i++) {
+            this._wallMap[this._w * i + 1] &= ~(1 << 0);
+            this._wallMap[this._w * (i + 1)] &= ~(1 << 2);
         }
-        for (let j = 1; j <= this.w; j++) {
-            this.wallMap[this.w * this.h + j] &= ~(1 << 1);
-            this.wallMap[this.w + j] &= ~(1 << 3);
+        for (let j = 1; j <= this._w; j++) {
+            this._wallMap[this._w * this._h + j] &= ~(1 << 1);
+            this._wallMap[this._w + j] &= ~(1 << 3);
         }
 
-        let oldW = this.w;
-        let oldH = this.h;
-        let oldMap = this.map;
+        let oldW = this._w;
+        let oldH = this._h;
+        let oldMap = this._map;
         //   let oldCurrentMap = this.oldCurrentMap;
-        let oldWallMap = this.wallMap;
-        let oldDumpCells = this.dumpCells;
+        let oldWallMap = this._wallMap;
+        let oldDumpCells = this._dumpCells;
 
-        this.w = w;
-        this.h = h;
-        this.createMaps();
+        this._w = w;
+        this._h = h;
+        this._createMaps();
         this.addBorderWalls();
 
         // Copiamos todas las paredes y zumbadores
@@ -253,11 +418,11 @@ export class World {
         }
 
         // Vaciamos dumpCells y la llenamos de nuevo
-        this.dumpCells = [];
+        this._dumpCells = [];
         for (let dumpPos = 0; dumpPos < oldDumpCells.length; dumpPos++) {
             if (
-                oldDumpCells[dumpPos][0] <= this.h &&
-                oldDumpCells[dumpPos][1] <= this.w
+                oldDumpCells[dumpPos][0] <= this._h &&
+                oldDumpCells[dumpPos][1] <= this._w
             ) {
                 this.setDumpCell(
                     oldDumpCells[dumpPos][0],
@@ -268,8 +433,8 @@ export class World {
         }
 
         // Checamos si karel sigue dentro del mundo
-        if (this.start_i > this.h) this.start_i = this.i = this.h;
-        if (this.start_j > this.w) this.start_j = this.j = this.w;
+        if (this.start_i > this._h) this.start_i = this.i = this._h;
+        if (this.start_j > this._w) this.start_j = this.j = this._w;
 
         this.dirty = true;
     }
@@ -278,12 +443,12 @@ export class World {
      * Sets all values to their default. 
      */
     clear(): void {
-        for (let i = 0; i < this.wallMap.length; i++) {
-            this.wallMap[i] = 0;
+        for (let i = 0; i < this._wallMap.length; i++) {
+            this._wallMap[i] = 0;
         }
 
-        for (let i = 0; i < this.map.length; i++) {
-            this.map[i] = this.currentMap[i] = 0;
+        for (let i = 0; i < this._map.length; i++) {
+            this._map[i] = this._currentMap[i] = 0;
         }
 
         this.addBorderWalls();
@@ -296,16 +461,16 @@ export class World {
         this.j = 1;
         this.startBagBuzzers = 0;
         this.bagBuzzers = 0;
-        this.dumps = {};
-        this.dumpCells = [];
-        this.maxInstructions = 10000000;
-        this.maxMove = -1;
-        this.maxTurnLeft = -1;
-        this.maxPickBuzzer = -1;
-        this.maxLeaveBuzzer = -1;
-        this.maxStackSize = 65000;
-        this.maxStackMemory = 65000;
-        this.maxCallSize = 5;
+        this._dumps = {};
+        this._dumpCells = [];
+        this._maxInstructions = 10000000;
+        this._maxMove = -1;
+        this._maxTurnLeft = -1;
+        this._maxPickBuzzer = -1;
+        this._maxLeaveBuzzer = -1;
+        this._maxStackSize = 65000;
+        this._maxStackMemory = 65000;
+        this._maxCallSize = 5;
         this.worldName = 'mundo_0';
         this.programName = 'p1';
 
@@ -319,8 +484,8 @@ export class World {
      */
 
     walls(i: number, j: number): number {
-        if (0 > i || i > this.h || 0 > j || j > this.w) return 0;
-        return this.wallMap[this.w * i + j];
+        if (0 > i || i > this._h || 0 > j || j > this._w) return 0;
+        return this._wallMap[this._w * i + j];
     }
 
     /**
@@ -368,8 +533,8 @@ export class World {
         if (
             (j == 1 && orientation === 0) ||
             (i == 1 && orientation == 3) ||
-            (i == this.h && orientation == 1) ||
-            (j == this.w && orientation == 2)
+            (i == this._h && orientation == 1) ||
+            (j == this._w && orientation == 2)
         ) {
             return;
         }
@@ -377,24 +542,24 @@ export class World {
             orientation < 0 ||
             orientation >= 4 ||
             1 > i ||
-            i > this.h ||
+            i > this._h ||
             1 > j ||
-            j > this.w
+            j > this._w
         ) {
             return;
         }
-        this.wallMap[this.w * i + j] ^= 1 << orientation;
+        this._wallMap[this._w * i + j] ^= 1 << orientation;
 
         // Needed to prevent Karel from traversing walls from one direction, but not
         // from the other side.
         if (orientation === 0 && j > 1) {
-            this.wallMap[this.w * i + (j - 1)] ^= 1 << 2;
-        } else if (orientation === 1 && i < this.h) {
-            this.wallMap[this.w * (i + 1) + j] ^= 1 << 3;
-        } else if (orientation === 2 && j < this.w) {
-            this.wallMap[this.w * i + (j + 1)] ^= 1 << 0;
+            this._wallMap[this._w * i + (j - 1)] ^= 1 << 2;
+        } else if (orientation === 1 && i < this._h) {
+            this._wallMap[this._w * (i + 1) + j] ^= 1 << 3;
+        } else if (orientation === 2 && j < this._w) {
+            this._wallMap[this._w * i + (j + 1)] ^= 1 << 0;
         } else if (orientation === 3 && i > 1) {
-            this.wallMap[this.w * (i - 1) + j] ^= 1 << 1;
+            this._wallMap[this._w * (i - 1) + j] ^= 1 << 1;
         }
 
         this.dirty = true;
@@ -404,13 +569,13 @@ export class World {
      * Adds the border walls
      */
     addBorderWalls(): void {
-        for (let i = 1; i <= this.h; i++) {
+        for (let i = 1; i <= this._h; i++) {
             this.addWall(i, 1, 0);
-            this.addWall(i, this.w, 2);
+            this.addWall(i, this._w, 2);
         }
 
-        for (let j = 1; j <= this.w; j++) {
-            this.addWall(this.h, j, 1);
+        for (let j = 1; j <= this._w; j++) {
+            this.addWall(this._h, j, 1);
             this.addWall(1, j, 3);
         }
     }
@@ -440,24 +605,24 @@ export class World {
             orientation < 0 ||
             orientation >= 4 ||
             1 > i ||
-            i > this.h ||
+            i > this._h ||
             1 > j ||
-            j > this.w
+            j > this._w
         )
             return;
-        this.wallMap[this.w * i + j] |= 1 << orientation;
+        this._wallMap[this._w * i + j] |= 1 << orientation;
 
 
         // Needed to prevent Karel from traversing walls from one direction, but not
         // from the other side.
         if (orientation === 0 && j > 1)
-            this.wallMap[this.w * i + (j - 1)] |= 1 << 2;
-        else if (orientation === 1 && i < this.h)
-            this.wallMap[this.w * (i + 1) + j] |= 1 << 3;
-        else if (orientation === 2 && j < this.w)
-            this.wallMap[this.w * i + (j + 1)] |= 1 << 0;
+            this._wallMap[this._w * i + (j - 1)] |= 1 << 2;
+        else if (orientation === 1 && i < this._h)
+            this._wallMap[this._w * (i + 1) + j] |= 1 << 3;
+        else if (orientation === 2 && j < this._w)
+            this._wallMap[this._w * i + (j + 1)] |= 1 << 0;
         else if (orientation === 3 && i > 1)
-            this.wallMap[this.w * (i - 1) + j] |= 1 << 1;
+            this._wallMap[this._w * (i - 1) + j] |= 1 << 1;
 
         this.dirty = true;
     }
@@ -469,10 +634,10 @@ export class World {
      * @param count Number of beepers
      */
     setBuzzers(i: number, j: number, count: number): void {
-        if (0 >= i || i > this.h || 0 >= j || j > this.w)
+        if (0 >= i || i > this._h || 0 >= j || j > this._w)
             return;
-        this.map[this.w * i + j] =
-            this.currentMap[this.w * i + j] =
+        this._map[this._w * i + j] =
+            this._currentMap[this._w * i + j] =
             count > KarelNumbers.maximum ? KarelNumbers.a_infinite : count;
         this.dirty = true;
     }
@@ -484,9 +649,9 @@ export class World {
      * @returns beeper amount
      */
     buzzers(i: number, j: number): number {
-        if (0 >= i || i > this.h || 0 >= j || j > this.w)
+        if (0 >= i || i > this._h || 0 >= j || j > this._w)
             return 0;
-        return this.currentMap[this.w * i + j];
+        return this._currentMap[this._w * i + j];
     }
 
     /**
@@ -496,9 +661,9 @@ export class World {
      * @returns beeper amount
      */
     startBuzzers(i:number, j:number): number {
-        if (0 >= i || i > this.h || 0 >= j || j > this.w)
+        if (0 >= i || i > this._h || 0 >= j || j > this._w)
             return 0;
-        return this.map[this.w * i + j];        
+        return this._map[this._w * i + j];        
     }
 
     /**
@@ -507,10 +672,10 @@ export class World {
      * @param j row
      */
     pickBuzzer(i: number, j: number): void {
-        if (0 >= i || i > this.h || 0 >= j || j > this.w)
+        if (0 >= i || i > this._h || 0 >= j || j > this._w)
             return;
-        if (!KarelNumbers.isInfinite(this.currentMap[this.w * i + j])) {
-            this.currentMap[this.w * i + j]--;
+        if (!KarelNumbers.isInfinite(this._currentMap[this._w * i + j])) {
+            this._currentMap[this._w * i + j]--;
         }
         if (!KarelNumbers.isInfinite(this.bagBuzzers)) {
             this.bagBuzzers++;
@@ -524,10 +689,10 @@ export class World {
      * @param j row
      */
     leaveBuzzer(i: number, j: number): void {
-        if (0 >= i || i > this.h || 0 >= j || j > this.w)
+        if (0 >= i || i > this._h || 0 >= j || j > this._w)
             return;
-        if (!KarelNumbers.isInfinite(this.currentMap[this.w * i + j])) {
-            this.currentMap[this.w * i + j]++;
+        if (!KarelNumbers.isInfinite(this._currentMap[this._w * i + j])) {
+            this._currentMap[this._w * i + j]++;
         }
         if (!KarelNumbers.isInfinite(this.bagBuzzers)) {
             this.bagBuzzers--;
@@ -544,26 +709,26 @@ export class World {
     setDumpCell(i: number, j: number, dumpState: boolean): void {
         let dumpPos = -1;
 
-        if (0 >= i || i > this.h || 0 >= j || j > this.w)
+        if (0 >= i || i > this._h || 0 >= j || j > this._w)
             return;
 
-        for (dumpPos = 0; dumpPos < this.dumpCells.length; dumpPos++) {
-            if (this.dumpCells[dumpPos][0] == i && this.dumpCells[dumpPos][1] == j) {
+        for (dumpPos = 0; dumpPos < this._dumpCells.length; dumpPos++) {
+            if (this._dumpCells[dumpPos][0] == i && this._dumpCells[dumpPos][1] == j) {
                 break;
             }
         }
 
-        if (dumpPos < this.dumpCells.length) {
+        if (dumpPos < this._dumpCells.length) {
             if (dumpState)
                 return;
-            this.dumpCells.splice(dumpPos, 1);
+            this._dumpCells.splice(dumpPos, 1);
         } else {
             if (!dumpState)
                 return;
-            this.dumpCells.push([i, j]);
+            this._dumpCells.push([i, j]);
         }
 
-        this.dumps[DumpTypes.DUMP_WORLD] = this.dumpCells.length !== 0;
+        this._dumps[DumpTypes.DUMP_WORLD] = this._dumpCells.length !== 0;
     }
 
     /**
@@ -574,21 +739,21 @@ export class World {
     toggleDumpCell(i: number, j: number): void {
         let dumpPos = 0;
 
-        if (0 >= i || i >= this.h || 0 >= j || j >= this.w) return;
+        if (0 >= i || i >= this._h || 0 >= j || j >= this._w) return;
 
-        for (; dumpPos < this.dumpCells.length; dumpPos++) {
-            if (this.dumpCells[dumpPos][0] == i && this.dumpCells[dumpPos][1] == j) {
+        for (; dumpPos < this._dumpCells.length; dumpPos++) {
+            if (this._dumpCells[dumpPos][0] == i && this._dumpCells[dumpPos][1] == j) {
                 break;
             }
         }
 
-        if (dumpPos < this.dumpCells.length) {
-            this.dumpCells.splice(dumpPos, 1);
+        if (dumpPos < this._dumpCells.length) {
+            this._dumpCells.splice(dumpPos, 1);
         } else {
-            this.dumpCells.push([i, j]);
+            this._dumpCells.push([i, j]);
         }
 
-        this.dumps[DumpTypes.DUMP_WORLD] = this.dumpCells.length !== 0;
+        this._dumps[DumpTypes.DUMP_WORLD] = this._dumpCells.length !== 0;
     }
 
     /**
@@ -600,8 +765,8 @@ export class World {
     getDumpCell(i: number, j: number): boolean {
         let dumpPos = -1;
 
-        for (dumpPos = 0; dumpPos < this.dumpCells.length; dumpPos++) {
-            if (this.dumpCells[dumpPos][0] == i && this.dumpCells[dumpPos][1] == j) {
+        for (dumpPos = 0; dumpPos < this._dumpCells.length; dumpPos++) {
+            if (this._dumpCells[dumpPos][0] == i && this._dumpCells[dumpPos][1] == j) {
                 return true;
             }
         }
@@ -614,7 +779,7 @@ export class World {
      * @param dumpFlag Flag to get
      */
     getDumps(dumpFlag: DumpTypes): boolean {
-        return this.dumps.hasOwnProperty(dumpFlag.toLowerCase()) && this.dumps[dumpFlag];
+        return this._dumps.hasOwnProperty(dumpFlag.toLowerCase()) && this._dumps[dumpFlag];
     }
 
     /**
@@ -623,7 +788,7 @@ export class World {
      * @param flagValue True if it dumps, false if not
      */
     setDumps(dumpFlag: DumpTypes, flagValue: boolean) {
-        this.dumps[dumpFlag] = flagValue;
+        this._dumps[dumpFlag] = flagValue;
     }
 
     /**
@@ -660,16 +825,16 @@ export class World {
             },
 
             condiciones: function (condiciones) {
-                self.maxInstructions =
+                self._maxInstructions =
                     parseInt(
                         condiciones.getAttribute('instruccionesMaximasAEjecutar'),
                         10,
                     ) || 10000000;
-                self.maxStackSize =
+                self._maxStackSize =
                     parseInt(condiciones.getAttribute('longitudStack'), 10) || 65000;
-                self.maxStackMemory =
+                self._maxStackMemory =
                     parseInt(condiciones.getAttribute('memoriaStack'), 10) || 65000;                    
-                self.maxCallSize  =
+                self._maxCallSize  =
                     parseInt(condiciones.getAttribute('llamadaMaxima'), 10) || 5;
             },
 
@@ -682,13 +847,13 @@ export class World {
                 }
 
                 if (name == 'AVANZA') {
-                    self.maxMove = val;
+                    self._maxMove = val;
                 } else if (name == 'GIRA_IZQUIERDA') {
-                    self.maxTurnLeft = val;
+                    self._maxTurnLeft = val;
                 } else if (name == 'COGE_ZUMBADOR') {
-                    self.maxPickBuzzer = val;
+                    self._maxPickBuzzer = val;
                 } else if (name == 'DEJA_ZUMBADOR') {
-                    self.maxLeaveBuzzer = val;
+                    self._maxLeaveBuzzer = val;
                 }
             },
 
@@ -729,16 +894,16 @@ export class World {
             },
 
             despliega: function (despliega) {
-                self.dumps[despliega.getAttribute('tipo').toLowerCase()] = true;
+                self._dumps[despliega.getAttribute('tipo').toLowerCase()] = true;
             },
 
             posicionDump: function (dump) {
                 let i = parseInt(dump.getAttribute('y'), 10)
                 let j = parseInt(dump.getAttribute('x'), 10)
-                if (i <= 0 || j <=0 || i > self.h || j > self.w) {
+                if (i <= 0 || j <=0 || i > self._h || j > self._w) {
                     return;
                 }
-                self.dumpCells.push([
+                self._dumpCells.push([
                     i,
                     j,
                 ]);
@@ -869,16 +1034,16 @@ export class World {
         let result: any = {
             condiciones: {
                 '#attributes': {
-                    instruccionesMaximasAEjecutar: this.maxInstructions,
-                    longitudStack: this.maxStackSize,
-                    memoriaStack: this.maxStackMemory,
-                    llamadaMaxima: this.maxCallSize,
+                    instruccionesMaximasAEjecutar: this._maxInstructions,
+                    longitudStack: this._maxStackSize,
+                    memoriaStack: this._maxStackMemory,
+                    llamadaMaxima: this._maxCallSize,
                 },
                 comando: []
             },
             mundos: {
                 mundo: {
-                    '#attributes': { nombre: this.worldName, ancho: this.w, alto: this.h },
+                    '#attributes': { nombre: this.worldName, ancho: this._w, alto: this._h },
                     monton: [],
                     pared: [],
                     posicionDump: [],
@@ -905,8 +1070,8 @@ export class World {
             },
         };
 
-        for (let i = 1; i <= this.h; i++) {
-            for (let j = 1; j <= this.w; j++) {
+        for (let i = 1; i <= this._h; i++) {
+            for (let j = 1; j <= this._w; j++) {
                 let buzzers =  targetState === "start" ? this.startBuzzers(i,j) : this.buzzers(i, j);
                 if (buzzers !== 0) {
                     result.mundos.mundo.monton.push({
@@ -920,45 +1085,45 @@ export class World {
             }
         }
 
-        if (this.maxMove !== -1) {
+        if (this._maxMove !== -1) {
             result.condiciones.comando.push({
                 '#attributes': {
                     nombre: "AVANZA",
-                    maximoNumeroDeEjecuciones: this.maxMove
+                    maximoNumeroDeEjecuciones: this._maxMove
                 }
             });
         }
-        if (this.maxTurnLeft !== -1) {
+        if (this._maxTurnLeft !== -1) {
             result.condiciones.comando.push({
                 '#attributes': {
                     nombre: "GIRA_IZQUIERDA",
-                    maximoNumeroDeEjecuciones: this.maxTurnLeft
+                    maximoNumeroDeEjecuciones: this._maxTurnLeft
                 }
             });
         }
-        if (this.maxLeaveBuzzer !== -1) {
+        if (this._maxLeaveBuzzer !== -1) {
             result.condiciones.comando.push({
                 '#attributes': {
                     nombre: "DEJA_ZUMBADOR",
-                    maximoNumeroDeEjecuciones: this.maxLeaveBuzzer
+                    maximoNumeroDeEjecuciones: this._maxLeaveBuzzer
                 }
             });
         }
-        if (this.maxPickBuzzer !== -1) {
+        if (this._maxPickBuzzer !== -1) {
             result.condiciones.comando.push({
                 '#attributes': {
                     nombre: "COGE_ZUMBADOR",
-                    maximoNumeroDeEjecuciones: this.maxPickBuzzer
+                    maximoNumeroDeEjecuciones: this._maxPickBuzzer
                 }
             });
         }
 
-        for (let i = 1; i <= this.h; i++) {
-            for (let j = 1; j <= this.w; j++) {
+        for (let i = 1; i <= this._h; i++) {
+            for (let j = 1; j <= this._w; j++) {
                 let walls = this.walls(i, j);
                 for (let k = 2; k < 8; k <<= 1) {
-                    if (i == this.h && k == 2) continue;
-                    if (j == this.w && k == 4) continue;
+                    if (i == this._h && k == 2) continue;
+                    if (j == this._w && k == 4) continue;
 
                     if ((walls & k) == k) {
                         if (k == 2) {
@@ -975,14 +1140,14 @@ export class World {
             }
         }
 
-        for (let i = 0; i < this.dumpCells.length; i++) {
+        for (let i = 0; i < this._dumpCells.length; i++) {
             result.mundos.mundo.posicionDump.push({
-                '#attributes': { x: this.dumpCells[i][1], y: this.dumpCells[i][0] },
+                '#attributes': { x: this._dumpCells[i][1], y: this._dumpCells[i][0] },
             });
         }
 
-        for (let p in this.dumps) {
-            if (this.dumps.hasOwnProperty(p) && this.dumps[p]) {
+        for (let p in this._dumps) {
+            if (this._dumps.hasOwnProperty(p) && this._dumps[p]) {
                 result.programas.programa.despliega.push({
                     '#attributes': { tipo: p.toUpperCase() },
                 });
@@ -1000,27 +1165,27 @@ export class World {
     output(): string {
         let result: any = {};
 
-        if (this.dumps[DumpTypes.DUMP_WORLD] || this.dumps[DumpTypes.DUMP_ALL_BUZZERS]) {
+        if (this._dumps[DumpTypes.DUMP_WORLD] || this._dumps[DumpTypes.DUMP_ALL_BUZZERS]) {
             result.mundos = {
                 mundo: { '#attributes': { nombre: this.worldName }, linea: [] },
             };
 
             let dumpCells = {};
-            for (let i = 0; i < this.dumpCells.length; i++) {
-                if (!dumpCells.hasOwnProperty(this.dumpCells[i][0])) {
-                    dumpCells[this.dumpCells[i][0]] = {};
+            for (let i = 0; i < this._dumpCells.length; i++) {
+                if (!dumpCells.hasOwnProperty(this._dumpCells[i][0])) {
+                    dumpCells[this._dumpCells[i][0]] = {};
                 }
-                dumpCells[this.dumpCells[i][0]][this.dumpCells[i][1]] = true;
+                dumpCells[this._dumpCells[i][0]][this._dumpCells[i][1]] = true;
             }
 
-            for (let i = this.h; i > 0; i--) {
+            for (let i = this._h; i > 0; i--) {
                 let printCoordinate = true;
                 let line = '';
 
-                for (let j = 1; j <= this.w; j++) {
+                for (let j = 1; j <= this._w; j++) {
                     if (
                         (dumpCells[i] && dumpCells[i][j]) ||
-                        this.dumps[DumpTypes.DUMP_ALL_BUZZERS]
+                        this._dumps[DumpTypes.DUMP_ALL_BUZZERS]
                     ) {
                         if (this.buzzers(i, j) !== 0) {
                             if (printCoordinate) {
@@ -1047,16 +1212,16 @@ export class World {
         };
 
         result.programas.programa['#attributes'].resultadoEjecucion = this.errorMap(
-            this.runtime.state.error,
+            this._runtime.state.error,
         );
 
-        if (this.dumps[DumpTypes.DUMP_POSITION]) {
+        if (this._dumps[DumpTypes.DUMP_POSITION]) {
             result.programas.programa.karel = {
                 '#attributes': { x: this.j, y: this.i },
             };
         }
 
-        if (this.dumps[DumpTypes.DUMP_ORIENTATION]) {
+        if (this._dumps[DumpTypes.DUMP_ORIENTATION]) {
             result.programas.programa.karel = result.programas.programa.karel || {
                 '#attributes': {},
             };
@@ -1068,7 +1233,7 @@ export class World {
             ][this.orientation];
         }
 
-        if (this.dumps[DumpTypes.DUMP_BAG]) {
+        if (this._dumps[DumpTypes.DUMP_BAG]) {
             result.programas.programa.karel = result.programas.programa.karel || {
                 '#attributes': {},
             };
@@ -1076,32 +1241,32 @@ export class World {
                 KarelNumbers.isInfinite(this.bagBuzzers) ? 'INFINITO' : this.bagBuzzers;
         }
 
-        if (this.dumps[DumpTypes.DUMP_MOVE]) {
+        if (this._dumps[DumpTypes.DUMP_MOVE]) {
             result.programas.programa.instrucciones = result.programas.programa
                 .instrucciones || { '#attributes': {} };
             result.programas.programa.instrucciones['#attributes'].avanza =
-                this.runtime.state.moveCount;
+                this._runtime.state.moveCount;
         }
 
-        if (this.dumps[DumpTypes.DUMP_LEFT]) {
+        if (this._dumps[DumpTypes.DUMP_LEFT]) {
             result.programas.programa.instrucciones = result.programas.programa
                 .instrucciones || { '#attributes': {} };
             result.programas.programa.instrucciones['#attributes'].gira_izquierda =
-                this.runtime.state.turnLeftCount;
+                this._runtime.state.turnLeftCount;
         }
 
-        if (this.dumps[DumpTypes.DUMP_PICK_BUZZER]) {
+        if (this._dumps[DumpTypes.DUMP_PICK_BUZZER]) {
             result.programas.programa.instrucciones = result.programas.programa
                 .instrucciones || { '#attributes': {} };
             result.programas.programa.instrucciones['#attributes'].coge_zumbador =
-                this.runtime.state.pickBuzzerCount;
+                this._runtime.state.pickBuzzerCount;
         }
 
-        if (this.dumps[DumpTypes.DUMP_LEAVE_BUZZER]) {
+        if (this._dumps[DumpTypes.DUMP_LEAVE_BUZZER]) {
             result.programas.programa.instrucciones = result.programas.programa
                 .instrucciones || { '#attributes': {} };
             result.programas.programa.instrucciones['#attributes'].deja_zumbador =
-                this.runtime.state.leaveBuzzerCount;
+                this._runtime.state.leaveBuzzerCount;
         }
 
         return this.serialize(result, 'resultados', 0);
@@ -1154,11 +1319,11 @@ export class World {
         this.move(this.start_i, this.start_j);
         this.bagBuzzers = this.startBagBuzzers;
       
-        for (let i = 0; i < this.currentMap.length; i++) {
-          this.currentMap[i] = this.map[i];
+        for (let i = 0; i < this._currentMap.length; i++) {
+          this._currentMap[i] = this._map[i];
         }
       
-        this.runtime.reset();
+        this._runtime.reset();
       
         this.dirty = true;
       }
