@@ -1,17 +1,5 @@
 import { CompilationError } from "./compileErrors"
-
-/**
- * Represents a JISON parser
- * 
- */
-export interface Parser {
-    /**
-     * @throws It throws a error
-     * @param str errorMessage
-     * @param hash errorData
-     */
-    parseError(str: string, hash: CompilationError.ErrorStatus)
-}
+import type { Parser } from "../../jison_types"
 
 /**
  * JISON YY object
