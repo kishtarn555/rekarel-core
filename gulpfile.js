@@ -28,5 +28,9 @@ gulp.task('process-jison-pascal', ()=> {
 })
 
 
+gulp.task('copy-dts', () => {
+    return gulp.src('src/**/*.d.ts') 
+      .pipe(gulp.dest('dist/built')); 
+  });
 
  gulp.task('default', gulp.series('process-jison-java', 'process-jison-pascal'));

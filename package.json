@@ -13,7 +13,7 @@
   "scripts": {
     "test:simple": "jest --testPathIgnorePatterns=problems",
     "test:problems": "jest --testPathPattern=problems",
-    "build": "npx rollup --config --bundleConfigAsCjs",
+    "build": "npx gulp copy-dts && npx rollup --config --bundleConfigAsCjs",
     "jison_all": "npm run jison_java && npm run jison_pascal",
     "jison_java": "npx jison .\\gramaticas\\kareljava.jison -m js -o .\\src\\kareljava.js  && npx gulp process-jison-java",
     "jison_pascal": "npx jison .\\gramaticas\\karelpascal.jison -m js -o .\\src\\karelpascal.js  && npx gulp process-jison-pascal"
