@@ -226,120 +226,120 @@ export class World {
 
     /**
      * Maximum number of instructions that a program can execute.
-     * @throws {Error} If modified while the runtime is running.
+     * @throws {Error} If modified once the runtime has stepped, consider resetting the runtime.
      */
     get maxInstructions() {
         return this._maxInstructions;
     }
     
     set maxInstructions(value:number) {
-        if (this._runtime.state.running) {
-            throw new Error("Cannot modify maxInstructions while the runtime is running");
+        if (!this._runtime.state.clean) {
+            throw new Error("Cannot modify maxInstructions once the runtime has stepped, consider resetting the runtime");
         }
         this._maxInstructions = value;
     }
 
     /**
      * Maximum number of moves that a program can execute.
-     * @throws {Error} If modified while the runtime is running.
+     * @throws {Error} If modified once the runtime has stepped, consider resetting the runtime.
      */
     get maxMove() {
         return this._maxMove;
     }
     
     set maxMove(value:number) {
-        if (this._runtime.state.running) {
-            throw new Error("Cannot modify maxMove while the runtime is running");
+        if (!this._runtime.state.clean) {
+            throw new Error("Cannot modify maxMove once the runtime has stepped, consider resetting the runtime");
         }
         this._maxMove = value;
     }
 
     /**
      * Maximum number of turn left that a program can execute.
-     * @throws {Error} If modified while the runtime is running.
+     * @throws {Error} If modified once the runtime has stepped, consider resetting the runtime.
      */
     get maxTurnLeft() {
         return this._maxTurnLeft;
     }
     
     set maxTurnLeft(value:number) {
-        if (this._runtime.state.running) {
-            throw new Error("Cannot modify maxTurnLeft while the runtime is running");
+        if (!this._runtime.state.clean) {
+            throw new Error("Cannot modify maxTurnLeft once the runtime has stepped, consider resetting the runtime");
         }
         this._maxTurnLeft = value;
     }
 
     /**
      * Maximum number of pick buzzer that a program can execute.
-     * @throws {Error} If modified while the runtime is running.
+     * @throws {Error} If modified once the runtime has stepped, consider resetting the runtime.
      */
     get maxPickBuzzer() {
         return this._maxPickBuzzer;
     }
     
     set maxPickBuzzer(value:number) {
-        if (this._runtime.state.running) {
-            throw new Error("Cannot modify maxPickBuzzer while the runtime is running");
+        if (!this._runtime.state.clean) {
+            throw new Error("Cannot modify maxPickBuzzer once the runtime has stepped, consider resetting the runtime");
         }
         this._maxPickBuzzer = value;
     }
 
     /**
      * Maximum number of leave buzzer that a program can execute.
-     * @throws {Error} If modified while the runtime is running.
+     * @throws {Error} If modified once the runtime has stepped, consider resetting the runtime.
      */
     get maxLeaveBuzzer() {
         return this._maxLeaveBuzzer;
     }
     
     set maxLeaveBuzzer(value:number) {
-        if (this._runtime.state.running) {
-            throw new Error("Cannot modify maxLeaveBuzzer while the runtime is running");
+        if (!this._runtime.state.clean) {
+            throw new Error("Cannot modify maxLeaveBuzzer once the runtime has stepped, consider resetting the runtime");
         }
         this._maxLeaveBuzzer = value;
     }
 
     /**
      *  Maximum number of functions allowed to be simultaneously in the stack
-     * @throws {Error} If modified while the runtime is running.
+     * @throws {Error} If modified once the runtime has stepped, consider resetting the runtime.
      */
     get maxStackSize() {
         return this._maxStackSize;
     }
     
     set maxStackSize(value:number) {
-        if (this._runtime.state.running) {
-            throw new Error("Cannot modify maxStackSize while the runtime is running");
+        if (!this._runtime.state.clean) {
+            throw new Error("Cannot modify maxStackSize once the runtime has stepped, consider resetting the runtime");
         }
         this._maxStackSize = value;
     }
 
     /**
      * Maximum stack memory. A call consumes max(1, number of parameters) memory
-     * @throws {Error} If modified while the runtime is running.
+     * @throws {Error} If modified once the runtime has stepped, consider resetting the runtime.
      */
     get maxStackMemory() {
         return this._maxStackMemory;
     }
     
     set maxStackMemory(value:number) {
-        if (this._runtime.state.running) {
-            throw new Error("Cannot modify maxStackMemory while the runtime is running");
+        if (!this._runtime.state.clean) {
+            throw new Error("Cannot modify maxStackMemory once the runtime has stepped, consider resetting the runtime");
         }
         this._maxStackMemory = value;
     }
 
     /**
      * Maximum number of parameters a call can have
-     * @throws {Error} If modified while the runtime is running.
+     * @throws {Error} If modified once the runtime has stepped, consider resetting the runtime.
      */
     get maxCallSize() {
         return this._maxCallSize;
     }
     
     set maxCallSize(value:number) {
-        if (this._runtime.state.running) {
-            throw new Error("Cannot modify maxCallSize while the runtime is running");
+        if (!this._runtime.state.clean) {
+            throw new Error("Cannot modify maxCallSize once the runtime has stepped, consider resetting the runtime");
         }
         this._maxCallSize = value;
     }

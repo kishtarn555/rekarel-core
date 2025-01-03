@@ -46,6 +46,10 @@ type RuntimeState = {
 
   jumped: boolean
   running: boolean
+  /**
+   * The state has not run any command yet
+   */
+  clean: boolean
   error?: ErrorType  
   errorData?:ErrorData
 };
@@ -183,6 +187,7 @@ export class Runtime {
       // Flags
       jumped: false,
       running: true,
+      clean: true
     };
 
     if (this.debug) {
@@ -228,8 +233,8 @@ export class Runtime {
    * Executes the instruction at the program counter.
    */
   next(): boolean {
+    this.state.clean = false;
     if (!this.state.running) return;
-
     let world = this.world;
 
     if (this.state.ic >= world.maxInstructions) {
