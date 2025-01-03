@@ -96,10 +96,11 @@ export class World {
      */
     dirty: boolean
     /**
-     * Array of [row, column] which select which cells are emitted to the output
+     * Set of coords which represent the dumped cells
+     * If it contains cell (i, j) then it stores i*(w+1)+j
      * @private
      */
-    private _dumpCells: [number, number][]
+    private _dumpCells: Set<number>
     /**
      * Dump flags, they control what is emitted to the output
      * @private
@@ -418,17 +419,13 @@ export class World {
         }
 
         // Vaciamos dumpCells y la llenamos de nuevo
-        this._dumpCells = [];
-        for (let dumpPos = 0; dumpPos < oldDumpCells.length; dumpPos++) {
-            if (
-                oldDumpCells[dumpPos][0] <= this._h &&
-                oldDumpCells[dumpPos][1] <= this._w
-            ) {
-                this.setDumpCell(
-                    oldDumpCells[dumpPos][0],
-                    oldDumpCells[dumpPos][1],
-                    true,
-                );
+        this._dumpCells = new Set();
+        let di = 0, dj=0;
+        for (const oldDump of oldDumpCells) {
+            di = Math.floor(oldDump / (oldW+1))
+            dj = oldDump % (oldW+1)
+            if (di <= this._h && dj <= this._w) {
+                this.setDumpCell(di, dj, true);
             }
         }
 
@@ -462,7 +459,7 @@ export class World {
         this.startBagBuzzers = 0;
         this.bagBuzzers = 0;
         this._dumps = {};
-        this._dumpCells = [];
+        this._dumpCells = new Set();
         this._maxInstructions = 10000000;
         this._maxMove = -1;
         this._maxTurnLeft = -1;
@@ -707,28 +704,17 @@ export class World {
      * @param dumpState True if it should be added, false if not
      */
     setDumpCell(i: number, j: number, dumpState: boolean): void {
-        let dumpPos = -1;
-
+        
         if (0 >= i || i > this._h || 0 >= j || j > this._w)
             return;
-
-        for (dumpPos = 0; dumpPos < this._dumpCells.length; dumpPos++) {
-            if (this._dumpCells[dumpPos][0] == i && this._dumpCells[dumpPos][1] == j) {
-                break;
-            }
-        }
-
-        if (dumpPos < this._dumpCells.length) {
-            if (dumpState)
-                return;
-            this._dumpCells.splice(dumpPos, 1);
+        let pos = i*(this._w+1)+j;
+        if (dumpState) {
+            this._dumpCells.add(pos);
         } else {
-            if (!dumpState)
-                return;
-            this._dumpCells.push([i, j]);
+            this._dumpCells.delete(pos);
         }
 
-        this._dumps[DumpTypes.DUMP_WORLD] = this._dumpCells.length !== 0;
+        this._dumps[DumpTypes.DUMP_WORLD] = this._dumpCells.size !== 0;
     }
 
     /**
@@ -737,23 +723,17 @@ export class World {
      * @param j column
      */
     toggleDumpCell(i: number, j: number): void {
-        let dumpPos = 0;
 
         if (0 >= i || i >= this._h || 0 >= j || j >= this._w) return;
+        let pos = i*(this._w+1)+j;
 
-        for (; dumpPos < this._dumpCells.length; dumpPos++) {
-            if (this._dumpCells[dumpPos][0] == i && this._dumpCells[dumpPos][1] == j) {
-                break;
-            }
-        }
-
-        if (dumpPos < this._dumpCells.length) {
-            this._dumpCells.splice(dumpPos, 1);
+        if (this._dumpCells.has(pos)) {
+            this._dumpCells.delete(pos);
         } else {
-            this._dumpCells.push([i, j]);
+            this._dumpCells.add(pos);
         }
 
-        this._dumps[DumpTypes.DUMP_WORLD] = this._dumpCells.length !== 0;
+        this._dumps[DumpTypes.DUMP_WORLD] = this._dumpCells.size !== 0;
     }
 
     /**
@@ -763,17 +743,17 @@ export class World {
      */
 
     getDumpCell(i: number, j: number): boolean {
-        let dumpPos = -1;
-
-        for (dumpPos = 0; dumpPos < this._dumpCells.length; dumpPos++) {
-            if (this._dumpCells[dumpPos][0] == i && this._dumpCells[dumpPos][1] == j) {
-                return true;
-            }
-        }
-
-        return false;
+        let dumpPos = i*(this._w+1)+j;        
+        return this._dumpCells.has(dumpPos);
     }
 
+    /**
+     * Returns the number of cell explicitly dumped
+     * @returns The number of cells dumped
+     */
+    getDumpCellCount() : number {
+        return this._dumpCells.size;
+    }
     /**
      * Returns if a dump flag is set or not
      * @param dumpFlag Flag to get
@@ -903,10 +883,7 @@ export class World {
                 if (i <= 0 || j <=0 || i > self._h || j > self._w) {
                     return;
                 }
-                self._dumpCells.push([
-                    i,
-                    j,
-                ]);
+                self._dumpCells.add(i*(self._w+1)+j);
             },            
 
             programa: function (programa) {
@@ -1139,10 +1116,12 @@ export class World {
                 }
             }
         }
-
-        for (let i = 0; i < this._dumpCells.length; i++) {
+        let di=0, dj = 0;
+        for (const dumpCell of this._dumpCells) {
+            di = Math.floor(dumpCell / (this._w+1));
+            dj = dumpCell % (this._w+1);
             result.mundos.mundo.posicionDump.push({
-                '#attributes': { x: this._dumpCells[i][1], y: this._dumpCells[i][0] },
+                '#attributes': { x: di, y: dj },
             });
         }
 
@@ -1171,11 +1150,14 @@ export class World {
             };
 
             let dumpCells = {};
-            for (let i = 0; i < this._dumpCells.length; i++) {
-                if (!dumpCells.hasOwnProperty(this._dumpCells[i][0])) {
-                    dumpCells[this._dumpCells[i][0]] = {};
+            let di=0, dj=0;
+            for (const dumpCell of this._dumpCells) {
+                di = Math.floor(dumpCell / (this._w+1));
+                dj = dumpCell % (this._w+1);
+                if (!dumpCells.hasOwnProperty(di)) {
+                    dumpCells[di] = {};
                 }
-                dumpCells[this._dumpCells[i][0]][this._dumpCells[i][1]] = true;
+                dumpCells[di][dj] = true;
             }
 
             for (let i = this._h; i > 0; i--) {
