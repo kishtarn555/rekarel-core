@@ -1,9 +1,16 @@
 // TODO: Fix this some time
+import { RawProgram } from "../compiler/opcodes";
 import { compile, World } from "../index"
 
 import fs from "fs"
-import { runAll } from "./world.test";
-import { RawProgram } from "../compiler/opcodes";
+
+function runAll(world:World, code:RawProgram) {
+    world.runtime.load(code);
+    world.runtime.start();
+    while (world.runtime.state.running) {
+        world.runtime.step();
+    }
+}
 
 /**
  * All valid source files, this list is tested for it to compile correctly
