@@ -2,7 +2,15 @@ import { RawProgram } from "../compiler/opcodes";
 import { compile, World } from "../index"
 
 import fs from "fs"
-import { runAll } from "./world.test";
+
+function runAll(world:World, code:RawProgram) {
+    world.runtime.load(code);
+    world.runtime.start();
+    while (world.runtime.state.running) {
+        world.runtime.step();
+    }
+}
+
 const sourceFiles = [
     "turnoff.kj", 
     "importAll.kj", 

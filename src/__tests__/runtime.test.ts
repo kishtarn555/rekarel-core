@@ -11,8 +11,7 @@ describe("Test runtime", () => {
 
     test("Test PICKBUZZER", ()=> {
         const world = new World(10,10)
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
         world.setBuzzers(1,1,10);
         runtime.load([
             ["PICKBUZZER"],
@@ -28,8 +27,7 @@ describe("Test runtime", () => {
 
     test("Test PICKBUZZER with infinite BAG", ()=> {
         const world = new World(10,10)
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
         world.setBuzzers(1,1,10);
         world.setBagBuzzers(KarelNumbers.a_infinite);
         runtime.load([
@@ -47,8 +45,7 @@ describe("Test runtime", () => {
     
     test("Test LEAVEBUZZER", ()=> {
         const world = new World(10,10)
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
         world.setBuzzers(1,1,10);
         world.setBagBuzzers(4);
         runtime.load([
@@ -65,8 +62,7 @@ describe("Test runtime", () => {
 
     test("Test LEAVEBUZZER with infinite BAG", ()=> {
         const world = new World(10,10)
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
         world.setBuzzers(1,1,10);
         world.setBagBuzzers(KarelNumbers.a_infinite);
         runtime.load([
@@ -83,8 +79,7 @@ describe("Test runtime", () => {
 
     test("Test LEAVEBUZZER with infinite cell", ()=> {
         const world = new World(10,10)
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
         world.setBuzzers(1,1,KarelNumbers.a_infinite);
         world.setBagBuzzers(4);
         runtime.load([
@@ -101,8 +96,7 @@ describe("Test runtime", () => {
 
     test("Test SRET", () => {
         const world = new World(10,10)
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
         runtime.load([
             ["LOAD", 12],
             ["SRET"],
@@ -126,8 +120,7 @@ describe("Test runtime", () => {
         
         test("Test LRET", () => {
         const world = new World(10,10)
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
         runtime.load([
             ["LOAD", 12],
             ["SRET"],
@@ -149,8 +142,7 @@ describe("Test runtime", () => {
     
     test("Test LT", () => {
         const world = new World(10,10)
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
         runtime.load([
             ["LOAD", 2],
             ["LOAD", 5],
@@ -207,8 +199,7 @@ describe("Test runtime", () => {
     
     test("Test LTE",() => {
         const world = new World(10,10)
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
         runtime.load([
             ["LOAD", 2],
             ["LOAD", 5],
@@ -264,8 +255,7 @@ describe("Test runtime", () => {
     test("Test COLUMN", ()=> {
         const world = new World(10, 10);
         world.orientation = 2;
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
 
         runtime.load([
             ["COLUMN"],
@@ -287,8 +277,7 @@ describe("Test runtime", () => {
     test("Test ROW", ()=> {
         const world = new World(10, 10);
         world.orientation = 2;
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
 
         runtime.load([
             ["ROW"],
@@ -312,8 +301,7 @@ describe("Test runtime", () => {
 
     test("Test function events",() => {
         const world = new World(10,10)
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
         runtime.load([
             ["LOAD", 3],
             ["LOAD", 1],
@@ -388,8 +376,7 @@ describe("Test runtime", () => {
 
     test("Test function events",() => {
         const world = new World(10,10)
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
         runtime.load([
             ["LINE",0,0],
             ["LOAD", 1],
@@ -415,8 +402,7 @@ describe("Test runtime", () => {
         const world = new World(10,10)
         world.setBagBuzzers(KarelNumbers.a_infinite);
 
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
 
         let program:RawProgram = []
         for (let i =1; i < world.maxInstructions; i++)
@@ -436,8 +422,7 @@ describe("Test runtime", () => {
         const world = new World(10,10)
         world.setBuzzers(1, 1, KarelNumbers.a_infinite);
 
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
 
         let program:RawProgram = []
         for (let i =1; i < world.maxInstructions; i++)
@@ -462,8 +447,7 @@ describe("Test numeric values", ()=> {
             const world = new World(10,10)
             
 
-            const runtime = new Runtime(world);
-            world.runtime = runtime;
+            const runtime = world.runtime;
 
             let program:RawProgram = [
                 ["LOAD", start],
@@ -483,8 +467,7 @@ describe("Test numeric values", ()=> {
             const world = new World(10,10)
             
 
-            const runtime = new Runtime(world);
-            world.runtime = runtime;
+            const runtime = world.runtime;
 
             let program:RawProgram = [
                 ["LOAD", start],
@@ -500,8 +483,7 @@ describe("Test numeric values", ()=> {
     test("Test negative comparison", ()=> {
         const world = new World(10,10)           
 
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
 
         let program:RawProgram = [
             ["LOAD", 0],
@@ -539,8 +521,7 @@ describe("Test numeric values", ()=> {
     ])("Test infinite comparison", (first, second, op, expected)=> {
         const world = new World(10,10)           
 
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
 
         let program:RawProgram = [
             ["LOAD",first],
@@ -563,8 +544,7 @@ describe("Test beepers", ()=> {
         const world = new World(10,10)           
         world.setBuzzers(1,1, KarelNumbers.maximum);
 
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
 
         let program:RawProgram = [
             ["LEAVEBUZZER"],
@@ -580,8 +560,7 @@ describe("Test beepers", ()=> {
         const world = new World(10,10)           
         world.setBuzzers(1,1, KarelNumbers.maximum-1);
 
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
 
         let program:RawProgram = [
             ["LEAVEBUZZER"],
@@ -597,8 +576,7 @@ describe("Test beepers", ()=> {
         const world = new World(10,10)           
         world.setBuzzers(1,1, KarelNumbers.maximum-1);
 
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
 
         let program:RawProgram = [
             ["LEAVEBUZZER"],
@@ -616,8 +594,7 @@ describe("Test beepers", ()=> {
         const world = new World(10,10)           
         world.setBuzzers(1,1, KarelNumbers.a_infinite);
 
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
 
         let program:RawProgram = [
             ["LOAD", 10000],
@@ -639,8 +616,7 @@ describe("Test beepers", ()=> {
         const world = new World(10,10)           
         world.maxLeaveBuzzer = 0;
 
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
 
         let program:RawProgram = [
             ["LEAVEBUZZER"],
@@ -657,8 +633,7 @@ describe("Test beepers", ()=> {
         world.maxLeaveBuzzer = 0;
         world.setBuzzers(1, 1, KarelNumbers.maximum);
 
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
 
         let program:RawProgram = [
             ["LEAVEBUZZER"],
@@ -678,8 +653,7 @@ describe("Test bag", ()=> {
         world.maxLeaveBuzzer = 0;
         world.setBagBuzzers(KarelNumbers.maximum);
 
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
 
         let program:RawProgram = [
             ["PICKBUZZER"],
@@ -697,8 +671,7 @@ describe("Test bag", ()=> {
         world.maxLeaveBuzzer = 0;
         world.setBagBuzzers(KarelNumbers.maximum-1);
 
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
 
         let program:RawProgram = [
             ["PICKBUZZER"],
@@ -715,8 +688,7 @@ describe("Test bag", ()=> {
         const world = new World(10,10)           
         world.setBagBuzzers(KarelNumbers.a_infinite);
 
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
 
         let program:RawProgram = [
             ["LOAD", 10000],
@@ -738,8 +710,7 @@ describe("Test bag", ()=> {
         world.setBagBuzzers(KarelNumbers.a_infinite);
         world.setBuzzers(1, 1, KarelNumbers.a_infinite);
 
-        const runtime = new Runtime(world);
-        world.runtime = runtime;
+        const runtime = world.runtime;
 
         let program:RawProgram = [
             ["LOAD", 10000],

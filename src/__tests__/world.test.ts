@@ -1,14 +1,5 @@
-import { DebugData } from "../compiler/debugData";
-import { RawProgram } from "../compiler/opcodes";
-import {  World } from "../index"
+import { World } from "../index"
 
-export function runAll(world:World, code:RawProgram) {
-    world.runtime.load(code);
-    world.runtime.start();
-    while (world.runtime.state.running) {
-        world.runtime.step();
-    }
-}
 
 
 describe("World save", () => {
