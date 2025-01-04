@@ -28,12 +28,19 @@ type ErrorData = {
  * Stores the registers and memory of an execution
  */
 type RuntimeState = {
+  /**Program counter */
   pc: number
+  /**Stack pointer */
   sp: number
+  /**Function pointer */
   fp: number
+  /**Line register, relates source code to machine code */
   line: number
+  /**Column register, relates source code to machine code */
   column: number
+  /**Instruction counter */
   ic: number
+  /**Ret register, last returned value */
   ret: number
   stack: Int32Array
   stackSize: number
@@ -43,14 +50,17 @@ type RuntimeState = {
   turnLeftCount: number
   pickBuzzerCount: number
   leaveBuzzerCount: number
-
+  /**If true, the program just jumped and should not auto-increment pc */
   jumped: boolean
+  /**If true, the program has not finished or crashed. Notice this is true even if the program has not run any instruction */
   running: boolean
   /**
-   * The state has not run any command yet
+   * The program has already run an instruction and has not been reset
    */
   clean: boolean
+  /**Runtime error, if undefined then there has been no error */
   error?: ErrorType  
+  /**Additional information on the runtime error, if undefined then there has been no error */
   errorData?:ErrorData
 };
 
