@@ -1125,7 +1125,12 @@ export class World {
             });
         }
 
-        for (let p in this._dumps) {
+        result.mundos.mundo.posicionDump.sort((a, b) => {
+            const xDiff = a['#attributes'].x - b['#attributes'].x;
+            return xDiff !== 0 ? xDiff : a['#attributes'].y - b['#attributes'].y;
+        });
+        const dumpKeys = Object.keys(this._dumps).sort()
+        for (let p of dumpKeys) {
             if (this._dumps.hasOwnProperty(p) && this._dumps[p]) {
                 result.programas.programa.despliega.push({
                     '#attributes': { tipo: p.toUpperCase() },
