@@ -362,7 +362,7 @@ export class World {
      * Creates and reserves the memory for the arrays
      * @private
      */
-    _createMaps(): void {
+    private _createMaps(): void {
         if (ArrayBuffer) {
             let len = (this._w + 2) * (this._h + 2);
             this._map = new Int32Array(new ArrayBuffer(len * 4));
