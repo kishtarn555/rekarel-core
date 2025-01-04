@@ -72,7 +72,7 @@ type RuntimeState = {
  * The Karel Virtual Machine is a simple, stack-based virtual machine with
  * a small number of opcodes, based loosely on the Java Virtual Machine.
  * All opcodes are represented as an array where the first element is the
- * opcode name, followed by zero or one parameters.
+ * opcode name, followed by zero, one or two parameters.
  */
 export class Runtime {
   /**
