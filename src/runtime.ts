@@ -244,6 +244,7 @@ export class Runtime {
 
   /**
    * Runs the program until the next Line instruction or until it stops running.
+   * @returns {boolean} true if the code is still running after the step performed
    */
   step(): boolean {
     while (this._state.running) {
@@ -273,6 +274,7 @@ export class Runtime {
 
   /**
    * Executes the instruction at the program counter.
+   * * @returns {boolean} true if the code is still running after the instruction executed
    */
   next(): boolean {
     if (this._state.clean) {
@@ -736,7 +738,7 @@ export class Runtime {
   }
 
   /**
-   * Validates a number and if it is over the top, then it stops it
+   * Validates a number and if it is over the top it stops the runtime and rises the related error
    * @param number Number to validate
    * @returns 
    */
