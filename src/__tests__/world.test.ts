@@ -16,7 +16,6 @@ describe("World save", () => {
             ['FORWARD'],
             ['LEAVEBUZZER']
         ]);
-        world.runtime.start();
         while (world.runtime.state.running)
             world.runtime.step();
 

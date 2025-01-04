@@ -369,8 +369,7 @@ describe("Test runtime", () => {
             e.details.target = null;
             events.push(e.details);
         });
-        for (let i =0; i < runtime.program.length; i++)
-            runtime.next();
+        while(runtime.next());
         expect(events).toMatchObject(expectedEvents);
     });
 
