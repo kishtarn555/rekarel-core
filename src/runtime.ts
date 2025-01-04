@@ -28,12 +28,19 @@ type ErrorData = {
  * Stores the registers and memory of an execution
  */
 type RuntimeState = {
+  /**Program counter */
   pc: number
+  /**Stack pointer */
   sp: number
+  /**Function pointer */
   fp: number
+  /**Line register, relates source code to machine code */
   line: number
+  /**Column register, relates source code to machine code */
   column: number
+  /**Instruction counter */
   ic: number
+  /**Ret register, last returned value */
   ret: number
   stack: Int32Array
   stackSize: number
@@ -43,14 +50,17 @@ type RuntimeState = {
   turnLeftCount: number
   pickBuzzerCount: number
   leaveBuzzerCount: number
-
+  /**If true, the program just jumped and should not auto-increment pc */
   jumped: boolean
+  /**If true, the program has not finished or crashed. Notice this is true even if the program has not run any instruction */
   running: boolean
   /**
-   * The state has not run any command yet
+   * The program has already run an instruction and has not been reset
    */
   clean: boolean
+  /**Runtime error, if undefined then there has been no error */
   error?: ErrorType  
+  /**Additional information on the runtime error, if undefined then there has been no error */
   errorData?:ErrorData
 };
 
@@ -62,7 +72,7 @@ type RuntimeState = {
  * The Karel Virtual Machine is a simple, stack-based virtual machine with
  * a small number of opcodes, based loosely on the Java Virtual Machine.
  * All opcodes are represented as an array where the first element is the
- * opcode name, followed by zero or one parameters.
+ * opcode name, followed by zero, one or two parameters.
  */
 export class Runtime {
   /**
@@ -234,6 +244,7 @@ export class Runtime {
 
   /**
    * Runs the program until the next Line instruction or until it stops running.
+   * @returns {boolean} true if the code is still running after the step performed
    */
   step(): boolean {
     while (this._state.running) {
@@ -263,6 +274,7 @@ export class Runtime {
 
   /**
    * Executes the instruction at the program counter.
+   * * @returns {boolean} true if the code is still running after the instruction executed
    */
   next(): boolean {
     if (this._state.clean) {
@@ -726,7 +738,7 @@ export class Runtime {
   }
 
   /**
-   * Validates a number and if it is over the top, then it stops it
+   * Validates a number and if it is over the top it stops the runtime and rises the related error
    * @param number Number to validate
    * @returns 
    */
