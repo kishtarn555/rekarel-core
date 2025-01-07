@@ -178,4 +178,30 @@ describe("World save", () => {
         }
         
     });
+
+    test("Test toggle in the world border",()=> {
+        const world = new World(3, 3);
+
+        expect(world.getDumpCell(1,1)).toBe(false);
+        world.toggleDumpCell(1,1);
+        expect(world.getDumpCell(1,1)).toBe(true);
+
+        expect(world.getDumpCell(2,2)).toBe(false);
+        world.toggleDumpCell(2,2);
+        expect(world.getDumpCell(2,2)).toBe(true);
+
+        expect(world.getDumpCell(3,3)).toBe(false);
+        world.toggleDumpCell(3,3);
+        expect(world.getDumpCell(3,3)).toBe(true);
+        world.toggleDumpCell(3,3);
+        expect(world.getDumpCell(3,3)).toBe(false);
+        
+        expect(world.getDumpCell(2,3)).toBe(false);
+        world.toggleDumpCell(2,3);
+        expect(world.getDumpCell(2,3)).toBe(true);
+        
+        expect(world.getDumpCell(3,1)).toBe(false);
+        world.toggleDumpCell(3,1);
+        expect(world.getDumpCell(3,1)).toBe(true);
+    });
 });

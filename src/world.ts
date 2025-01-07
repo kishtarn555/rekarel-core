@@ -724,7 +724,7 @@ export class World {
      */
     toggleDumpCell(i: number, j: number): void {
 
-        if (0 >= i || i >= this._h || 0 >= j || j >= this._w) return;
+        if (0 >= i || i > this._h || 0 >= j || j > this._w) return;
         let pos = i*(this._w+1)+j;
 
         if (this._dumpCells.has(pos)) {
