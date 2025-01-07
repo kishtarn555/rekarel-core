@@ -163,4 +163,19 @@ describe("World save", () => {
         world.toggleWall(1,3, 3);
         compareWalls();
     });
+
+    test("Test dumpcell outside the world return false",()=> {
+        const world = new World(2, 2);
+        world.setDumpCell(1, 1, true);
+        world.setDumpCell(1, 2, true);
+        world.setDumpCell(2, 1, true);
+        world.setDumpCell(2, 2, true);
+
+        for (let i = -2; i <= 4; i++) {
+            for (let j = -2; j <=4; j++) {
+                expect(world.getDumpCell(i, j)).toBe(i >= 1 && j>=1 && i <= 2 && j <=2);
+            }
+        }
+        
+    });
 });

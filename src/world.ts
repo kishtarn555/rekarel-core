@@ -743,6 +743,9 @@ export class World {
      */
 
     getDumpCell(i: number, j: number): boolean {
+        if (i <= 0 || j <= 0 || i > this._h || j > this._w ) {
+            return false;
+        }
         let dumpPos = i*(this._w+1)+j;        
         return this._dumpCells.has(dumpPos);
     }
