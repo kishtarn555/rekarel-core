@@ -1201,7 +1201,7 @@ export class World {
             programa: { '#attributes': { nombre: this.programName } },
         };
 
-        result.programas.programa['#attributes'].resultadoEjecucion = this.errorMap(
+        result.programas.programa['#attributes'].resultadoEjecucion = this._errorMap(
             this._runtime.state.error,
         );
 
@@ -1322,8 +1322,10 @@ export class World {
      * Converts an error to an string output
      * @param s error, if not set, it is understood there was no error
      * @returns The program output
+     * 
+     * @private
      */
-    errorMap(s: string | null): string {
+    private _errorMap(s: string | null): string {
         if (!s) return 'FIN PROGRAMA';
         if (ERROR_MAPPING.hasOwnProperty(s)) {
             return ERROR_MAPPING[s];
