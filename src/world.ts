@@ -1171,6 +1171,7 @@ export class World {
             for (let i = this._h; i > 0; i--) {
                 let printCoordinate = true;
                 let line = '';
+                let beepers = 0;
 
                 for (let j = 1; j <= this._w; j++) {
                     if (
@@ -1182,7 +1183,11 @@ export class World {
                                 line += '(' + j + ') ';
                             }
                             // TODO: Este es un bug en karel.exe.
-                            line += (this.buzzers(i, j) & 0xffff) + ' ';
+                            beepers = this.buzzers(i, j);
+                            // This is to keep forward compatibility with karel.js and karel.exe
+                            beepers = KarelNumbers.isInfinite(beepers)? 0xffff : beepers;
+                            beepers = beepers & 0xffff;
+                            line += beepers + ' ';
                         }
                         printCoordinate = this.buzzers(i, j) == 0;
                     }
