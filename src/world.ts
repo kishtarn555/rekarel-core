@@ -1026,6 +1026,9 @@ export class World {
      */
     save(targetState:"current"|"start"): string {
         let result: any = {
+            '#attributes': {
+                version: this.targetVersion
+            },
             condiciones: {
                 '#attributes': {
                     instruccionesMaximasAEjecutar: this._maxInstructions,
