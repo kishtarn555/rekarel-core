@@ -27,6 +27,8 @@ type Orientation = 'OESTE' | 'NORTE' | 'ESTE' | 'SUR';
 
 const error_mapping = ['WALL', 'WORLDUNDERFLOW', 'BAGUNDERFLOW', 'INSTRUCTION'];
 
+type TargetVersion = "1.0" | "1.1";
+
 /**
  * Maps errors to their output message
  */
@@ -154,6 +156,11 @@ export class World {
      * Name of the program
      */
     programName: string
+
+    /**
+     * Target version of the XML input/output
+     */
+    targetVersion: TargetVersion
     /**
      * The current row where Karel is
      */
@@ -470,6 +477,7 @@ export class World {
         this._maxCallSize = 5;
         this.worldName = 'mundo_0';
         this.programName = 'p1';
+        this.targetVersion = "1.1";
 
         this.dirty = true;
     }
@@ -789,8 +797,14 @@ export class World {
     load(doc: Document) {
         const self = this;
         self.clear();
-
         let rules = {
+            ejecucion: function (ejecucion) {
+                let version = ejecucion.getAttribute('version');
+                if (version == null)  {
+                    version = "1.0"
+                }
+                self.targetVersion = version;
+            },
             mundo: function (mundo) {
                 let alto = mundo.getAttribute('alto');
                 let ancho = mundo.getAttribute('ancho');
@@ -1012,6 +1026,9 @@ export class World {
      */
     save(targetState:"current"|"start"): string {
         let result: any = {
+            '#attributes': {
+                version: this.targetVersion
+            },
             condiciones: {
                 '#attributes': {
                     instruccionesMaximasAEjecutar: this._maxInstructions,
@@ -1186,7 +1203,9 @@ export class World {
                             beepers = this.buzzers(i, j);
                             // This is to keep forward compatibility with karel.js and karel.exe
                             beepers = KarelNumbers.isInfinite(beepers)? 0xffff : beepers;
-                            beepers = beepers & 0xffff;
+                            if (this.targetVersion === "1.0") {
+                                beepers = beepers & 0xffff;
+                            }
                             line += beepers + ' ';
                         }
                         printCoordinate = this.buzzers(i, j) == 0;
