@@ -1,38 +1,39 @@
 import { ErrorType } from "./runtimeErrors"
 import { DumpTypes, World } from "./world";
+import { GetWorldStatus } from "./worldInterface";
 
 const maxSide = 4_000_100;
 /**
  * This class represents a world output
  */
-export class WorldOutput {
-    /**Number of times Karel moved, it is undefined if it does not matter for the output */
-    moveCount?: number
-    /**Number of times Karel turned left, it is undefined if it does not matter for the output */
-    turnLeftCount?: number
-    /**Number of times Karel picked beepers, it is undefined if it does not matter for the output */
-    pickBuzzerCount?: number
-    /**Number of times Karel left beepers, it is undefined if it does not matter for the output */
-    leaveBuzzerCount?: number
-    /**It is set if the output ended on error */
-    error?: ErrorType
-    /**Row at which Karel ended, it is undefined if it does not matter for the output */
-    i?: number
-    /**Column at which Karel ended, it is undefined if it does not matter for the output */
-    j?: number
-    /**Number of beepers that are in the KarelBag, it is undefined if it does not matter for the output */
-    bagBuzzers?: number
-    /**Orientation Karel ended at, it is undefined if it does not matter for the output 
+export class WorldOutput implements GetWorldStatus {
+    /**Number of times Karel moved, it is null if it does not matter for the output */
+    moveCount: number | null
+    /**Number of times Karel turned left, it is null if it does not matter for the output */
+    turnLeftCount: number | null
+    /**Number of times Karel picked beepers, it is null if it does not matter for the output */
+    pickBuzzerCount: number | null
+    /**Number of times Karel left beepers, it is null if it does not matter for the output */
+    leaveBuzzerCount: number | null
+    /**If the output ended correctly it will be null, otherwise the error it ended on */
+    error: ErrorType | null
+    /**Row at which Karel ended, it is null if it does not matter for the output */
+    i: number | null
+    /**Column at which Karel ended, it is null if it does not matter for the output */
+    j: number | null
+    /**Number of beepers that are in the KarelBag, it is null if it does not matter for the output */
+    bagBuzzers: number | null
+    /**Orientation Karel ended at, it is null if it does not matter for the output 
      * - 0 is West
      * - 1 is North
      * - 2 is East
      * - 3 is South
     */
-    orientation?: number
-    private buzzers: Map<number, number>
+    orientation: number | null
+    private _buzzers: Map<number, number>
 
     constructor(world?: World) {
-        this.buzzers = new Map();
+        this._buzzers = new Map();
         this.clear();
         if (world == null) {
             return;
@@ -61,7 +62,7 @@ export class WorldOutput {
                 for (let j =1; j <= world.h; j++) {
                     if (!world.getDumps(DumpTypes.DUMP_ALL_BUZZERS) && !world.getDumpCell(i, j))
                         continue; //This cell does not matter for the output
-                    this.buzzers.set(
+                    this._buzzers.set(
                         this.linearizeCoords(i, j),
                         world.buzzers(i, j)
                     );
@@ -75,23 +76,25 @@ export class WorldOutput {
 
     }
 
+
     /**
      * Remove all data from the world
      */
     clear() {
-        this.moveCount = undefined;
-        this.turnLeftCount = undefined;
-        this.pickBuzzerCount = undefined;
-        this.leaveBuzzerCount = undefined;
-        this.error = undefined;
-        this.i = undefined;
-        this.j = undefined;
+        this.moveCount = null;
+        this.turnLeftCount = null;
+        this.pickBuzzerCount = null;
+        this.leaveBuzzerCount = null;
+        this.error = null;
+        this.i = null;
+        this.j = null;
+        this.bagBuzzers = null;
 
-        this.buzzers.clear();
+        this._buzzers.clear();
     }
 
     registerBuzzer(i: number, j: number, amount: number) {
-        this.buzzers.set(
+        this._buzzers.set(
             this.linearizeCoords(i, j),
             amount
         );
@@ -102,12 +105,25 @@ export class WorldOutput {
      * @param j column
      * @param amount The buzzer registered at the specified coord or null if there's no such buzzer
      */
-    getBuzzer(i: number, j: number, amount: number): number | null {
-        if (this.buzzers.has(this.linearizeCoords(i, j))) {
-            return this.buzzers.get(this.linearizeCoords(i, j));
+    buzzers(i: number, j: number): number | null {
+        if (this._buzzers.has(this.linearizeCoords(i, j))) {
+            return this._buzzers.get(this.linearizeCoords(i, j));
         }
         return null;
     }
+
+    /**
+     * Returns a generator for the buzzers
+     * @returns {Generator<{ i: number; j: number; amount: number }>} Generator {i, j, amount}
+     */
+    *getDumpedBuzzers(): Generator<{ i: number; j: number; amount: number }> {       
+        for (const [coord, amount] of this._buzzers) {
+            let {i, j} = this.getCoordsFromLinearized(coord);
+            yield {i, j, amount};
+        }
+    
+    }
+
     /**
      * Converts a pair of coords into a unique number
      * @param i Row
