@@ -125,6 +125,46 @@ export class WorldOutput implements GetWorldStatus {
     }
 
     /**
+     * Compares this to other WorldStatus. This has priority, meaning that if the other has extra data, then it will still be considered correct
+     * @param other Other WorldStatus to compare it to.
+     */
+    compareToOutput(other:GetWorldStatus) {
+        if (this.moveCount != null && this.moveCount !== other.moveCount) {
+            return false;
+        }
+        if (this.turnLeftCount != null && this.turnLeftCount !== other.turnLeftCount) {
+            return false;
+        }
+        if (this.pickBuzzerCount != null && this.pickBuzzerCount !== other.pickBuzzerCount) {
+            return false;
+        }
+        if (this.leaveBuzzerCount != null && this.leaveBuzzerCount !== other.leaveBuzzerCount) {
+            return false;
+        }
+        if (this.i != null && this.i !== other.i) {
+            return false;
+        }
+        if (this.j != null && this.j !== other.j) {
+            return false;
+        }
+        if (this.orientation != null && this.orientation !== other.orientation) {
+            return false;
+        }
+        if (this.bagBuzzers != null && this.bagBuzzers !== other.bagBuzzers) {
+            return false;
+        }
+        if (this.error != null && this.error !== other.error) {
+            return false;
+        }
+        for (let {i, j, amount} of this.getDumpedBuzzers()) {
+            if (amount !== other.buzzers(i, j)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Converts a pair of coords into a unique number
      * @param i Row
      * @param j Column
