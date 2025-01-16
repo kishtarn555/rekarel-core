@@ -24,8 +24,16 @@ export interface GetWorldStatus {
      * - 3 is South
     */
     get orientation(): number | null
-
+    /**
+     * Returns the buzzers at a coord, or null if no data
+     * @param i row
+     * @param j column
+     */
     buzzers(i: number, j: number) : number | null
     
+    /**
+     * Returns a generator for the buzzers
+     * @returns {Generator<{ i: number; j: number; amount: number }>} Generator {i, j, amount}
+     */
     getDumpedBuzzers(): Generator<{ i: number; j: number; amount: number }>
 }
