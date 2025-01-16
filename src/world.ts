@@ -2,6 +2,8 @@
 
 import { KarelNumbers } from "./constants";
 import { Runtime } from "./runtime";
+import { ErrorType } from "./runtimeErrors";
+import { GetWorldStatus } from "./worldInterface";
 
 /**
  * Dump flags, they change what is emitted to the output of an world
@@ -54,7 +56,7 @@ enum ERROR_MAPPING {
  * Represents a Karel World, it keeps track of both the starting state and the current state
  * Contains information such as beepers, walls, Karel position, etc.
  */
-export class World {
+export class World implements GetWorldStatus {
     /**
      * Width of the world
      * @private
@@ -349,6 +351,41 @@ export class World {
             throw new Error("Cannot modify maxCallSize once the runtime has stepped, consider resetting the runtime");
         }
         this._maxCallSize = value;
+    }
+    
+    /** Number of move executed in the current state
+     * @readonly
+    */
+    get moveCount(): number {
+        return this._runtime.state.moveCount;
+    }
+
+    /** Number of turn left executed in the current state
+     * @readonly
+    */
+    get turnLeftCount(): number {
+        return this._runtime.state.turnLeftCount;
+    }
+
+    /** Number of leave buzzer executed in the current state
+     * @readonly
+    */
+    get leaveBuzzerCount(): number {
+        return this._runtime.state.leaveBuzzerCount;
+    }
+
+    /** Number of pick buzzer executed in the current state
+     * @readonly
+    */
+    get pickBuzzerCount(): number {
+        return this._runtime.state.pickBuzzerCount;
+    }
+    
+    /** If not null, the error the current state ended on
+     * @readonly
+    */
+    get error(): ErrorType | null {
+        return this._runtime.state.error;
     }
 
     /**
