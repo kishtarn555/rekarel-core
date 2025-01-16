@@ -111,6 +111,19 @@ export class WorldOutput implements GetWorldStatus {
         }
         return null;
     }
+
+    /**
+     * Returns a generator for the buzzers
+     * @returns {Generator<{ i: number; j: number; amount: number }>} Generator {i, j, amount}
+     */
+    *getDumpedBuzzers(): Generator<{ i: number; j: number; amount: number }> {       
+        for (const [coord, amount] of this._buzzers) {
+            let {i, j} = this.getCoordsFromLinearized(coord);
+            yield {i, j, amount};
+        }
+    
+    }
+
     /**
      * Converts a pair of coords into a unique number
      * @param i Row

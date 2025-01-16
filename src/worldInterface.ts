@@ -26,4 +26,6 @@ export interface GetWorldStatus {
     get orientation(): number | null
 
     buzzers(i: number, j: number) : number | null
+    
+    getDumpedBuzzers(): Generator<{ i: number; j: number; amount: number }>
 }

@@ -811,6 +811,30 @@ export class World implements GetWorldStatus {
     }
 
     /**
+     * Returns a generator for all buzzers that are considered for the input in an object {i, j, amount}
+     * @returns {Generator<{ i: number; j: number; amount: number }>} Generator {i, j, amount}
+     */
+    *getDumpedBuzzers(): Generator<{ i: number; j: number; amount: number }> {
+        if (this.getDumps(DumpTypes.DUMP_ALL_BUZZERS)) {
+            for (let i = 1; i <= this._h; i++) {
+                for (let j = 1; j <= this._w; j++) {
+                    const amount = this.buzzers(i, j);                
+                    yield { i, j, amount };
+                    
+                }
+            }
+        } else {
+            let i = 0, j = 0, amount = 0;
+            for (const coords of this._dumpCells) {
+                i = Math.floor(coords / (this._w+1));
+                j = (coords % (this._w+1));
+                amount = this.buzzers(i, j);
+                yield {i, j, amount};
+            }
+        }
+    }
+
+    /**
      * Sets or disables a dump flag
      * @param dumpFlag Flag to set
      * @param flagValue True if it dumps, false if not
