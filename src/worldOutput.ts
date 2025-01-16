@@ -58,8 +58,8 @@ export class WorldOutput implements GetWorldStatus {
             this.pickBuzzerCount = world.runtime.state.pickBuzzerCount;
         }
         if (world.getDumps(DumpTypes.DUMP_ALL_BUZZERS) || world.getDumps(DumpTypes.DUMP_WORLD)) {
-            for (let i =1; i <= world.w; i++) {
-                for (let j =1; j <= world.h; j++) {
+            for (let i =1; i <= world.h; i++) {
+                for (let j =1; j <= world.w; j++) {
                     if (!world.getDumps(DumpTypes.DUMP_ALL_BUZZERS) && !world.getDumpCell(i, j))
                         continue; //This cell does not matter for the output
                     this._buzzers.set(
