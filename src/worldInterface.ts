@@ -30,6 +30,11 @@ export interface GetWorldStatus {
      * @param j column
      */
     buzzers(i: number, j: number) : number | null
+
+    /**
+     * Optional, targetVersion
+     */
+    targetVersion?:string
     
     /**
      * Returns a generator for the buzzers

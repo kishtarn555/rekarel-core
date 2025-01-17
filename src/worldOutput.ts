@@ -252,15 +252,45 @@ export class WorldOutput implements GetWorldStatus {
         if (this.orientation != null && this.orientation !== other.orientation) {
             return false;
         }
-        if (this.bagBuzzers != null && this.bagBuzzers !== other.bagBuzzers) {
-            return false;
+        if (this.bagBuzzers != null ) {
+            if (other.bagBuzzers == null) {
+                return false;
+            }
+            if (KarelNumbers.isInfinite(this.bagBuzzers) !== KarelNumbers.isInfinite(other.bagBuzzers)) {
+                return false;
+            }
+            if (!KarelNumbers.isInfinite(this.bagBuzzers) && this.bagBuzzers !== other.bagBuzzers) {
+                return false;
+            }
         }
         if (this.error != null && this.error !== other.error) {
             return false;
         }
+        const exact_match = (other?.targetVersion ?? "1.0") !== "1.0";
+        let otherBuzzers:number| null=null;
         for (let {i, j, amount} of this.getDumpedBuzzers()) {
-            if (amount !== other.buzzers(i, j)) {
+            otherBuzzers = other.buzzers(i, j);
+            if (otherBuzzers == null) {
                 return false;
+            }
+            // Due to legacy format 1.0, 0xFFFF is also infinite some times 
+            if (
+                (KarelNumbers.isInfinite(amount)||amount === 0xFFFF) 
+                !== (KarelNumbers.isInfinite(otherBuzzers)|| otherBuzzers === 0xFFFF)
+            ) {
+                return false;
+            }
+            if (exact_match) {
+                if (!(KarelNumbers.isInfinite(amount) || amount === 0xFFFF)  && amount !== other.buzzers(i, j)) {
+                    return false;
+                }
+            } else {                
+                if (
+                    !(KarelNumbers.isInfinite(amount) || amount === 0xFFFF)  &&
+                    (amount & 0xFFFF) !== (other.buzzers(i, j) & 0xFFFF)
+                ) {
+                    return false;
+                }
             }
         }
         return true;
