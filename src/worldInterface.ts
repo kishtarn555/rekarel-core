@@ -1,4 +1,5 @@
 import { ErrorType } from "./runtimeErrors"
+import type { TargetVersion } from "./world";
 
 export interface GetWorldStatus {
     /**Number of times Karel moved, it is null it has no data of it */
@@ -34,7 +35,7 @@ export interface GetWorldStatus {
     /**
      * Optional, targetVersion
      */
-    targetVersion?:string
+    targetVersion?:TargetVersion
     
     /**
      * Returns a generator for the buzzers
