@@ -34,7 +34,7 @@ type TargetVersion = "1.0" | "1.1";
 /**
  * Maps errors to their output message
  */
-enum ERROR_MAPPING {
+export enum ERROR_MAPPING {
     BAGUNDERFLOW = 'ZUMBADOR INVALIDO MOCHILA',
     BAGOVERFLOW = 'DEMASIADOS ZUMBADORES (MOCHILA)',
     WALL = 'MOVIMIENTO INVALIDO',
