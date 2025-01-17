@@ -29,7 +29,7 @@ type Orientation = 'OESTE' | 'NORTE' | 'ESTE' | 'SUR';
 
 const error_mapping = ['WALL', 'WORLDUNDERFLOW', 'BAGUNDERFLOW', 'INSTRUCTION'];
 
-type TargetVersion = "1.0" | "1.1";
+export type TargetVersion = "1.0" | "1.1";
 
 /**
  * Maps errors to their output message
