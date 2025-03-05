@@ -297,6 +297,21 @@ export class WorldOutput implements GetWorldStatus {
     }
 
     /**
+     * This function takes a world and adds 0 beepers where needed, based on the dumps
+     * @param world World to take eval from
+     */
+    fixZerosFromWorld(world:World) {
+        for (let i =1; i <= world.h; i++) {
+            for (let j = 1; j <= world.w; j++) {
+                if (this.buzzers(i, j) != null) continue;
+                if (!world.getDumps(DumpTypes.DUMP_ALL_BUZZERS) && !world.getDumpCell(i, j))
+                    continue; //This cell does not matter for the output
+                this.registerBuzzer(i, j, 0);
+            }
+        }
+    }
+
+    /**
      * Converts a pair of coords into a unique number
      * @param i Row
      * @param j Column
@@ -312,6 +327,8 @@ export class WorldOutput implements GetWorldStatus {
             j: coord % maxSide
         };
     }
+
+    
 
 
 }
