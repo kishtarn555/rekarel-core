@@ -1,4 +1,6 @@
-import { World } from "../index"
+import { DOMParser } from '@xmldom/xmldom';
+
+import { KarelNumbers, World } from "../index"
 
 
 
@@ -204,4 +206,22 @@ describe("World save", () => {
         world.toggleDumpCell(3,1);
         expect(world.getDumpCell(3,1)).toBe(true);
     });
+
+
+    test("Test world save-load idempotency", ()=> {
+        const world = new World(10, 10);
+        world.setDumpCell(1, 4, true);
+        world.setBuzzers(3, 2, 5);
+        world.setBuzzers(3, 4, KarelNumbers.a_infinite);
+        world.setBagBuzzers(13);
+
+        const firstSave = world.save("start");
+        const firstXML = new DOMParser().parseFromString(firstSave, 'text/xml') as unknown as Document;
+        const world2 = new World(3, 2);
+        world2.load(firstXML);
+        const secondSave = world2.save("current");
+        expect(firstSave).toEqual(secondSave);
+
+
+    })
 });
