@@ -1202,7 +1202,7 @@ export class World implements GetWorldStatus {
             di = Math.floor(dumpCell / (this._w+1));
             dj = dumpCell % (this._w+1);
             result.mundos.mundo.posicionDump.push({
-                '#attributes': { x: di, y: dj },
+                '#attributes': { x: dj, y: di },
             });
         }
 
