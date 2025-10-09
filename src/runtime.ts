@@ -682,6 +682,33 @@ export class Runtime {
         case OpCodeID.COLUMN:
           this._state.stack[++this._state.sp] = this._world.j
           break;
+        case OpCodeID.SUM: {
+          op2 = this._state.stack[this._state.sp--];
+          op1 = this._state.stack[this._state.sp];
+          // TODO: Check overflow
+          if (!KarelNumbers.isInfinite(op1) && !KarelNumbers.isInfinite(op2)) {
+            this._state.stack[this._state.sp] = op1 + op2;
+            this.validateNumber(this._state.stack[this._state.sp]);
+          } else {
+            // TODO: Throw new error
+            this._state.stack[this._state.sp] = KarelNumbers.a_infinite;
+          }
+          break;
+        }
+        case OpCodeID.SUB: {
+          op2 = this._state.stack[this._state.sp--];
+          op1 = this._state.stack[this._state.sp];
+          
+          // TODO: Check overflow
+          if (!KarelNumbers.isInfinite(op1) && !KarelNumbers.isInfinite(op2)) {
+            this._state.stack[this._state.sp] = op1 - op2;
+            this.validateNumber(this._state.stack[this._state.sp]);
+          } else {
+            // TODO: throw new error
+            this._state.stack[this._state.sp] = KarelNumbers.a_infinite;
+          }
+          break;
+        }
 
         default: {
           this._state.running = false;
