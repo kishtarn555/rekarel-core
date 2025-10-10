@@ -49,6 +49,8 @@
 "veces"                                     { return 'TIMES'; }
 "precede"                                   { return 'DEC'; }
 "sucede"                                    { return 'INC'; }
+"resta"                                     { return 'SUBTRACT'; }
+"suma"                                      { return 'ADD'; }
 "si-es-cero"                                { return 'IFZ'; }
 "es-cero"                                   { return 'IFZ'; }
 "es-infinito" 	                            { return 'IFINF'; }
@@ -899,6 +901,20 @@ integer
       };
     }
   | DEC	 '(' int_term ',' int_term ')'
+    { 
+      $$ = {
+        data: `DEC`,
+        code: $3.concat($5).concat([['SUB']])
+      };
+    }
+  | ADD '(' int_term ',' int_term ')'
+    { 
+      $$ = {
+        data: `INC`,
+        code: $3.concat($5).concat([['SUM']])
+      };
+    }
+  | SUBTRACT	 '(' int_term ',' int_term ')'
     { 
       $$ = {
         data: `DEC`,

@@ -25,6 +25,8 @@
 "iterate"                                       { return 'REPEAT'; }
 "pred" 		                                      { return 'DEC'; }
 "succ"          	                              { return 'INC'; }
+"subtract" 		                                  { return 'SUBTRACT'; }
+"add"           	                              { return 'ADD'; }
 "iszero" 	                                      { return 'IFZ'; }
 "isinfinite" 	                                  { return 'IFINF'; }
 "frontIsClear"                                  { return 'IFNFWALL'; }
@@ -881,6 +883,20 @@ integer
       }; 
     }
   | DEC	 '(' int_term ',' int_term ')'
+    { 
+      $$ = {
+        data: `DEC`,
+        code: $3.concat($5).concat([['SUB']])
+      };
+    }
+  | ADD '(' int_term ',' int_term ')'
+    { 
+      $$ = {
+        data: `INC`,
+        code: $3.concat($5).concat([['SUM']])
+      }; 
+    }
+  | SUBTRACT	 '(' int_term ',' int_term ')'
     { 
       $$ = {
         data: `DEC`,
