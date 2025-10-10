@@ -873,18 +873,18 @@ integer
         code: $int_term.concat([['DEC', 1]])
       };
     }
-  | INC '(' int_term ',' int_literal ')'
+  | INC '(' int_term ',' int_term ')'
     { 
       $$ = {
-        data: `INC#${$int_literal}`,
-        code: $int_term.concat([['INC', $int_literal]])
+        data: `INC`,
+        code: $3.concat($5).concat([['SUM']])
       }; 
     }
-  | DEC	 '(' int_term ',' int_literal ')'
+  | DEC	 '(' int_term ',' int_term ')'
     { 
       $$ = {
-        data: `DEC#${$int_literal}`,
-        code: $int_term.concat([['DEC', $int_literal]])
+        data: `DEC`,
+        code: $3.concat($5).concat([['SUB']])
       };
     }
   
