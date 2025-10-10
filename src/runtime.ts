@@ -685,12 +685,10 @@ export class Runtime {
         case OpCodeID.SUM: {
           op2 = this._state.stack[this._state.sp--];
           op1 = this._state.stack[this._state.sp];
-          // TODO: Check overflow
           if (!KarelNumbers.isInfinite(op1) && !KarelNumbers.isInfinite(op2)) {
             this._state.stack[this._state.sp] = op1 + op2;
             this.validateNumber(this._state.stack[this._state.sp]);
           } else {
-            // TODO: Throw new error
             this._state.stack[this._state.sp] = KarelNumbers.a_infinite;
           }
           break;
@@ -698,14 +696,14 @@ export class Runtime {
         case OpCodeID.SUB: {
           op2 = this._state.stack[this._state.sp--];
           op1 = this._state.stack[this._state.sp];
-          
-          // TODO: Check overflow
-          if (!KarelNumbers.isInfinite(op1) && !KarelNumbers.isInfinite(op2)) {
+          if (KarelNumbers.isInfinite(op2)) {            
+            this._state.running = false;            
+            this._state.error = ErrorType.SUBTRACTINFINITE;
+          } else if (KarelNumbers.isInfinite(op1)) {
+            this._state.stack[this._state.sp] = KarelNumbers.a_infinite;
+          } else {
             this._state.stack[this._state.sp] = op1 - op2;
             this.validateNumber(this._state.stack[this._state.sp]);
-          } else {
-            // TODO: throw new error
-            this._state.stack[this._state.sp] = KarelNumbers.a_infinite;
           }
           break;
         }
