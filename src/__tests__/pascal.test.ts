@@ -26,6 +26,7 @@ const sourceFiles = [
     "simpleRow.kp",
     "simpleColumn.kp",
     "caseless.kp",
+    "assign.kp"
 ]
 
 
@@ -250,4 +251,19 @@ test("Test repetir", () => {
     expect(world.buzzers(2, 1)).toBe(0);
     expect(world.buzzers(3, 1)).toBe(0);
     expect(world.bagBuzzers).toBe(15);
+});
+
+
+test("Pascal test assignments", ()=> {
+        const src = fs.readFileSync(__dirname + "/kp/assign.kp").toString();
+        const opcodes = compile(src);
+        expect(opcodes).toBeDefined()
+        const world = new World(25, 25);
+        world.setBagBuzzers(120);
+        runAll(world, opcodes[0]);
+        expect(world.buzzers(1, 1)).toBe(9);
+        expect(world.buzzers(2, 1)).toBe(2);
+        expect(world.buzzers(3, 1)).toBe(2);
+        expect(world.buzzers(4, 1)).toBe(3);
+        expect(world.buzzers(5, 1)).toBe(3);
 });
