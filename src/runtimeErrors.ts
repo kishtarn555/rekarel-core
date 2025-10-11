@@ -17,7 +17,9 @@ export enum ErrorType {
     STACKMEMORY = "STACKMEMORY",
     CALLSIZE = "CALLSIZE",
     INTEGEROVERFLOW = "INTEGEROVERFLOW",
-    INTEGERUNDERFLOW = "INTEGERUNDERFLOW",
+    INTEGERUNDERFLOW = "INTEGERUNDERFLOW",  
+    /** This error is called when the user attempts to subtract and infinite value */  
+    SUBTRACTINFINITE = "SUBTRACTINFINITE",
 }
 
 
@@ -37,6 +39,7 @@ export enum RuntimeErrorCodes {
     INTEGERUNDERFLOW = 23,
     WORLDOVERFLOW = 24,
     BAGOVERFLOW = 25,
+    SUBTRACTINFINITE = 26,
     INSTRUCTION = 48,
     INSTRUCTION_LEFT = 49,
     INSTRUCTION_FORWARD = 50,

@@ -39,7 +39,9 @@ export enum OpCodeID {
   LT,
   LTE,
   COLUMN,
-  ROW
+  ROW,
+  SUM,
+  SUB
 };
 
 /**
@@ -98,7 +100,9 @@ export type OpCode =
   [instruction: "LT"]  |
   [instruction: "LTE"] |
   [instruction: "COLUMN"]  |
-  [instruction: "ROW"] 
+  [instruction: "ROW"] |
+  [instruction: "SUM"] | 
+  [instruction: "SUB"]  
   ;
 
 
