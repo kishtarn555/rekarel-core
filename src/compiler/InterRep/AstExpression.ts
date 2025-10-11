@@ -673,8 +673,8 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
         }
 
         if (instruction[0] === "ASSIGN") {
-            resolveTerm(instruction[2], definitions, scope, target, tags, yy);
-            for (const varTarget of instruction[1]) {
+            resolveTerm(instruction[1].term, definitions, scope, target, tags, yy);
+            for (const varTarget of instruction[1].assignList) {
                 const parameterIdx = scope.parameters.findIndex(e => varTarget.target === e.name);
                 if (parameterIdx === -1) {
                     yy.parser.parseError("Unknown parameter: " + varTarget.target, {
@@ -686,6 +686,7 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
                 }
                 target.push(["STACKSET", scope.parameters.length - parameterIdx -1]);
             }
+            target.push(instruction[1].line);
             target.push(["POP"]); // Remove term value
             continue;
         }

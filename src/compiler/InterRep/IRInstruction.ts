@@ -135,6 +135,12 @@ export type IRConditional = {
     falseCase?: IRInstruction[],
 };
 
+export type IRAssign = {
+    assignList: IRVar[],
+    term: IRTerm
+    line: IRSimpleInstruction,
+}
+
 /**
  * IR tag jumps
  */
@@ -164,7 +170,7 @@ export type IRComplexInstruction =
     IRJumps |
     [instruction: "CONTINUE", loc: YYLoc] | 
     [instruction: "BREAK", loc: YYLoc] |
-    [instruction: "ASSIGN", targets: IRVar[], value: IRTerm]
+    [instruction: "ASSIGN", data: IRAssign]
 ;
 
 /**
