@@ -509,8 +509,14 @@ assign
   : assign_list '=' term
     %{ 
       @$ = mergeLocs(@1, @3);
-      $$ = [['LINE', @1.first_line, @1.first_column]]
-        .concat([['ASSIGN', $assign_list, $term]]);
+      $$ = [[
+        'ASSIGN',
+        {
+          assignList: $assign_list,
+          term: $term,
+          line: locToIR(@1),
+        }
+      ]]
     %}
   ;
 

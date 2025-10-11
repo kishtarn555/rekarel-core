@@ -551,8 +551,14 @@ assign
       @$.first_column = @1.first_column;
       @$.last_line = @2.last_line;
       @$.last_column = @2.last_column;
-      $$ = [['LINE', @1.first_line, @1.first_column]]
-        .concat([['ASSIGN', $assign_list, $term]]);
+      $$ = [[
+        'ASSIGN', 
+        {
+          assignList: $assign_list,
+          term: $term,
+          line: locToIR(@1),
+        }
+      ]];
     %}
   ;
 
