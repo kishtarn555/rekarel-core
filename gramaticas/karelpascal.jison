@@ -576,7 +576,7 @@ assign_list
    $$ = $assign_list.concat([
       {
         target:$var, 
-        loc: @3,
+        loc: @2,
         couldBeFunction: false,
       }
     ]);
