@@ -137,7 +137,7 @@ export type IRConditional = {
 
 export type IRAssign = {
     assignList: IRVar[],
-    term: IRTerm
+    term: IRInstructionTerm,
     line: IRSimpleInstruction,
 }
 

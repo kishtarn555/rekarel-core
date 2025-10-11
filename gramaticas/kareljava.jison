@@ -506,14 +506,14 @@ repeat
   ;
 
 assign
-  : assign_list '=' term
+  : assign_list '=' int_term
     %{ 
       @$ = mergeLocs(@1, @3);
       $$ = [[
         'ASSIGN',
         {
           assignList: $assign_list,
-          term: $term,
+          term: $int_term[0],
           line: locToIR(@1),
         }
       ]]

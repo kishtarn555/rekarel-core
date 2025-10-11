@@ -673,7 +673,7 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
         }
 
         if (instruction[0] === "ASSIGN") {
-            resolveTerm(instruction[1].term, definitions, scope, target, tags, yy);
+            resolveTerm(instruction[1].term[1], definitions, scope, target, tags, yy);
             for (const varTarget of instruction[1].assignList) {
                 const parameterIdx = scope.parameters.findIndex(e => varTarget.target === e.name);
                 if (parameterIdx === -1) {
