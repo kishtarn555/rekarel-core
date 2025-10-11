@@ -1,0 +1,23 @@
+class program {
+    void dummy(a, b) {
+        
+        iterate(a) putbeeper();
+        move();
+
+        iterate(b) putbeeper();
+        move();
+        
+        a = b;        
+        iterate(a) putbeeper();
+        move();
+
+        a = b = succ(b);
+        iterate(a) putbeeper();
+        move();
+        
+        iterate(b) putbeeper();
+    }
+    program() {
+        dummy(9, 2);
+    }
+}

@@ -89,6 +89,7 @@
 ","                                         { return ','; }
 "*"                                         { return '*'; }
 "=="                                        { return '=='; }
+"="                                        { return '='; }
 "<="                                        { return '<='; }
 "<"                                         { return '<'; }
 [0-9]+                                      { return 'NUM'; }
@@ -379,6 +380,8 @@ expr
     { $$ = $loop; }
   | repeat
     { $$ = $repeat; }
+  | assign
+    { $$ = $assign; }
   | BEGIN expr_list END
     { $$ = $expr_list; }
   ;
@@ -539,6 +542,39 @@ repeat
         }
       ]]; 
     %}
+  ;
+
+assign
+  : assign_list term
+    %{ 
+      @$.first_line = @1.first_line;
+      @$.first_column = @1.first_column;
+      @$.last_line = @2.last_line;
+      @$.last_column = @2.last_column;
+      $$ = [['LINE', @1.first_line, @1.first_column]]
+        .concat([['ASSIGN', $assign_list, $term]]);
+    %}
+  ;
+
+assign_list
+  : var '='
+  {
+   $$ = [{
+        target:$var, 
+        loc: @1,
+        couldBeFunction: false,
+      }] 
+  }
+  | assign_list var '='
+  {
+   $$ = $assign_list.concat([
+      {
+        target:$var, 
+        loc: @3,
+        couldBeFunction: false,
+      }
+    ]);
+  }
   ;
 
 term

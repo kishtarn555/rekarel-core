@@ -19,7 +19,8 @@ const sourceFiles = [
     "testInc.kj",
     "testDec.kj",
     "intfunc.kj",
-    "ifReturn.kj"
+    "ifReturn.kj",
+    "assign.kj",
 ]
 
 
@@ -241,4 +242,18 @@ test("Java short circuit", ()=> {
     expect(world.buzzers(6, 1)).toBe(5);
     expect(world.buzzers(7, 1)).toBe(7);
     expect(world.buzzers(8, 1)).toBe(4);
+});
+
+test("Java test assignments", ()=> {
+        const src = fs.readFileSync(__dirname + "/kj/assign.kj").toString();
+        const opcodes = compile(src);
+        expect(opcodes).toBeDefined()
+        const world = new World(25, 25);
+        world.setBagBuzzers(120);
+        runAll(world, opcodes[0]);
+        expect(world.buzzers(1, 1)).toBe(9);
+        expect(world.buzzers(2, 1)).toBe(2);
+        expect(world.buzzers(3, 1)).toBe(2);
+        expect(world.buzzers(4, 1)).toBe(3);
+        expect(world.buzzers(5, 1)).toBe(3);
 });

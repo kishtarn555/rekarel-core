@@ -62,6 +62,7 @@
 "*"                                             { return '*'; }
 ","                                             { return ','; }
 "=="                                            { return '=='; }
+"="                                             { return '='; }
 "<="                                            { return '<='; }
 "<"                                             { return '<'; }
 [0-9]+                                          { return 'NUM'; }
@@ -324,6 +325,8 @@ expr
     { $$ = $loop; }
   | repeat
     { $$ = $repeat; }
+  | assign ';'
+    { $$ = $assign; }
   | block
     { $$ = $block; }
   | ';'
@@ -502,7 +505,35 @@ repeat
     %}
   ;
 
+assign
+  : assign_list '=' term
+    %{ 
+      @$ = mergeLocs(@1, @3);
+      $$ = [['LINE', @1.first_line, @1.first_column]]
+        .concat([['ASSIGN', $assign_list, $term]]);
+    %}
+  ;
 
+assign_list
+  : var 
+  {
+   $$ = [{
+        target:$var, 
+        loc: @1,
+        couldBeFunction: false,
+      }] 
+  }
+  | assign_list '=' var
+  {
+   $$ = $assign_list.concat([
+      {
+        target:$var, 
+        loc: @3,
+        couldBeFunction: false,
+      }
+    ]);
+  }
+  ;
 
 
 term

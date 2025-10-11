@@ -707,6 +707,12 @@ export class Runtime {
           }
           break;
         }
+        case OpCodeID.STACKSET: {
+            this._state.stack[
+              this._state.fp - 1 - this._program[3 * this._state.pc + 1]
+            ] = this._state.stack[this._state.sp];
+          break;
+        }
 
         default: {
           this._state.running = false;

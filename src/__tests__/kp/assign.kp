@@ -1,0 +1,38 @@
+iniciar-programa
+	define dummy (a, b) como
+	inicio
+		repetir a veces
+		inicio
+			deja-zumbador;
+		fin;
+		avanza;
+		repetir b veces
+		inicio
+			deja-zumbador;
+		fin;
+		avanza;
+
+        a = b;
+
+		repetir a veces
+		inicio
+			deja-zumbador;
+		fin;
+		avanza;
+
+        a = b = sucede(b);
+		repetir a veces
+		inicio
+			deja-zumbador;
+		fin;
+		avanza;
+		repetir b veces
+		inicio
+			deja-zumbador;
+		fin;
+	fin;
+
+	inicia-ejecucion
+		dummy(9, 2);
+	termina-ejecucion   
+finalizar-programa

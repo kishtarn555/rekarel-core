@@ -672,6 +672,24 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
             continue;
         }
 
+        if (instruction[0] === "ASSIGN") {
+            resolveTerm(instruction[2], definitions, scope, target, tags, yy);
+            for (const varTarget of instruction[1]) {
+                const parameterIdx = scope.parameters.findIndex(e => varTarget.target === e.name);
+                if (parameterIdx === -1) {
+                    yy.parser.parseError("Unknown parameter: " + varTarget.target, {
+                        error: CompilationError.Errors.UNKNOWN_VARIABLE,
+                        variable: varTarget.target,
+                        line: varTarget.loc.first_line - 1,
+                        loc: varTarget.loc
+                    });
+                }
+                target.push(["STACKSET", scope.parameters.length - parameterIdx -1]);
+            }
+            target.push(["POP"]); // Remove term value
+            continue;
+        }
+
         
 
         target.push(instruction);
