@@ -545,7 +545,7 @@ repeat
   ;
 
 assign
-  : assign_list term
+  : assign_list int_term
     %{ 
       @$.first_line = @1.first_line;
       @$.first_column = @1.first_column;
@@ -555,7 +555,7 @@ assign
         'ASSIGN', 
         {
           assignList: $assign_list,
-          term: $term,
+          term: $int_term[0],
           line: locToIR(@1),
         }
       ]];
