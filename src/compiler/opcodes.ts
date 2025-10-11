@@ -41,7 +41,8 @@ export enum OpCodeID {
   COLUMN,
   ROW,
   SUM,
-  SUB
+  SUB,
+  STACKSET
 };
 
 /**
@@ -102,7 +103,8 @@ export type OpCode =
   [instruction: "COLUMN"]  |
   [instruction: "ROW"] |
   [instruction: "SUM"] | 
-  [instruction: "SUB"]  
+  [instruction: "SUB"]  |
+  [instruction: "STACKSET", offset: number]
   ;
 
 

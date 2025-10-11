@@ -163,7 +163,8 @@ export type IRComplexInstruction =
     [instruction: "IF", data:IRConditional] |
     IRJumps |
     [instruction: "CONTINUE", loc: YYLoc] | 
-    [instruction: "BREAK", loc: YYLoc]
+    [instruction: "BREAK", loc: YYLoc] |
+    [instruction: "ASSIGN", targets: IRVar[], value: IRTerm]
 ;
 
 /**
@@ -207,7 +208,8 @@ export type IRSimpleInstruction =
     [instruction: "COLUMN"]  |
     [instruction: "ROW"] |
     [instruction: "SUM"] | 
-    [instruction: "SUB"]
+    [instruction: "SUB"] |
+    [instruction: "STACKSET", offset: number] 
     ;
 
 
