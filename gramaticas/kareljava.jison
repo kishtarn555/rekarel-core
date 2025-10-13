@@ -614,6 +614,47 @@ term
         totalLoc: @$
       };
     %}
+  | INC '(' term ',' term ')'
+    { 
+      $$ = {
+        left: $3,
+        right: $5,
+        operation: "SUM",
+        dataType: "INT",
+        loc: @1,
+      };
+    }
+  | DEC	 '(' term ',' term ')'
+    { 
+      $$ = {
+        left: $3,
+        right: $5,
+        operation: "SUB",
+        dataType: "INT",
+        loc: @1,
+      };
+    }
+  | ADD '(' term ',' term ')'
+    { 
+      $$ = {
+        left: $3,
+        right: $5,
+        operation: "SUM",
+        dataType: "INT",
+        loc: @1,
+      };
+    }
+  | SUBTRACT	 '(' term ',' term ')'
+    { 
+      $$ = {
+        left: $3,
+        right: $5,
+        operation: "SUB",
+        dataType: "INT",
+        loc: @1,
+      };
+    }
+  
   | '(' term ')'
     { 
       $$ = { 
@@ -912,35 +953,6 @@ integer
         code: $int_term.concat([['DEC', 1]])
       };
     }
-  | INC '(' int_term ',' int_term ')'
-    { 
-      $$ = {
-        data: `INC`,
-        code: $3.concat($5).concat([['SUM']])
-      }; 
-    }
-  | DEC	 '(' int_term ',' int_term ')'
-    { 
-      $$ = {
-        data: `DEC`,
-        code: $3.concat($5).concat([['SUB']])
-      };
-    }
-  | ADD '(' int_term ',' int_term ')'
-    { 
-      $$ = {
-        data: `INC`,
-        code: $3.concat($5).concat([['SUM']])
-      }; 
-    }
-  | SUBTRACT	 '(' int_term ',' int_term ')'
-    { 
-      $$ = {
-        data: `DEC`,
-        code: $3.concat($5).concat([['SUB']])
-      };
-    }
-  
   ;
 
 int_literal

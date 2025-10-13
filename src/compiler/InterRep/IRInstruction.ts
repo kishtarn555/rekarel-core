@@ -57,7 +57,7 @@ export type IRTermAtom = {
  */
 export type IRTerm = 
     {
-        operation: "AND" | "OR" | "EQ" | "LT" | "LTE",
+        operation: "AND" | "OR" | "EQ" | "LT" | "LTE" | "SUM" | "SUB",
         left: IRTerm,
         right: IRTerm,
         dataType: "BOOL",
