@@ -159,6 +159,12 @@ function processTerm(term:IRTerm, data: TranspilerData):string {
     if (term.operation === "LTE") {
         return `${processTerm(term.left, data)} <= ${processTerm(term.right, data)}`;
     }
+    if (term.operation === "SUM") {
+        return `add(${processTerm(term.left, data)}, ${processTerm(term.right, data)})`;
+    }
+    if (term.operation === "SUB") {
+        return `subtract(${processTerm(term.left, data)}, ${processTerm(term.right, data)})`;
+    }
 }
 
 function processIf(conditional: IRConditional, indentation: number, data: TranspilerData):string[] {
