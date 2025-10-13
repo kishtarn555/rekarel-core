@@ -1,4 +1,4 @@
-import { IRCall, IRComplexInstruction, IRConditional, IRFunction, IRInstruction, IRInstructionTerm, IRRepeat, IRTerm, IRTermAtom, IRWhile } from "../compiler/InterRep/IRInstruction";
+import { IRAssign, IRCall, IRComplexInstruction, IRConditional, IRFunction, IRInstruction, IRInstructionTerm, IRRepeat, IRTerm, IRTermAtom, IRWhile } from "../compiler/InterRep/IRInstruction";
 import { IRObject } from "../compiler/InterRep/IRProcessor"
 import { tabs, TranspilerData } from "./transpilerCommon";
 
@@ -158,6 +158,12 @@ function processTerm(term:IRTerm, data: TranspilerData):string {
     if (term.operation === "LTE") {
         return `${processTerm(term.left, data)} <= ${processTerm(term.right, data)}`;
     }
+    if (term.operation === "SUM") {
+        return `suma(${processTerm(term.left, data)}, ${processTerm(term.right, data)})`;
+    }
+    if (term.operation === "SUB") {
+        return `resta(${processTerm(term.left, data)}, ${processTerm(term.right, data)})`;
+    }
 }
 
 function processIf(conditional: IRConditional, indentation: number, data: TranspilerData):string[] {
@@ -198,6 +204,12 @@ function processWhile(conditional: IRWhile, indentation: number, data: Transpile
     result = result.concat(processInstructions(conditional.instructions, indentation+1, data));  
     result.push(`${tabs(indentation)}fin;`);
     return result;
+}
+
+function processAssign(assign: IRAssign, indentation:number, data: TranspilerData):string {
+    const leftSide = assign.assignList.map(par => translateVars(par.target, data)).join(" = ");
+    const value = processTerm(assign.term[1], data);
+    return `${tabs(indentation)}${leftSide} = ${value};`
 }
 
 function processInstructions(instructions: IRInstruction[], indentation:number, transpilerData: TranspilerData): string[] {
@@ -266,6 +278,12 @@ function processInstructions(instructions: IRInstruction[], indentation:number, 
             result = result.concat(
                 processWhile(instruction[1], indentation, transpilerData)
             );            
+            continue;
+        }
+        if (instruction[0]==="ASSIGN") {
+            result.push(
+                processAssign(instruction[1], indentation, transpilerData)
+            );
             continue;
         }
         if (instruction[0]==="CONTINUE") {

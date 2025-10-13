@@ -126,7 +126,7 @@ function resolveTerm(tree: IRTerm, definitions: DefinitionTable, scope:Scope, ta
 
     
 
-    if (tree.operation === "LT" || tree.operation === "LTE") {
+    if (tree.operation === "LT" || tree.operation === "LTE" || tree.operation === "SUM" || tree.operation === "SUB") {
         const leftType = resolveTerm(tree.left, definitions, scope, target, tags, yy);
         const rightType = resolveTerm(tree.right, definitions, scope, target, tags, yy);
         if (leftType !== "INT") {
