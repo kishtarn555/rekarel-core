@@ -1282,6 +1282,51 @@ export class World {
             result.programas.programa.instrucciones['#attributes'].deja_zumbador =
                 this._runtime.state.leaveBuzzerCount;
         }
+        if (this._runtime.snapshots.length !== 0) {
+            result.programas.programa.snapshots = {
+                snapshot: this._runtime.snapshots.map((snapshot, id) => {
+                    const karelAttributes: Record<string, string | number> = {};
+                    const instructionAttributes: Record<string, number> = {};
+
+                    if (this._dumps[DumpTypes.DUMP_POSITION]) {
+                        karelAttributes.x = this.j;
+                        karelAttributes.y = this.i;
+                    }
+                    if (this._dumps[DumpTypes.DUMP_ORIENTATION]) {
+                        karelAttributes.direccion =
+                            ['OESTE', 'NORTE', 'ESTE', 'SUR'][this.orientation];
+                    }
+                    if (this._dumps[DumpTypes.DUMP_BAG]) {
+                        karelAttributes.mochila = KarelNumbers.isInfinite(this.bagBuzzers)
+                            ? 'INFINITO'
+                            : this.bagBuzzers;
+                    }
+                    if (this._dumps[DumpTypes.DUMP_MOVE]) {
+                        instructionAttributes.avanza = snapshot.moveCount;
+                    }
+                    if (this._dumps[DumpTypes.DUMP_LEFT]) {
+                        instructionAttributes.gira_izquierda = snapshot.turnLeftCount;
+                    }
+                    if (this._dumps[DumpTypes.DUMP_PICK_BUZZER]) {
+                        instructionAttributes.coge_zumbador = snapshot.pickBuzzerCount;
+                    }
+                    if (this._dumps[DumpTypes.DUMP_LEAVE_BUZZER]) {
+                        instructionAttributes.deja_zumbador = snapshot.leaveBuzzerCount;
+                    }
+
+                    const snapshotData: Record<string, unknown> = {
+                        '#attributes': { id },
+                    };
+                    if (Object.keys(karelAttributes).length !== 0) {
+                        snapshotData.karel = { '#attributes': karelAttributes };
+                    }
+                    if (Object.keys(instructionAttributes).length !== 0) {
+                        snapshotData.instrucciones = { '#attributes': instructionAttributes };
+                    }
+                    return snapshotData;
+                }),
+            };
+        }
 
         return this.serialize(result, 'resultados', 0);
     }

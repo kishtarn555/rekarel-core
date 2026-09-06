@@ -1,11 +1,14 @@
 {
     "compilerOptions": {
       "outDir": "./built",
+      "rootDir": "./src",
       "allowJs": true,
       "target": "es6",
       "declaration": true,
       "importHelpers": true,
-      "esModuleInterop": true
+      "esModuleInterop": true,
+      "noImplicitAny": false,
+      "strictNullChecks": false
     },
     "include": ["./src/**/*"],
     "exclude": ["node_modules", "build", "dist", "rollup.config.js", "gulpfile.js" ,  "src/**/*.test.ts"]

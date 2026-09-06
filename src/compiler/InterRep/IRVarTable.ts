@@ -16,6 +16,10 @@ export type FunctionData = {
      * The data return type
      */
     returnType: string
+    /**
+     * Instructions for a package function that is expanded at its call site
+     */
+    inlineInstructions?: IRSemiSimpleInstruction[]
 };
 
 /**
@@ -81,6 +85,16 @@ export class DefinitionTable {
             location: 0,
             returnType: func.returnType
         })
+    }
+    // TODO: Make this more generic, and for external functions, for this version keep
+    // as inline
+    registerInlineFunction(name: string, instructions: IRSemiSimpleInstruction[]) {
+        this.functions.set(name, {
+            arguments: [],
+            location: 0,
+            returnType: "VOID",
+            inlineInstructions: instructions
+        });
     }
 
     /**

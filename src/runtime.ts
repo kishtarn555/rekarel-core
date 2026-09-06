@@ -109,6 +109,11 @@ export class Runtime {
   */
   private _state: RuntimeState
   /**
+   * TODO: Fix this
+   * @private
+  */
+  private _snapshots: RuntimeState[]
+  /**
    * Event controller that fires and notifies the listeners of any event
    * @private
    */
@@ -138,6 +143,10 @@ export class Runtime {
   */
   get state () {
     return this._state
+  }
+
+  get snapshots () {
+    return this._snapshots;
   }
   /**
    * Event controller that fires and notifies the listeners of any event
@@ -231,6 +240,7 @@ export class Runtime {
       running: true,
       clean: true
     };
+    this._snapshots = [];
 
     if (this.debug) {
       this._eventController.fireEvent('debug', this, {
@@ -682,6 +692,9 @@ export class Runtime {
         case OpCodeID.COLUMN:
           this._state.stack[++this._state.sp] = this._world.j
           break;
+        case OpCodeID.SNAPSHOT:
+          this._snapshots.push({...this._state})
+          break;
 
         default: {
           this._state.running = false;
@@ -727,7 +740,7 @@ export class Runtime {
           debugType: 'state',
         });
       }
-    } catch (e) {
+    } catch (e: any)  {
       this._state.running = false;
       console.error(e);
       console.log(e.stack);

@@ -39,7 +39,8 @@ export enum OpCodeID {
   LT,
   LTE,
   COLUMN,
-  ROW
+  ROW,
+  SNAPSHOT
 };
 
 /**
@@ -54,7 +55,7 @@ export type OpCodeLiteral = keyof typeof OpCodeID
  */
 export function getOpCodeID(literal: string): number {
   if (literal in OpCodeID) {
-    return OpCodeID[literal];
+    return OpCodeID[literal as OpCodeLiteral];
   }
   return -1;
 }
@@ -98,7 +99,8 @@ export type OpCode =
   [instruction: "LT"]  |
   [instruction: "LTE"] |
   [instruction: "COLUMN"]  |
-  [instruction: "ROW"] 
+  [instruction: "ROW"] |
+  [instruction: "SNAPSHOT" ]
   ;
 
 

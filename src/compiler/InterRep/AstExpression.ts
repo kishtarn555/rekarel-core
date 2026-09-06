@@ -219,7 +219,7 @@ function resolveVar(data: IRVar, definitions: DefinitionTable, scope:Scope, targ
     }
 
     if (definitions.hasVar(data.target)) {
-        const IRs = definitions.getVar(data.target).instructions;
+        const IRs = definitions.getVar(data.target)!.instructions;
         for (const instruction of IRs) {
             target.push(instruction);
         }
@@ -283,6 +283,28 @@ function resolveCall(data: IRCall, definitions: DefinitionTable, scope:Scope, ta
         });
         return null;
     }
+    const funcData = definitions.getFunction(data.target);
+    if (funcData.inlineInstructions) {
+        if (data.params.length !==0) {
+            yy.parser.parseError(
+                `Too many parameters in call to function ${data.target}, expected ${0}, got ${data.params.length}`, 
+                {
+                    error: CompilationError.Errors.TOO_MANY_PARAMS_IN_CALL,
+                    line: data.nameLoc.first_line - 1,
+                    loc: data.nameLoc,
+                    functionName: data.target,
+                    expectedParams: 0,
+                    actualParams: data.params.length
+                }
+            );
+            return;
+        }
+        for (const instruction of funcData.inlineInstructions) {
+            target.push(instruction);
+        }
+        return;
+    }
+
 
     target.push(["CALL", data]);
     target.push(
@@ -655,7 +677,7 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
                     line: instruction[1].first_line - 1
                 })
             }
-            target.push(["TJMP", scope.continueTarget]);
+            target.push(["TJMP", scope.continueTarget!]);
             continue;
         }
               
@@ -667,7 +689,7 @@ export function resolveListWithASTs(IRInstructions: IRInstruction[], definitions
                     line: instruction[1].first_line - 1
                 })
             }
-            target.push(["TJMP", scope.breakTarget]);
+            target.push(["TJMP", scope.breakTarget!]);
             
             continue;
         }

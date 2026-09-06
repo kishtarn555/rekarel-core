@@ -126,8 +126,8 @@ function validateAndGetFunctionDefinitions(data: IRObject, definitionTable: Defi
                 }
             );
         }
-        const proto = prototypes.get(func.name);
-        if (proto.defined) {
+        const proto = prototypes.get(func.name)!;
+        if (proto.defined || definitionTable.hasFunction(func.name)) {
             yy.parser.parseError("Function redefinition: " + func.name, {
                 error: CompilationError.Errors.FUNCTION_REDEFINITION,
                 functionName: func.name,
@@ -273,6 +273,9 @@ function loadPackages(data: IRObject, definitions: DefinitionTable) {
                 }
             )
         }
+        for (let [funcName, funcVal] of packObject.functions) {
+            definitions.registerInlineFunction(funcName, funcVal);
+        }
     }
 
 
@@ -299,8 +302,8 @@ function resolveComplexIR(IRInstructions: IRInstruction[], yy: YY, definitions: 
     if (scope.expectedReturn !== "VOID" && !info.explicitReturn) {
         yy.parser.parseError(`Explicit return is required in function ${func!.name}`, {
             error: CompilationError.Errors.NO_EXPLICIT_RETURN,
-            loc: func.loc,
-            line: func.loc.first_line - 1,
+            loc: func!.loc,
+            line: func!.loc.first_line - 1,
             functionName: func!.name,
             returnType: scope.expectedReturn,
         } );

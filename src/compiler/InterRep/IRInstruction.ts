@@ -205,7 +205,8 @@ export type IRSimpleInstruction =
     [instruction: "LT"]  |
     [instruction: "LTE"] |
     [instruction: "COLUMN"]  |
-    [instruction: "ROW"] 
+    [instruction: "ROW"] |
+    [instruction: "SNAPSHOT"]
     ;
 
 

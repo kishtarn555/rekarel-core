@@ -10,7 +10,8 @@ javaBooleans.set("false", [["LOAD", 0]]);
 
 export const rekarelGlobalsJava: CompilerPackage = {
     booleanVariables: javaBooleans,
-    numberVariables: javaNumbers
+    numberVariables: javaNumbers,
+    functions: new Map(), //No new functions
 };
 
 
@@ -25,5 +26,6 @@ pascalBooleans.set("falso", [["LOAD", 0]]);
 
 export const rekarelGlobalsPascal: CompilerPackage = {
     booleanVariables: pascalBooleans,
-    numberVariables: pascalNumbers
+    numberVariables: pascalNumbers,
+    functions:new Map(), //No new functions
 };
