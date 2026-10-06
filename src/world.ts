@@ -1289,17 +1289,17 @@ export class World {
                     const instructionAttributes: Record<string, number> = {};
 
                     if (this._dumps[DumpTypes.DUMP_POSITION]) {
-                        karelAttributes.x = this.j;
-                        karelAttributes.y = this.i;
+                        karelAttributes.x = snapshot.karelPosition.j;
+                        karelAttributes.y = snapshot.karelPosition.i;
                     }
                     if (this._dumps[DumpTypes.DUMP_ORIENTATION]) {
                         karelAttributes.direccion =
-                            ['OESTE', 'NORTE', 'ESTE', 'SUR'][this.orientation];
+                            ['OESTE', 'NORTE', 'ESTE', 'SUR'][snapshot.karelOrientation];
                     }
                     if (this._dumps[DumpTypes.DUMP_BAG]) {
-                        karelAttributes.mochila = KarelNumbers.isInfinite(this.bagBuzzers)
+                        karelAttributes.mochila = KarelNumbers.isInfinite(snapshot.karelBag)
                             ? 'INFINITO'
-                            : this.bagBuzzers;
+                            : snapshot.karelBag;
                     }
                     if (this._dumps[DumpTypes.DUMP_MOVE]) {
                         instructionAttributes.avanza = snapshot.moveCount;
@@ -1405,4 +1405,3 @@ export class World {
 
 
 }
-

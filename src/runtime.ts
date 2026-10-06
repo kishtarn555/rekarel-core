@@ -64,6 +64,13 @@ type RuntimeState = {
   errorData?:ErrorData
 };
 
+/** Runtime state extended with Karel's current world state. */
+type ExtendedRuntimeState = RuntimeState & {
+  karelPosition: { i: number; j: number }
+  karelBag: number
+  karelOrientation: number
+}
+
 
 
 /**
@@ -112,7 +119,7 @@ export class Runtime {
    * TODO: Fix this
    * @private
   */
-  private _snapshots: RuntimeState[]
+  private _snapshots: ExtendedRuntimeState[]
   /**
    * Event controller that fires and notifies the listeners of any event
    * @private
@@ -693,7 +700,12 @@ export class Runtime {
           this._state.stack[++this._state.sp] = this._world.j
           break;
         case OpCodeID.SNAPSHOT:
-          this._snapshots.push({...this._state})
+          this._snapshots.push({
+            ...this._state,
+            karelPosition: { i: this._world.i, j: this._world.j },
+            karelBag: this._world.bagBuzzers,
+            karelOrientation: this._world.orientation,
+          });
           break;
 
         default: {
